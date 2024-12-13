@@ -1,0 +1,38 @@
+{
+  "canisters": {
+    "ic-fortune-wheel-backend": {
+      "candid": "src/ic-fortune-wheel-backend/ic-fortune-wheel-backend.did",
+      "package": "ic-fortune-wheel-backend",
+      "type": "rust"
+    },
+    "ic-fortune-wheel-frontend": {
+      "dependencies": [
+        "ic-fortune-wheel-backend"
+      ],
+      "source": [
+        "src/ic-fortune-wheel-frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "ic-fortune-wheel-frontend"
+    },
+    "internet_identity": {
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "frontend": {},
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

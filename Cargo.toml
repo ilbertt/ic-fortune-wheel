@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/ic-fortune-wheel-backend"
+]
+resolver = "2"
