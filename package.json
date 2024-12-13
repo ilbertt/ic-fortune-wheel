@@ -1,18 +1,21 @@
 {
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=7.0.0"
+    "node": "^20",
+    "pnpm": "^9",
+    "npm": "please use pnpm"
   },
   "name": "ic-fortune-wheel",
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "prebuild": "npm run prebuild --workspaces --if-present",
-    "pretest": "npm run prebuild --workspaces --if-present",
-    "start": "npm start --workspaces --if-present",
-    "test": "npm test --workspaces --if-present"
+    "build": "pnpm -r run build",
+    "prebuild": "pnpm -r run prebuild",
+    "start": "pnpm -r run start",
+    "format": "prettier --write . && cargo fmt",
+    "format:check": "prettier --check . && cargo fmt --check",
+    "lint": "pnpm -r run lint && cargo cargo clippy --all-targets --all-features --workspace -- -Dwarnings",
+    "prepare": "husky"
   },
-  "type": "module",
-  "workspaces": [
-    "src/ic-fortune-wheel-frontend"
-  ]
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "prettier": "^3.4.2"
+  }
 }
