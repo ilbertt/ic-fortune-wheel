@@ -3,13 +3,17 @@
     "backend": {
       "candid": "src/backend/backend.did",
       "package": "backend",
-      "type": "rust"
+      "type": "rust",
+      "declarations": {
+        "bindings": ["js", "ts", "did"],
+        "output": "./src/declarations/backend"
+      }
     },
     "frontend": {
       "dependencies": ["backend"],
       "source": ["src/frontend/dist"],
       "type": "assets",
-      "workspace": "frontend"
+      "build": ["pnpm build"]
     },
     "internet_identity": {
       "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",

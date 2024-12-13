@@ -11,7 +11,7 @@
     "start": "pnpm -r run start",
     "format": "prettier --write . && cargo fmt",
     "format:check": "prettier --check . && cargo fmt --check",
-    "lint": "pnpm -r run lint && cargo cargo clippy --all-targets --all-features --workspace -- -Dwarnings",
+    "lint": "pnpm -r run lint && cargo clippy --all-targets --all-features --workspace -- -Dwarnings",
     "prepare": "husky"
   },
   "devDependencies": {

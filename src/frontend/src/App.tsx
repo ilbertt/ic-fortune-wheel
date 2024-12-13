@@ -1,34 +1,31 @@
 import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import './App.css';
+import { backend } from './declarations/backend';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [greeting, setGreeting] = useState('');
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = event => {
+    event.preventDefault();
+    // @ts-expect-error types are wrong for DOM elements
+    const name = (event.target as HTMLFormElement).elements.name.value;
+    backend.greet(name).then(greeting => {
+      setGreeting(greeting);
+    });
+    return false;
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount(count => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <main>
+      <img src="/logo2.svg" alt="DFINITY logo" />
+      <br />
+      <br />
+      <form action="#" onSubmit={handleSubmit}>
+        <label htmlFor="name">Enter your name: &nbsp;</label>
+        <input id="name" alt="Name" type="text" />
+        <button type="submit">Click Me!</button>
+      </form>
+      <section id="greeting">{greeting}</section>
+    </main>
   );
 }
 
