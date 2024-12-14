@@ -1,13 +1,8 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
-import { ESLint } from 'eslint';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
+// declare compat as suggested in https://github.com/vercel/next.js/issues/64114#issuecomment-2440625243
 const compat = new FlatCompat({
-  baseDirectory: __dirname,
+  baseDirectory: import.meta.dirname,
 });
 
 /** @type {import('eslint').Linter.Config} */
