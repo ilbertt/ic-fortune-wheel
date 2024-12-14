@@ -8,24 +8,27 @@ body {
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --infinite: 259 100% 36%;
+    --dark-infinite: 259 100% 18%;
+
+    --background: 240 10% 3.9%; /* zinc-950 */
+    --foreground: 0 0% 98%; /* zinc-50 */
+    --card: 240 10% 3.9%; /* zinc-950 */
+    --card-foreground: 0 0% 98%; /* zinc-50 */
+    --popover: 240 10% 3.9%; /* zinc-950 */
+    --popover-foreground: 0 0% 98%; /* zinc-50 */
+    --primary: 0 0% 98%; /* zinc-50 */
+    --primary-foreground: 240, 6%, 10%; /* zinc-900 */
+    --secondary: var(--infinite);
+    --secondary-foreground: 0 0% 98%; /* zinc-50 */
+    --muted: 240 4% 16%; /* zinc-800 */
+    --muted-foreground: 240 5% 65%; /* zinc-400 */
+    --accent: 240 4% 16%; /* zinc-800 */
+    --accent-foreground: 0 0% 98%; /* zinc-50 */
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --destructive-foreground: 0 0% 98%; /* zinc-50 */
+    --border: 240 4% 16%; /* zinc-800 */
+    --input: 240 4% 16%; /* zinc-800 */
     --ring: 240 4.9% 83.9%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;

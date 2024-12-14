@@ -2,10 +2,8 @@
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useState } from 'react';
-import { Code2, Loader2 } from 'lucide-react';
+import { Infinity, LoaderPinwheel } from 'lucide-react';
 
 type AuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 
@@ -22,26 +20,14 @@ export function AuthForm({ className, ...props }: AuthFormProps) {
   }
 
   return (
-    <div className={cn('grid gap-6', className)} {...props}>
+    <div
+      className={cn('grid w-full gap-6 px-10 sm:w-[350px] md:p-0', className)}
+      {...props}
+    >
       <form onSubmit={onSubmit}>
         <div className="grid gap-2">
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
-            <Input
-              id="email"
-              placeholder="name@example.com"
-              type="email"
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect="off"
-              disabled={isLoading}
-            />
-          </div>
-          <Button disabled={isLoading}>
-            {isLoading && <Loader2 className="animate-spin" />}
-            Sign In with Email
+          <Button loading={isLoading}>
+            <Infinity /> Sign In with Internet Identity
           </Button>
         </div>
       </form>
@@ -50,18 +36,14 @@ export function AuthForm({ className, ...props }: AuthFormProps) {
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
+          <span className="bg-background text-muted-foreground px-2">
+            Or go to the
           </span>
         </div>
       </div>
-      <Button variant="outline" type="button" disabled={isLoading}>
-        {isLoading ? (
-          <Loader2 className="animate-spin" />
-        ) : (
-          <Code2 className="mr-2 h-4 w-4" />
-        )}{' '}
-        GitHub
+      <Button variant="secondary" type="button" loading={isLoading}>
+        <LoaderPinwheel />
+        Fortune Wheel
       </Button>
     </div>
   );

@@ -50,6 +50,8 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        infinite: 'hsl(var(--infinite))',
+        'dark-infinite': 'hsl(var(--dark-infinite))',
       },
       borderRadius: {
         lg: 'var(--radius)',
