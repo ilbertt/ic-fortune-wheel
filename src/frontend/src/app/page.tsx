@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { backend } from '@/declarations/backend';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 console.log(process.env.NEXT_PUBLIC_VERSION, process.env.NEXT_PUBLIC_IC_HOST);
 
@@ -26,8 +28,8 @@ export default function Home() {
       <br />
       <form action="#" onSubmit={handleSubmit}>
         <label htmlFor="name">Enter your name: &nbsp;</label>
-        <input id="name" alt="Name" type="text" />
-        <button type="submit">Click Me!</button>
+        <Input id="name" alt="Name" type="text" />
+        <Button type="submit">Click Me!</Button>
       </form>
       <section id="greeting">{greeting}</section>
     </main>
