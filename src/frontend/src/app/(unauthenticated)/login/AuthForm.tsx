@@ -2,35 +2,32 @@
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Infinity, LoaderPinwheel } from 'lucide-react';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
+import { ROUTES } from '@/lib/routes';
 
 type AuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 
 export function AuthForm({ className, ...props }: AuthFormProps) {
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault();
+  const handleLogin = useCallback(async () => {
     setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-  }
+    await login();
+    setIsLoading(false);
+  }, [login]);
 
   return (
     <div
       className={cn('grid w-full gap-6 px-10 sm:w-[350px] md:p-0', className)}
       {...props}
     >
-      <form onSubmit={onSubmit}>
-        <div className="grid gap-2">
-          <Button loading={isLoading}>
-            <Infinity /> Sign In with Internet Identity
-          </Button>
-        </div>
-      </form>
+      <Button loading={isLoading} onClick={handleLogin}>
+        <Infinity /> Sign In with Internet Identity
+      </Button>
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />
@@ -41,9 +38,11 @@ export function AuthForm({ className, ...props }: AuthFormProps) {
           </span>
         </div>
       </div>
-      <Button variant="secondary" type="button" loading={isLoading}>
-        <LoaderPinwheel />
-        Fortune Wheel
+      <Button variant="secondary" type="button" loading={isLoading} asChild>
+        <Link href={ROUTES.fortuneWheel}>
+          <LoaderPinwheel />
+          Fortune Wheel
+        </Link>
       </Button>
     </div>
   );
