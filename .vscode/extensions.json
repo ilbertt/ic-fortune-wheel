@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dfinity-foundation.vscode-motoko",
+    "rust-lang.rust-analyzer",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "editorconfig.editorconfig"
+  ]
+}

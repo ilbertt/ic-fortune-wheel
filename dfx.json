@@ -11,7 +11,7 @@
     },
     "frontend": {
       "dependencies": ["backend"],
-      "source": ["src/frontend/dist"],
+      "source": ["src/frontend/out"],
       "type": "assets",
       "build": ["pnpm build"]
     },

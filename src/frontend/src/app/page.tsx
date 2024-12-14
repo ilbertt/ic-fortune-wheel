@@ -1,7 +1,12 @@
-import { useState } from 'react';
-import { backend } from './declarations/backend';
+'use client';
 
-function App() {
+import { useState } from 'react';
+import { backend } from '@/declarations/backend';
+import Image from 'next/image';
+
+console.log(process.env.NEXT_PUBLIC_VERSION, process.env.NEXT_PUBLIC_IC_HOST);
+
+export default function Home() {
   const [greeting, setGreeting] = useState('');
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = event => {
@@ -16,7 +21,7 @@ function App() {
 
   return (
     <main>
-      <img src="/logo2.svg" alt="DFINITY logo" />
+      <Image src="/logo2.svg" width={684} height={147} alt="DFINITY logo" />
       <br />
       <br />
       <form action="#" onSubmit={handleSubmit}>
@@ -28,5 +33,3 @@ function App() {
     </main>
   );
 }
-
-export default App;
