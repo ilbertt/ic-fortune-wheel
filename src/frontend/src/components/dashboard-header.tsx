@@ -154,7 +154,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         />
       </div>
       <div className="flex flex-row items-center justify-end gap-6">
-        <Button variant="secondary">
+        <Button variant="outline">
           <ScanLine /> Scanner
         </Button>
         <UserNav />
