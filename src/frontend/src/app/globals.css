@@ -10,6 +10,7 @@ body {
   :root {
     --infinite: 259 100% 36%;
     --dark-infinite: 259 100% 18%;
+    --indaco-blue: 228 83% 68%;
 
     --background: 240 10% 3.9%; /* zinc-950 */
     --foreground: 0 0% 98%; /* zinc-50 */

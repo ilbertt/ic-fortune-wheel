@@ -52,6 +52,7 @@ export default {
         },
         infinite: 'hsl(var(--infinite))',
         'dark-infinite': 'hsl(var(--dark-infinite))',
+        'indaco-blue': 'hsl(var(--indaco-blue))',
       },
       borderRadius: {
         lg: 'var(--radius)',

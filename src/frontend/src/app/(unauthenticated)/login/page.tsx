@@ -1,12 +1,11 @@
-import { LoaderPinwheel } from 'lucide-react';
 import { AuthForm } from './AuthForm';
+import { Logo } from '@/components/logo';
 
 export default function AuthenticationPage() {
   return (
     <div className="container relative flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="left-0 top-0 z-20 flex w-screen items-center justify-center gap-2 p-5 text-lg font-medium md:absolute md:justify-start md:p-10">
-        <LoaderPinwheel className="size-6" />
-        Fortune Wheel
+      <div className="left-0 top-0 z-20 flex w-screen items-center justify-center p-5 md:absolute md:justify-start md:p-10">
+        <Logo />
       </div>
       <div className="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r">
         <div className="bg-dark-infinite absolute inset-0" />

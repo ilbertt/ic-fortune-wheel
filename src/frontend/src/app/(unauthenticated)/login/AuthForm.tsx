@@ -17,7 +17,7 @@ export function AuthForm({ className, ...props }: AuthFormProps) {
   const handleLogin = useCallback(async () => {
     setIsLoading(true);
     await login();
-    setIsLoading(false);
+    window.location.reload();
   }, [login]);
 
   return (

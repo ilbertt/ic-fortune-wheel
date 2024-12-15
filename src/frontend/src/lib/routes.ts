@@ -7,7 +7,12 @@ type RouteType =
 interface Routes extends Record<string, RouteType> {}
 
 export const ROUTES = {
-  dashboard: '/',
+  dashboard: {
+    ROOT: '/admin',
+    assets: '/admin/assets',
+    team: '/admin/team',
+    design: '/admin/design',
+  },
   login: '/login',
   fortuneWheel: '/fw',
 } satisfies Routes;
