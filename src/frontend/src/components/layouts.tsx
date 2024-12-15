@@ -11,9 +11,7 @@ export const PageLayout: React.FC<MainLayoutProps> = ({
       className={cn(
         'grid gap-4',
         "[grid-template-areas:'header_header_header_header''subheader_subheader_subheader_subheader''content_content_content_content']",
-        // "has-[.page-subheader]:[grid-template-areas:'header_header_header_header''subheader_subheader_subheader''content_content_content_content']",
         "md:[grid-template-areas:'header_header_header_header_header_header_header_header_header_header_header_header''subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader''content_content_content_content_content_content_content_content_content_content_content_content']",
-        // "has-[.page-subheader]:md:[grid-template-areas:'header_header_header_header_header_header_header_header_header_header_header_header''subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader''content_content_content_content_content_content_content_content_content_content_content_content']",
         'p-8 pt-6',
         className,
       )}
