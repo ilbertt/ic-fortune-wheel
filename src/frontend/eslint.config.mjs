@@ -7,7 +7,12 @@ const compat = new FlatCompat({
 
 /** @type {import('eslint').Linter.Config} */
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...compat.config({
+    extends: ['next/core-web-vitals', 'next/typescript'],
+    rules: {
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+    },
+  }),
   {
     ignores: ['src/declarations'],
   },
