@@ -3,19 +3,18 @@ type Err = record {
   message : text;
 };
 
+type UserProfile = record {
+  id : text;
+  username : text;
+};
+
 type GetMyUserProfileResponse = variant {
-  ok : record {
-    id : text;
-    username : text;
-  };
+  ok : UserProfile;
   err : Err;
 };
 
 type CreateMyUserProfileResponse = variant {
-  ok : record {
-    id : text;
-    username : text;
-  };
+  ok : UserProfile;
   err : Err;
 };
 

@@ -1,9 +1,10 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { cn, renderError } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import {
   LayoutDashboard,
+  Loader2,
   LogOut,
   PenLine,
   ScanLine,
@@ -27,10 +28,33 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/auth-context';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { GithubIcon } from '@/components/icons';
 import { CopyToClipboardButton } from './copy-to-clipboard-button';
 import { GITHUB_REPO_URL } from '@/constants';
+import { useUser } from '@/contexts/user-context';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
 
 type HeaderLinkProps = {
   title: string;
@@ -58,8 +82,94 @@ const HeaderLink: React.FC<HeaderLinkProps> = ({ title, href, icon: Icon }) => {
   );
 };
 
+const editUserFormSchema = z.object({
+  username: z.string().min(1),
+});
+
+const EditUserDialog = () => {
+  const { actor } = useAuth();
+  const { user, fetchUser } = useUser();
+  const form = useForm<z.infer<typeof editUserFormSchema>>({
+    resolver: zodResolver(editUserFormSchema),
+    mode: 'onChange',
+    defaultValues: {
+      username: user?.username || '',
+    },
+  });
+  const { isValid: isFormValid, isSubmitting: isFormSubmitting } =
+    form.formState;
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+
+  const onSubmit = async (data: z.infer<typeof editUserFormSchema>) => {
+    await actor
+      .update_my_user_profile({
+        username: [data.username],
+      })
+      .then(async res => {
+        if ('ok' in res) {
+          await fetchUser();
+          setOpen(false);
+        } else {
+          toast({
+            title: 'Error updating user',
+            description: renderError(res.err),
+            variant: 'destructive',
+          });
+        }
+      });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="icon" variant="ghost" className="text-indaco-blue size-6">
+          <PenLine />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Edit profile</DialogTitle>
+          <DialogDescription>
+            Make changes to your profile here. Click save when you&apos;re done.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid gap-4 py-4">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Your Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="submit"
+                loading={isFormSubmitting}
+                disabled={!isFormValid}
+              >
+                Save changes
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const UserNav = () => {
   const { logout, identity } = useAuth();
+  const { user } = useUser();
 
   const handleLogout = useCallback(() => {
     logout();
@@ -72,10 +182,11 @@ const UserNav = () => {
         <Button
           variant="ghost"
           className="bg-infinite relative h-8 w-8 rounded-full"
+          disabled={!user}
         >
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-infinite">
-              <User />
+              {Boolean(user) ? <User /> : <Loader2 className="animate-spin" />}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -84,14 +195,8 @@ const UserNav = () => {
         <DropdownMenuLabel className="flex items-center gap-1 text-sm font-semibold">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-1 text-sm font-semibold">
-              Bob
-              <Button
-                size="icon"
-                variant="ghost"
-                className="text-indaco-blue size-6"
-              >
-                <PenLine />
-              </Button>
+              {user?.username}
+              <EditUserDialog />
             </div>
             <div className="flex flex-row flex-wrap items-center gap-1">
               <p className="text-muted-foreground text-xs leading-none">
