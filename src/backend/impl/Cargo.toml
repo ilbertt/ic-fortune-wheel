@@ -14,6 +14,7 @@ backend_macros = { path = "../macros" }
 
 candid.workspace = true
 ic-cdk.workspace = true
+ic-cdk-timers = "0.11"
 ic-stable-structures = "0.6"
 
 serde.workspace = true
