@@ -24,6 +24,8 @@ pub trait UserProfileRepository {
         user_id: UserId,
         user_profile: UserProfile,
     ) -> Result<(), ApiError>;
+
+    fn list_users(&self) -> Vec<(UserId, UserProfile)>;
 }
 
 pub struct UserProfileRepositoryImpl {}
@@ -76,6 +78,10 @@ impl UserProfileRepository for UserProfileRepositoryImpl {
 
             Ok(())
         })
+    }
+
+    fn list_users(&self) -> Vec<(UserId, UserProfile)> {
+        STATE.with_borrow(|s| s.profiles.iter().collect())
     }
 }
 

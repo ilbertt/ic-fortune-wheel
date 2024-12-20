@@ -45,9 +45,15 @@ type UpdateUserProfileResponse = variant {
   err : Err;
 };
 
+type ListUsersResponse = variant {
+  ok : vec UserProfile;
+  err : Err;
+};
+
 service : {
   get_my_user_profile : () -> (GetMyUserProfileResponse) query;
   create_my_user_profile : () -> (CreateMyUserProfileResponse);
   update_my_user_profile : (UpdateMyUserProfileRequest) -> (UpdateMyUserProfileResponse);
   update_user_profile: (UpdateUserProfileRequest) -> (UpdateMyUserProfileResponse);
+  list_users: () -> (ListUsersResponse) query;
 }

@@ -11,18 +11,15 @@ pub enum UserRole {
 }
 
 #[derive(Debug, Clone, CandidType, PartialEq, Eq)]
-pub struct GetMyUserProfileResponse {
+pub struct UserProfile {
     pub id: String,
     pub username: String,
     pub role: UserRole,
 }
 
-#[derive(Debug, Clone, CandidType, PartialEq, Eq)]
-pub struct CreateMyUserProfileResponse {
-    pub id: String,
-    pub username: String,
-    pub role: UserRole,
-}
+pub type GetMyUserProfileResponse = UserProfile;
+
+pub type CreateMyUserProfileResponse = UserProfile;
 
 #[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
 pub struct UpdateMyUserProfileRequest {
@@ -35,3 +32,5 @@ pub struct UpdateUserProfileRequest {
     pub username: Option<String>,
     pub role: Option<UserRole>,
 }
+
+pub type ListUsersResponse = Vec<UserProfile>;

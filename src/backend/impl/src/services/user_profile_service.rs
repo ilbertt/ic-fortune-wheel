@@ -1,11 +1,11 @@
 use backend_api::{
-    ApiError, CreateMyUserProfileResponse, GetMyUserProfileResponse, UpdateMyUserProfileRequest,
-    UpdateUserProfileRequest,
+    ApiError, CreateMyUserProfileResponse, GetMyUserProfileResponse, ListUsersResponse,
+    UpdateMyUserProfileRequest, UpdateUserProfileRequest,
 };
 use candid::Principal;
 
 use crate::{
-    mappings::{map_create_my_user_profile_response, map_get_my_user_profile_response},
+    mappings::map_user_profile,
     repositories::{UserId, UserProfile, UserProfileRepository, UserProfileRepositoryImpl},
 };
 
@@ -28,6 +28,8 @@ pub trait UserProfileService {
     ) -> Result<(), ApiError>;
 
     fn update_user_profile(&self, request: UpdateUserProfileRequest) -> Result<(), ApiError>;
+
+    fn list_users(&self) -> Result<ListUsersResponse, ApiError>;
 }
 
 pub struct UserProfileServiceImpl<T: UserProfileRepository> {
@@ -55,7 +57,7 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
                 ))
             })?;
 
-        Ok(map_get_my_user_profile_response(id, profile))
+        Ok(map_user_profile(id, profile))
     }
 
     async fn create_my_user_profile(
@@ -79,7 +81,7 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
             .create_user_profile(calling_principal, profile.clone())
             .await?;
 
-        Ok(map_create_my_user_profile_response(id, profile))
+        Ok(map_user_profile(id, profile))
     }
 
     fn update_my_user_profile(
@@ -140,6 +142,15 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
             .update_user_profile(user_id, current_user_profile)?;
 
         Ok(())
+    }
+
+    fn list_users(&self) -> Result<ListUsersResponse, ApiError> {
+        let users = self.user_profile_repository.list_users();
+
+        Ok(users
+            .into_iter()
+            .map(|(id, profile)| map_user_profile(id, profile))
+            .collect())
     }
 }
 

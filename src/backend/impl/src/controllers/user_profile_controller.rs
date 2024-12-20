@@ -1,5 +1,5 @@
 use backend_api::{
-    ApiError, ApiResult, CreateMyUserProfileResponse, GetMyUserProfileResponse,
+    ApiError, ApiResult, CreateMyUserProfileResponse, GetMyUserProfileResponse, ListUsersResponse,
     UpdateMyUserProfileRequest, UpdateUserProfileRequest,
 };
 use backend_macros::log_errors;
@@ -51,6 +51,16 @@ fn update_user_profile(request: UpdateUserProfileRequest) -> ApiResult<()> {
 
     UserProfileController::default()
         .update_user_profile(calling_principal, request)
+        .into()
+}
+
+#[query]
+#[log_errors]
+fn list_users() -> ApiResult<ListUsersResponse> {
+    let calling_principal = caller();
+
+    UserProfileController::default()
+        .list_users(calling_principal)
         .into()
 }
 
@@ -131,5 +141,14 @@ impl<A: AccessControlService, U: UserProfileService> UserProfileController<A, U>
         self.user_profile_service.update_user_profile(request)?;
 
         Ok(())
+    }
+
+    fn list_users(&self, calling_principal: Principal) -> Result<ListUsersResponse, ApiError> {
+        self.access_control_service
+            .assert_principal_not_anonymous(&calling_principal)?;
+        self.access_control_service
+            .assert_principal_is_admin(&calling_principal)?;
+
+        self.user_profile_service.list_users()
     }
 }

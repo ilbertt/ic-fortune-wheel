@@ -30,7 +30,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/auth-context';
 import { useCallback, useState } from 'react';
 import { GithubIcon } from '@/components/icons';
-import { CopyToClipboardButton } from './copy-to-clipboard-button';
 import { GITHUB_REPO_URL } from '@/constants';
 import { useUser } from '@/contexts/user-context';
 import {
@@ -55,6 +54,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { PrincipalDisplay } from '@/components/principal-display';
+import { UserIdDisplay } from './user-id-display';
 
 type HeaderLinkProps = {
   title: string;
@@ -199,22 +200,9 @@ const UserNav = () => {
               <EditUserDialog />
             </div>
             <p className="text-xs font-light">User ID</p>
-            <div className="flex max-w-full flex-row items-center gap-1 overflow-hidden">
-              <p className="text-muted-foreground flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs leading-none">
-                {user?.id}
-              </p>
-              <CopyToClipboardButton value={user?.id as string} />
-            </div>
+            <UserIdDisplay userId={user?.id} />
             <p className="text-xs font-light">Principal</p>
-            <div className="flex flex-row flex-wrap items-center gap-1">
-              <p className="text-muted-foreground text-xs leading-none">
-                {identity
-                  .getPrincipal()
-                  .toText()
-                  .replace(/^(.{10})(.*)(.{10})$/, '$1…$3')}
-              </p>
-              <CopyToClipboardButton value={identity.getPrincipal().toText()} />
-            </div>
+            <PrincipalDisplay principal={identity.getPrincipal()} />
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
