@@ -32,6 +32,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const { actor } = useAuth();
   const [user, setUser] = useState<UserProfile | null>(null);
   const { toast } = useToast();
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   const fetchUser = useCallback(async () => {
     await actor?.get_my_user_profile().then(res => {
@@ -60,10 +61,17 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       if ('ok' in res) {
         setUser(res.ok);
       } else if (res.err.code === 404) {
-        // a user profile does not exist yet
+        // the user's profile does not exist yet
+        if (isCreatingUser) {
+          // we are already creating the user
+          // avoid creating the user twice
+          return;
+        }
+        setIsCreatingUser(true);
         actor.create_my_user_profile().then(res => {
           if ('ok' in res) {
             setUser(res.ok);
+            setIsCreatingUser(false);
           } else {
             showErrorToast(res.err, 'Error creating user');
           }
@@ -72,9 +80,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         showErrorToast(res.err, 'Error getting user');
       }
     });
-    // We want to run this effect only once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [actor, toast, isCreatingUser]);
 
   return (
     <UserContext.Provider
