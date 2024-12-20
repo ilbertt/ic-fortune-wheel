@@ -58,6 +58,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const { toast } = useToast();
+  const isCurrentUser = member.id === user?.id;
 
   const handleRoleChange = useCallback(
     (value: string) => {
@@ -110,7 +111,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
         <div>
           <p className="text-sm font-medium leading-none">
             {member.username}
-            {member.id === user?.id && ' (You)'}
+            {isCurrentUser && ' (You)'}
           </p>
           <UserIdDisplay userId={member.id} />
         </div>
@@ -121,7 +122,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
           <Select
             value={role}
             onValueChange={handleRoleChange}
-            disabled={isUpdateLoading}
+            disabled={isCurrentUser || isUpdateLoading}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select a role" />
@@ -135,32 +136,34 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
             </SelectContent>
           </Select>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="secondary">
-              <UserMinus2 />
-              Remove
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete{' '}
-                <b>{member.username}</b> from the system.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleteLoading}>
-                Cancel
-              </AlertDialogCancel>
-              <Button onClick={handleDeleteUser} loading={isDeleteLoading}>
+        {!isCurrentUser && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="secondary">
                 <UserMinus2 />
                 Remove
               </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete{' '}
+                  <b>{member.username}</b> from the system.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleteLoading}>
+                  Cancel
+                </AlertDialogCancel>
+                <Button onClick={handleDeleteUser} loading={isDeleteLoading}>
+                  <UserMinus2 />
+                  Remove
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
     </div>
   );

@@ -29,7 +29,11 @@ pub trait UserProfileService {
 
     fn update_user_profile(&self, request: UpdateUserProfileRequest) -> Result<(), ApiError>;
 
-    fn delete_user_profile(&self, request: DeleteUserProfileRequest) -> Result<(), ApiError>;
+    fn delete_user_profile(
+        &self,
+        calling_principal: Principal,
+        request: DeleteUserProfileRequest,
+    ) -> Result<(), ApiError>;
 
     fn list_users(&self) -> Result<ListUsersResponse, ApiError>;
 }
@@ -146,8 +150,27 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
         Ok(())
     }
 
-    fn delete_user_profile(&self, request: DeleteUserProfileRequest) -> Result<(), ApiError> {
+    fn delete_user_profile(
+        &self,
+        calling_principal: Principal,
+        request: DeleteUserProfileRequest,
+    ) -> Result<(), ApiError> {
         let user_id = UserId::try_from(request.user_id.as_str())?;
+        let user_profile = self
+            .user_profile_repository
+            .get_user_profile_by_user_id(&user_id)
+            .ok_or_else(|| {
+                ApiError::not_found(&format!(
+                    "User profile for user with id {user_id} not found",
+                ))
+            })?;
+
+        if user_profile.principal == calling_principal {
+            return Err(ApiError::permission_denied(&format!(
+                "You cannot delete your own user profile {}",
+                calling_principal.to_text()
+            )));
+        }
 
         self.user_profile_repository.delete_user_profile(user_id)
     }

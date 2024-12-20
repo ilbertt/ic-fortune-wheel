@@ -70,7 +70,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         showErrorToast(res.err, 'Error getting user');
       }
     });
-  }, [actor, toast]);
+    // We want to run this effect only once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <UserContext.Provider value={{ user, fetchUser }}>
