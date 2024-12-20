@@ -1,8 +1,8 @@
 {
   "canisters": {
     "backend": {
-      "candid": "src/backend/backend.did",
-      "package": "backend",
+      "candid": "src/backend/api/backend.did",
+      "package": "backend_impl",
       "type": "rust",
       "declarations": {
         "bindings": ["js", "ts", "did"],

@@ -1,5 +1,13 @@
 [workspace]
 members = [
-    "src/backend"
+  "src/backend/impl",
+  "src/backend/api",
 ]
 resolver = "2"
+
+[workspace.dependencies]
+candid = "0.10"
+candid_parser = "0.1"
+ic-cdk = "0.17"
+
+serde = "1.0"
