@@ -1,0 +1,15 @@
+[package]
+name = "backend_macros"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+backend_api = { path = "../api" }
+
+ic-cdk.workspace = true
+
+syn = "2.0"
+quote = "1.0"

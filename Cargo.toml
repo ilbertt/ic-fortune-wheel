@@ -1,8 +1,5 @@
 [workspace]
-members = [
-  "src/backend/impl",
-  "src/backend/api",
-]
+members = ["src/backend/impl", "src/backend/api", "src/backend/macros"]
 resolver = "2"
 
 [workspace.dependencies]

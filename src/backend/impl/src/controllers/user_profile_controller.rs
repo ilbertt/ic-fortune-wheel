@@ -2,6 +2,7 @@ use backend_api::{
     ApiError, ApiResult, CreateMyUserProfileResponse, GetMyUserProfileResponse,
     UpdateMyUserProfileRequest,
 };
+use backend_macros::log_errors;
 use candid::Principal;
 use ic_cdk::{caller, query, update};
 
@@ -11,6 +12,7 @@ use crate::{
 };
 
 #[query]
+#[log_errors]
 fn get_my_user_profile() -> ApiResult<GetMyUserProfileResponse> {
     let calling_principal = caller();
 
@@ -20,6 +22,7 @@ fn get_my_user_profile() -> ApiResult<GetMyUserProfileResponse> {
 }
 
 #[update]
+#[log_errors]
 async fn create_my_user_profile() -> ApiResult<CreateMyUserProfileResponse> {
     let calling_principal = caller();
 
@@ -30,6 +33,7 @@ async fn create_my_user_profile() -> ApiResult<CreateMyUserProfileResponse> {
 }
 
 #[update]
+#[log_errors]
 fn update_my_user_profile(request: UpdateMyUserProfileRequest) -> ApiResult<()> {
     let calling_principal = caller();
 

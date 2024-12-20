@@ -10,6 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 backend_api = { path = "../api" }
+backend_macros = { path = "../macros" }
 
 candid.workspace = true
 ic-cdk.workspace = true
