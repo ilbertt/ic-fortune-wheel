@@ -10,16 +10,18 @@ import {
 } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
-import { renderError } from '@/lib/utils';
+import { enumKey, renderError } from '@/lib/utils';
 
 type UserContextType = {
   user: UserProfile | null;
   fetchUser: () => Promise<void>;
+  isCurrentUserAdmin: boolean;
 };
 
 const UserContext = createContext<UserContextType>({
   user: null,
   fetchUser: () => Promise.reject(),
+  isCurrentUserAdmin: false,
 });
 
 type UserProviderProps = {
@@ -75,7 +77,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, fetchUser }}>
+    <UserContext.Provider
+      value={{
+        user,
+        fetchUser,
+        isCurrentUserAdmin: user ? enumKey(user.role) === 'admin' : false,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

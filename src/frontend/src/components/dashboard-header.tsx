@@ -230,6 +230,8 @@ type DashboardHeaderProps = {
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   className,
 }) => {
+  const { isCurrentUserAdmin } = useUser();
+
   return (
     <div
       className={cn(
@@ -249,7 +251,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           href={ROUTES.dashboard.assets}
           icon={WalletMinimal}
         />
-        <HeaderLink title="Team" href={ROUTES.dashboard.team} icon={Users} />
+        {isCurrentUserAdmin && (
+          <HeaderLink title="Team" href={ROUTES.dashboard.team} icon={Users} />
+        )}
         <HeaderLink
           title="Design"
           href={ROUTES.dashboard.design}
