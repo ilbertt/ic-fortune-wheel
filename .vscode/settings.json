@@ -1,4 +1,5 @@
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "rust-analyzer.cargo.features": "all",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
