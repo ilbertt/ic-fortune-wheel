@@ -1,6 +1,26 @@
 use backend_api::{CreateMyUserProfileResponse, GetMyUserProfileResponse};
 
-use crate::repositories::{UserId, UserProfile};
+use crate::repositories::{UserId, UserProfile, UserRole};
+
+impl From<UserRole> for backend_api::UserRole {
+    fn from(value: UserRole) -> Self {
+        match value {
+            UserRole::Admin => backend_api::UserRole::Admin,
+            UserRole::User => backend_api::UserRole::User,
+            UserRole::Unassigned => backend_api::UserRole::Unassigned,
+        }
+    }
+}
+
+impl From<backend_api::UserRole> for UserRole {
+    fn from(value: backend_api::UserRole) -> Self {
+        match value {
+            backend_api::UserRole::Admin => UserRole::Admin,
+            backend_api::UserRole::User => UserRole::User,
+            backend_api::UserRole::Unassigned => UserRole::Unassigned,
+        }
+    }
+}
 
 pub fn map_get_my_user_profile_response(
     user_id: UserId,
@@ -9,6 +29,7 @@ pub fn map_get_my_user_profile_response(
     GetMyUserProfileResponse {
         id: user_id.to_string(),
         username: user_profile.username,
+        role: user_profile.role.into(),
     }
 }
 
@@ -19,5 +40,6 @@ pub fn map_create_my_user_profile_response(
     CreateMyUserProfileResponse {
         id: user_id.to_string(),
         username: user_profile.username,
+        role: user_profile.role.into(),
     }
 }

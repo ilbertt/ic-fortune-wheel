@@ -5,7 +5,6 @@ use candid::{CandidType, Decode, Deserialize, Encode};
 use ic_stable_structures::{storable::Bound, Storable};
 
 pub trait Timestamped {
-    fn new() -> Self;
     fn update_timestamp(&mut self);
 }
 

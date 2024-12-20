@@ -1,3 +1,5 @@
+'use client';
+
 import type { Err, UserProfile } from '@/declarations/backend/backend.did';
 import {
   createContext,

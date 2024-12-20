@@ -3,9 +3,16 @@ type Err = record {
   message : text;
 };
 
+type UserRole = variant {
+  admin;
+  user;
+  unassigned;
+};
+
 type UserProfile = record {
   id : text;
   username : text;
+  role : UserRole;
 };
 
 type GetMyUserProfileResponse = variant {
@@ -27,8 +34,20 @@ type UpdateMyUserProfileResponse = variant {
   err : Err;
 };
 
+type UpdateUserProfileRequest = record {
+  user_id : text;
+  username : opt text;
+  role : opt UserRole;
+};
+
+type UpdateUserProfileResponse = variant {
+  ok;
+  err : Err;
+};
+
 service : {
   get_my_user_profile : () -> (GetMyUserProfileResponse) query;
   create_my_user_profile : () -> (CreateMyUserProfileResponse);
   update_my_user_profile : (UpdateMyUserProfileRequest) -> (UpdateMyUserProfileResponse);
+  update_user_profile: (UpdateUserProfileRequest) -> (UpdateMyUserProfileResponse);
 }

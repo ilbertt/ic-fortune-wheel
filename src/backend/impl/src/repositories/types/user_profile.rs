@@ -6,19 +6,46 @@ use std::borrow::Cow;
 pub type UserId = Uuid;
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq)]
+pub enum UserRole {
+    Admin,
+    User,
+    Unassigned,
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq)]
 pub struct UserProfile {
     pub username: String,
     pub timestamps: TimestampFields,
+    pub role: UserRole,
 }
 
-impl Timestamped for UserProfile {
-    fn new() -> Self {
+impl UserProfile {
+    pub fn new_unassigned() -> Self {
         Self {
             username: "member".to_string(),
             timestamps: TimestampFields::new(),
+            role: UserRole::Unassigned,
         }
     }
 
+    pub fn new_admin() -> Self {
+        Self {
+            username: "admin".to_string(),
+            timestamps: TimestampFields::new(),
+            role: UserRole::Admin,
+        }
+    }
+
+    pub fn is_admin(&self) -> bool {
+        matches!(self.role, UserRole::Admin)
+    }
+
+    pub fn is_user(&self) -> bool {
+        matches!(self.role, UserRole::User)
+    }
+}
+
+impl Timestamped for UserProfile {
     fn update_timestamp(&mut self) {
         self.timestamps.update();
     }

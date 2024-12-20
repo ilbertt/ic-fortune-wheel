@@ -1,9 +1,7 @@
 use backend_api::ApiError;
 use candid::Principal;
 
-use crate::repositories::{
-    Timestamped, UserProfile, UserProfileRepository, UserProfileRepositoryImpl,
-};
+use crate::repositories::{UserProfile, UserProfileRepository, UserProfileRepositoryImpl};
 
 #[cfg_attr(test, mockall::automock)]
 pub trait InitService {
@@ -30,7 +28,7 @@ impl<T: UserProfileRepository> InitService for InitServiceImpl<T> {
             return Ok(());
         }
 
-        let profile = UserProfile::new();
+        let profile = UserProfile::new_admin();
 
         self.user_profile_repository
             .create_user_profile(calling_principal, profile)

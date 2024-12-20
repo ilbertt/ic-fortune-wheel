@@ -1,6 +1,6 @@
 use backend_api::{
     ApiError, ApiResult, CreateMyUserProfileResponse, GetMyUserProfileResponse,
-    UpdateMyUserProfileRequest,
+    UpdateMyUserProfileRequest, UpdateUserProfileRequest,
 };
 use backend_macros::log_errors;
 use candid::Principal;
@@ -8,7 +8,9 @@ use ic_cdk::{caller, query, update};
 
 use crate::{
     repositories::UserProfileRepositoryImpl,
-    services::{UserProfileService, UserProfileServiceImpl},
+    services::{
+        AccessControlService, AccessControlServiceImpl, UserProfileService, UserProfileServiceImpl,
+    },
 };
 
 #[query]
@@ -42,19 +44,39 @@ fn update_my_user_profile(request: UpdateMyUserProfileRequest) -> ApiResult<()> 
         .into()
 }
 
-struct UserProfileController<U: UserProfileService> {
+#[update]
+#[log_errors]
+fn update_user_profile(request: UpdateUserProfileRequest) -> ApiResult<()> {
+    let calling_principal = caller();
+
+    UserProfileController::default()
+        .update_user_profile(calling_principal, request)
+        .into()
+}
+
+struct UserProfileController<A: AccessControlService, U: UserProfileService> {
+    access_control_service: A,
     user_profile_service: U,
 }
 
-impl Default for UserProfileController<UserProfileServiceImpl<UserProfileRepositoryImpl>> {
+impl Default
+    for UserProfileController<
+        AccessControlServiceImpl<UserProfileRepositoryImpl>,
+        UserProfileServiceImpl<UserProfileRepositoryImpl>,
+    >
+{
     fn default() -> Self {
-        Self::new(UserProfileServiceImpl::default())
+        Self::new(
+            AccessControlServiceImpl::default(),
+            UserProfileServiceImpl::default(),
+        )
     }
 }
 
-impl<U: UserProfileService> UserProfileController<U> {
-    fn new(user_profile_service: U) -> Self {
+impl<A: AccessControlService, U: UserProfileService> UserProfileController<A, U> {
+    fn new(access_control_service: A, user_profile_service: U) -> Self {
         Self {
+            access_control_service,
             user_profile_service,
         }
     }
@@ -63,6 +85,9 @@ impl<U: UserProfileService> UserProfileController<U> {
         &self,
         calling_principal: Principal,
     ) -> Result<GetMyUserProfileResponse, ApiError> {
+        self.access_control_service
+            .assert_principal_not_anonymous(&calling_principal)?;
+
         self.user_profile_service
             .get_my_user_profile(calling_principal)
     }
@@ -71,6 +96,9 @@ impl<U: UserProfileService> UserProfileController<U> {
         &self,
         calling_principal: Principal,
     ) -> Result<CreateMyUserProfileResponse, ApiError> {
+        self.access_control_service
+            .assert_principal_not_anonymous(&calling_principal)?;
+
         self.user_profile_service
             .create_my_user_profile(calling_principal)
             .await
@@ -81,8 +109,26 @@ impl<U: UserProfileService> UserProfileController<U> {
         calling_principal: Principal,
         request: UpdateMyUserProfileRequest,
     ) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_not_anonymous(&calling_principal)?;
+
         self.user_profile_service
             .update_my_user_profile(calling_principal, request)?;
+
+        Ok(())
+    }
+
+    fn update_user_profile(
+        &self,
+        calling_principal: Principal,
+        request: UpdateUserProfileRequest,
+    ) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_not_anonymous(&calling_principal)?;
+        self.access_control_service
+            .assert_principal_is_admin(&calling_principal)?;
+
+        self.user_profile_service.update_user_profile(request)?;
 
         Ok(())
     }

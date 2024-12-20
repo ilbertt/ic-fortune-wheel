@@ -192,12 +192,20 @@ const UserNav = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="flex items-center gap-1 text-sm font-semibold">
+        <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-1 text-sm font-semibold">
               {user?.username}
               <EditUserDialog />
             </div>
+            <p className="text-xs font-light">User ID</p>
+            <div className="flex max-w-full flex-row items-center gap-1 overflow-hidden">
+              <p className="text-muted-foreground flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs leading-none">
+                {user?.id}
+              </p>
+              <CopyToClipboardButton value={user?.id as string} />
+            </div>
+            <p className="text-xs font-light">Principal</p>
             <div className="flex flex-row flex-wrap items-center gap-1">
               <p className="text-muted-foreground text-xs leading-none">
                 {identity

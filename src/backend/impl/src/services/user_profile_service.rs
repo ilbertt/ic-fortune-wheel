@@ -1,11 +1,12 @@
 use backend_api::{
     ApiError, CreateMyUserProfileResponse, GetMyUserProfileResponse, UpdateMyUserProfileRequest,
+    UpdateUserProfileRequest,
 };
 use candid::Principal;
 
 use crate::{
     mappings::{map_create_my_user_profile_response, map_get_my_user_profile_response},
-    repositories::{Timestamped, UserProfile, UserProfileRepository, UserProfileRepositoryImpl},
+    repositories::{UserId, UserProfile, UserProfileRepository, UserProfileRepositoryImpl},
 };
 
 #[cfg_attr(test, mockall::automock)]
@@ -25,6 +26,8 @@ pub trait UserProfileService {
         calling_principal: Principal,
         request: UpdateMyUserProfileRequest,
     ) -> Result<(), ApiError>;
+
+    fn update_user_profile(&self, request: UpdateUserProfileRequest) -> Result<(), ApiError>;
 }
 
 pub struct UserProfileServiceImpl<T: UserProfileRepository> {
@@ -70,7 +73,7 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
             )));
         }
 
-        let profile = UserProfile::new();
+        let profile = UserProfile::new_unassigned();
         let id = self
             .user_profile_repository
             .create_user_profile(calling_principal, profile.clone())
@@ -106,6 +109,31 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
 
         if let Some(username) = request.username {
             current_user_profile.username = username;
+        }
+
+        self.user_profile_repository
+            .update_user_profile(user_id, current_user_profile)?;
+
+        Ok(())
+    }
+
+    fn update_user_profile(&self, request: UpdateUserProfileRequest) -> Result<(), ApiError> {
+        let user_id = UserId::try_from(request.user_id.as_str())?;
+        let mut current_user_profile = self
+            .user_profile_repository
+            .get_user_profile_by_user_id(&user_id)
+            .ok_or_else(|| {
+                ApiError::not_found(&format!(
+                    "User profile for user with id {user_id} not found",
+                ))
+            })?;
+
+        if let Some(username) = request.username {
+            current_user_profile.username = username;
+        }
+
+        if let Some(role) = request.role {
+            current_user_profile.role = role.into();
         }
 
         self.user_profile_repository
