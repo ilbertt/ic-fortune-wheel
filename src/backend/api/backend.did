@@ -11,6 +11,7 @@ type UserRole = variant {
 
 type UserProfile = record {
   id : text;
+  principal_id : principal;
   username : text;
   role : UserRole;
 };
@@ -45,6 +46,15 @@ type UpdateUserProfileResponse = variant {
   err : Err;
 };
 
+type DeleteUserProfileRequest = record {
+  user_id : text;
+};
+
+type DeleteUserProfileResponse = variant {
+  ok;
+  err : Err;
+};
+
 type ListUsersResponse = variant {
   ok : vec UserProfile;
   err : Err;
@@ -55,5 +65,6 @@ service : {
   create_my_user_profile : () -> (CreateMyUserProfileResponse);
   update_my_user_profile : (UpdateMyUserProfileRequest) -> (UpdateMyUserProfileResponse);
   update_user_profile: (UpdateUserProfileRequest) -> (UpdateMyUserProfileResponse);
+  delete_user_profile: (DeleteUserProfileRequest) -> (DeleteUserProfileResponse);
   list_users: () -> (ListUsersResponse) query;
 }

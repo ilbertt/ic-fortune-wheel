@@ -10,11 +10,11 @@ export const UserIdDisplay: React.FC<UserIdDisplayProps> = ({ userId }) => {
   }
 
   return (
-    <div className="flex max-w-full flex-row items-center gap-1 overflow-hidden">
-      <p className="text-muted-foreground flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs leading-none">
+    <div className="text-indaco-blue flex max-w-full flex-row items-center gap-1 overflow-hidden">
+      <p className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs leading-none">
         {userId}
       </p>
-      <CopyToClipboardButton value={userId} />
+      <CopyToClipboardButton className="text-current" value={userId} />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 use backend_api::{
-    ApiError, ApiResult, CreateMyUserProfileResponse, GetMyUserProfileResponse, ListUsersResponse,
-    UpdateMyUserProfileRequest, UpdateUserProfileRequest,
+    ApiError, ApiResult, CreateMyUserProfileResponse, DeleteUserProfileRequest,
+    GetMyUserProfileResponse, ListUsersResponse, UpdateMyUserProfileRequest,
+    UpdateUserProfileRequest,
 };
 use backend_macros::log_errors;
 use candid::Principal;
@@ -51,6 +52,16 @@ fn update_user_profile(request: UpdateUserProfileRequest) -> ApiResult<()> {
 
     UserProfileController::default()
         .update_user_profile(calling_principal, request)
+        .into()
+}
+
+#[update]
+#[log_errors]
+fn delete_user_profile(request: DeleteUserProfileRequest) -> ApiResult<()> {
+    let calling_principal = caller();
+
+    UserProfileController::default()
+        .delete_user_profile(calling_principal, request)
         .into()
 }
 
@@ -141,6 +152,19 @@ impl<A: AccessControlService, U: UserProfileService> UserProfileController<A, U>
         self.user_profile_service.update_user_profile(request)?;
 
         Ok(())
+    }
+
+    fn delete_user_profile(
+        &self,
+        calling_principal: Principal,
+        request: DeleteUserProfileRequest,
+    ) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_not_anonymous(&calling_principal)?;
+        self.access_control_service
+            .assert_principal_is_admin(&calling_principal)?;
+
+        self.user_profile_service.delete_user_profile(request)
     }
 
     fn list_users(&self, calling_principal: Principal) -> Result<ListUsersResponse, ApiError> {

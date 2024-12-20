@@ -1,4 +1,4 @@
-use candid::{CandidType, Deserialize};
+use candid::{CandidType, Deserialize, Principal};
 
 #[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
 pub enum UserRole {
@@ -13,6 +13,7 @@ pub enum UserRole {
 #[derive(Debug, Clone, CandidType, PartialEq, Eq)]
 pub struct UserProfile {
     pub id: String,
+    pub principal_id: Principal,
     pub username: String,
     pub role: UserRole,
 }
@@ -31,6 +32,11 @@ pub struct UpdateUserProfileRequest {
     pub user_id: String,
     pub username: Option<String>,
     pub role: Option<UserRole>,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
+pub struct DeleteUserProfileRequest {
+    pub user_id: String,
 }
 
 pub type ListUsersResponse = Vec<UserProfile>;

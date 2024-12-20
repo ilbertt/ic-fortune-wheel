@@ -1,6 +1,6 @@
 use backend_api::{
-    ApiError, CreateMyUserProfileResponse, GetMyUserProfileResponse, ListUsersResponse,
-    UpdateMyUserProfileRequest, UpdateUserProfileRequest,
+    ApiError, CreateMyUserProfileResponse, DeleteUserProfileRequest, GetMyUserProfileResponse,
+    ListUsersResponse, UpdateMyUserProfileRequest, UpdateUserProfileRequest,
 };
 use candid::Principal;
 
@@ -28,6 +28,8 @@ pub trait UserProfileService {
     ) -> Result<(), ApiError>;
 
     fn update_user_profile(&self, request: UpdateUserProfileRequest) -> Result<(), ApiError>;
+
+    fn delete_user_profile(&self, request: DeleteUserProfileRequest) -> Result<(), ApiError>;
 
     fn list_users(&self) -> Result<ListUsersResponse, ApiError>;
 }
@@ -75,7 +77,7 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
             )));
         }
 
-        let profile = UserProfile::new_unassigned();
+        let profile = UserProfile::new_unassigned(calling_principal);
         let id = self
             .user_profile_repository
             .create_user_profile(calling_principal, profile.clone())
@@ -142,6 +144,12 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
             .update_user_profile(user_id, current_user_profile)?;
 
         Ok(())
+    }
+
+    fn delete_user_profile(&self, request: DeleteUserProfileRequest) -> Result<(), ApiError> {
+        let user_id = UserId::try_from(request.user_id.as_str())?;
+
+        self.user_profile_repository.delete_user_profile(user_id)
     }
 
     fn list_users(&self) -> Result<ListUsersResponse, ApiError> {

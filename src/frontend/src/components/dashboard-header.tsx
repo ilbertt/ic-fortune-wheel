@@ -169,7 +169,7 @@ const EditUserDialog = () => {
 };
 
 const UserNav = () => {
-  const { logout, identity } = useAuth();
+  const { logout } = useAuth();
   const { user } = useUser();
 
   const handleLogout = useCallback(() => {
@@ -193,18 +193,20 @@ const UserNav = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel>
-          <div className="flex flex-col space-y-1">
-            <div className="flex items-center gap-1 text-sm font-semibold">
-              {user?.username}
-              <EditUserDialog />
+        {user && (
+          <DropdownMenuLabel>
+            <div className="flex flex-col space-y-1">
+              <div className="flex items-center gap-1 text-sm font-semibold">
+                {user.username}
+                <EditUserDialog />
+              </div>
+              <p className="text-xs font-light">User ID</p>
+              <UserIdDisplay userId={user.id} />
+              <p className="text-xs font-light">Principal</p>
+              <PrincipalDisplay principal={user.principal_id} />
             </div>
-            <p className="text-xs font-light">User ID</p>
-            <UserIdDisplay userId={user?.id} />
-            <p className="text-xs font-light">Principal</p>
-            <PrincipalDisplay principal={identity.getPrincipal()} />
-          </div>
-        </DropdownMenuLabel>
+          </DropdownMenuLabel>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem className="[&>img]:size-4" asChild>
           <Link href={GITHUB_REPO_URL} target="_blank">

@@ -23,6 +23,7 @@ impl From<backend_api::UserRole> for UserRole {
 pub fn map_user_profile(user_id: UserId, user_profile: UserProfile) -> backend_api::UserProfile {
     backend_api::UserProfile {
         id: user_id.to_string(),
+        principal_id: user_profile.principal,
         username: user_profile.username,
         role: user_profile.role.into(),
     }

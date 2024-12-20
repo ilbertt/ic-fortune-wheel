@@ -9,11 +9,14 @@ export const PrincipalDisplay: React.FC<PrincipalDisplayProps> = ({
   principal,
 }) => {
   return (
-    <div className="flex flex-row flex-wrap items-center gap-1">
-      <p className="text-muted-foreground text-xs leading-none">
+    <div className="text-indaco-blue flex flex-row flex-wrap items-center gap-1">
+      <p className="text-xs leading-none">
         {principal.toText().replace(/^(.{10})(.*)(.{10})$/, '$1…$3')}
       </p>
-      <CopyToClipboardButton value={principal.toText()} />
+      <CopyToClipboardButton
+        className="text-current"
+        value={principal.toText()}
+      />
     </div>
   );
 };

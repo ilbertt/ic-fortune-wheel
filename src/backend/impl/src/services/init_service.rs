@@ -28,7 +28,7 @@ impl<T: UserProfileRepository> InitService for InitServiceImpl<T> {
             return Ok(());
         }
 
-        let profile = UserProfile::new_admin();
+        let profile = UserProfile::new_admin(calling_principal);
 
         self.user_profile_repository
             .create_user_profile(calling_principal, profile)
