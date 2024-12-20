@@ -25,4 +25,5 @@ uuid = "1.11"
 
 [dev-dependencies]
 candid_parser.workspace = true
+mockall = "0.13"
 rstest = "0.23"

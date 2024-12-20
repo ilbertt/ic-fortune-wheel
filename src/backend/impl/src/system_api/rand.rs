@@ -7,7 +7,7 @@ use std::cell::RefCell;
 use ic_cdk::api::management_canister::main::raw_rand;
 
 thread_local! {
-    static RNG: RefCell<Option<ChaCha20Rng>> = RefCell::new(None);
+    static RNG: RefCell<Option<ChaCha20Rng>> = const { RefCell::new(None) };
 }
 
 async fn with_rng<T>(cb: impl FnOnce(&mut ChaCha20Rng) -> T) -> Result<T, ApiError> {

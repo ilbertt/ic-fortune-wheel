@@ -1,3 +1,35 @@
-service : {
+type Err = record {
+  code : nat16;
+  message : text;
+};
 
+type GetMyUserProfileResponse = variant {
+  ok : record {
+    id : text;
+    username : text;
+  };
+  err : Err;
+};
+
+type CreateMyUserProfileResponse = variant {
+  ok : record {
+    id : text;
+    username : text;
+  };
+  err : Err;
+};
+
+type UpdateMyUserProfileRequest = record {
+  username : opt text;
+};
+
+type UpdateMyUserProfileResponse = variant {
+  ok;
+  err : Err;
+};
+
+service : {
+  get_my_user_profile : () -> (GetMyUserProfileResponse) query;
+  create_my_user_profile : () -> (CreateMyUserProfileResponse);
+  update_my_user_profile : (UpdateMyUserProfileRequest) -> (UpdateMyUserProfileResponse);
 }

@@ -4,7 +4,7 @@ use candid::{
     CandidType, Deserialize,
 };
 use ic_stable_structures::{storable::Bound, Storable};
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Display};
 use uuid::{Builder, Uuid as UuidImpl};
 
 use crate::system_api::with_random_bytes;
@@ -47,9 +47,9 @@ impl TryFrom<&str> for Uuid {
     }
 }
 
-impl ToString for Uuid {
-    fn to_string(&self) -> String {
-        self.0.to_string()
+impl Display for Uuid {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0.to_string())
     }
 }
 

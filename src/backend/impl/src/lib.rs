@@ -1,9 +1,13 @@
 #![deny(clippy::all)]
 
+use backend_api::*;
 use candid::export_service;
 use ic_cdk::*;
 
+mod controllers;
+mod mappings;
 mod repositories;
+mod services;
 mod system_api;
 
 #[cfg(test)]

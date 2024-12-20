@@ -3,9 +3,11 @@ use candid::{
     types::{Type, TypeInner},
     CandidType, Deserialize,
 };
-use chrono::{Datelike, NaiveDateTime, TimeZone, Timelike, Utc};
+use chrono::{Datelike, Timelike};
 use ic_stable_structures::{storable::Bound, Storable};
-use std::{borrow::Cow, str::FromStr};
+use std::{borrow::Cow, fmt::Display, str::FromStr};
+
+use crate::system_api::get_date_time;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct DateTime(chrono::DateTime<chrono::Utc>);
@@ -26,10 +28,10 @@ impl DateTime {
                 micros, err
             ))
         })?;
-        let dt = NaiveDateTime::from_timestamp_micros(micros).ok_or(ApiError::internal(
+        let dt = chrono::DateTime::from_timestamp_micros(micros).ok_or(ApiError::internal(
             &format!("Failed to convert timestamp {} to date time", micros),
         ))?;
-        Self::new(Utc.from_utc_datetime(&dt))
+        Self::new(dt)
     }
 
     pub fn sub(&self, duration: chrono::Duration) -> Self {
@@ -57,9 +59,9 @@ impl DateTime {
     }
 }
 
-impl ToString for DateTime {
-    fn to_string(&self) -> String {
-        self.0.to_rfc3339_opts(chrono::SecondsFormat::Secs, false)
+impl Display for DateTime {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0.to_rfc3339_opts(chrono::SecondsFormat::Secs, false))
     }
 }
 
@@ -96,13 +98,18 @@ impl Storable for DateTime {
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        Self(chrono::DateTime::from_str(&String::from_utf8(bytes.into_owned()).unwrap()).unwrap())
+        Self(chrono::DateTime::from_str(core::str::from_utf8(&bytes).unwrap()).unwrap())
     }
 
     const BOUND: Bound = Bound::Bounded {
         max_size: DATE_TIME_SIZE,
         is_fixed_size: true,
     };
+}
+
+pub fn get_current_date_time() -> DateTime {
+    // we can be confident to unwrap here as timestamp is always available
+    get_date_time().and_then(DateTime::new).unwrap()
 }
 
 #[cfg(test)]
