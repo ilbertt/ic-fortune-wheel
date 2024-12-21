@@ -235,12 +235,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   return (
     <div
       className={cn(
-        'fixed inset-x-0 top-0 z-50 hidden h-[65px] flex-row items-center justify-between border-b px-8 md:flex',
+        'fixed inset-x-0 top-0 z-50 flex h-[65px] flex-row items-center justify-between border-b px-8',
         className,
       )}
     >
       <Logo />
-      <div className="flex flex-1 flex-row items-center justify-center">
+      <div className="hidden flex-1 flex-row items-center justify-center md:flex">
         <HeaderLink
           title="Dashboard"
           href={ROUTES.dashboard.ROOT}
