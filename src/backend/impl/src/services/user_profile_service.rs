@@ -172,7 +172,7 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
             )));
         }
 
-        self.user_profile_repository.delete_user_profile(user_id)
+        self.user_profile_repository.delete_user_profile(&user_id)
     }
 
     fn list_users(&self) -> Result<ListUsersResponse, ApiError> {

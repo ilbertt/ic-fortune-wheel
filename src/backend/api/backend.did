@@ -60,6 +60,37 @@ type ListUsersResponse = variant {
   err : Err;
 };
 
+type WheelAssetState = variant {
+  enabled;
+  disabled;
+};
+
+type WheelAssetType = variant {
+  token : record {
+    ledger_canister_id : principal;
+  };
+  gadget;
+  jackpot;
+};
+
+type WheelAsset = record {
+  id : text;
+  name : text;
+  asset_type : WheelAssetType;
+  total_amount : nat32;
+  used_amount : nat32;
+  state : WheelAssetState;
+};
+
+type ListWheelAssetsRequest = record {
+  state : opt WheelAssetState;
+};
+
+type ListWheelAssetsResponse = variant {
+  ok : vec WheelAsset;
+  err : Err;
+};
+
 service : {
   get_my_user_profile : () -> (GetMyUserProfileResponse) query;
   create_my_user_profile : () -> (CreateMyUserProfileResponse);
@@ -67,4 +98,6 @@ service : {
   update_user_profile: (UpdateUserProfileRequest) -> (UpdateMyUserProfileResponse);
   delete_user_profile: (DeleteUserProfileRequest) -> (DeleteUserProfileResponse);
   list_users: () -> (ListUsersResponse) query;
+
+  list_wheel_assets: (ListWheelAssetsRequest) -> (ListWheelAssetsResponse) query;
 }

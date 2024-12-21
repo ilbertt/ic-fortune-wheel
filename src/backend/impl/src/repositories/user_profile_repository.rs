@@ -25,7 +25,7 @@ pub trait UserProfileRepository {
         user_profile: UserProfile,
     ) -> Result<(), ApiError>;
 
-    fn delete_user_profile(&self, user_id: UserId) -> Result<(), ApiError>;
+    fn delete_user_profile(&self, user_id: &UserId) -> Result<(), ApiError>;
 
     fn list_users(&self) -> Vec<(UserId, UserProfile)>;
 }
@@ -82,9 +82,9 @@ impl UserProfileRepository for UserProfileRepositoryImpl {
         })
     }
 
-    fn delete_user_profile(&self, user_id: UserId) -> Result<(), ApiError> {
+    fn delete_user_profile(&self, user_id: &UserId) -> Result<(), ApiError> {
         STATE.with_borrow_mut(|s| {
-            match s.profiles.remove(&user_id) {
+            match s.profiles.remove(user_id) {
                 None => {
                     return Err(ApiError::not_found(&format!(
                         "User profile for user with id {user_id} not found"

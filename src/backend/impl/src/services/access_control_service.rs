@@ -10,6 +10,11 @@ pub trait AccessControlService {
     fn assert_principal_is_admin(&self, calling_principal: &Principal) -> Result<(), ApiError>;
 
     fn assert_principal_is_user(&self, calling_principal: &Principal) -> Result<(), ApiError>;
+
+    fn assert_principal_is_user_or_admin(
+        &self,
+        calling_principal: &Principal,
+    ) -> Result<(), ApiError>;
 }
 
 pub struct AccessControlServiceImpl<T: UserProfileRepository> {
@@ -69,6 +74,30 @@ impl<T: UserProfileRepository> AccessControlService for AccessControlServiceImpl
         if !profile.is_user() {
             return Err(ApiError::permission_denied(&format!(
                 "Principal {} must be a reviewer to call this endpoint",
+                calling_principal.to_text()
+            )));
+        }
+
+        Ok(())
+    }
+
+    fn assert_principal_is_user_or_admin(
+        &self,
+        calling_principal: &Principal,
+    ) -> Result<(), ApiError> {
+        let (_id, profile) = self
+            .user_profile_repository
+            .get_user_by_principal(calling_principal)
+            .ok_or_else(|| {
+                ApiError::not_found(&format!(
+                    "Principal {} must have a profile to call this endpoint",
+                    calling_principal.to_text()
+                ))
+            })?;
+
+        if !profile.is_user() && !profile.is_admin() {
+            return Err(ApiError::permission_denied(&format!(
+                "Principal {} must be a reviewer or admin to call this endpoint",
                 calling_principal.to_text()
             )));
         }

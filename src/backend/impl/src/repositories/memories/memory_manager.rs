@@ -13,3 +13,5 @@ thread_local! {
 // everything else related to each memory region is kept in the appropriate file
 pub(super) const USER_PROFILES_MEMORY_ID: MemoryId = MemoryId::new(0);
 pub(super) const USER_PROFILE_PRINCIPAL_INDEX_MEMORY_ID: MemoryId = MemoryId::new(1);
+pub(super) const WHEEL_ASSETS_MEMORY_ID: MemoryId = MemoryId::new(2);
+pub(super) const WHEEL_ASSET_STATE_INDEX_MEMORY_ID: MemoryId = MemoryId::new(3);
