@@ -235,7 +235,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   return (
     <div
       className={cn(
-        'fixed inset-x-0 top-0 z-50 flex h-[65px] flex-row items-center justify-between border-b px-8',
+        'fixed inset-x-0 top-0 z-50 hidden h-[65px] flex-row items-center justify-between border-b px-8 md:flex',
         className,
       )}
     >

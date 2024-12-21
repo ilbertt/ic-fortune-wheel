@@ -32,6 +32,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const auth = useAuthClient({
     loginOptions: {
       identityProvider,
+      maxTimeToLive:
+        BigInt(3) * BigInt(24 * 60 * 60) * BigInt(1000 * 1000 * 1000), // 3 days in nanoseconds
+    },
+    createOptions: {
+      idleOptions: {
+        disableIdle: true,
+      },
     },
     actorOptions: {
       canisterId,
