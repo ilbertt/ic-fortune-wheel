@@ -9,7 +9,7 @@ export const Logo: React.FC<LogoProps> = ({ className }) => {
   return (
     <div
       className={cn(
-        'flex h-6 w-fit items-center justify-start gap-2 text-lg font-medium [&>svg]:size-6',
+        'flex h-6 w-fit items-center justify-start gap-2 text-lg font-medium leading-4 [&>svg]:size-6',
         className,
       )}
     >

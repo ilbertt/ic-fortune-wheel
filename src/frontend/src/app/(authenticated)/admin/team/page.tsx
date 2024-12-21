@@ -103,7 +103,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
   }, [actor, member, toast, onDelete]);
 
   return (
-    <div className="flex items-center justify-between space-x-4">
+    <div className="flex flex-col items-start space-y-3 md:flex-row md:items-center md:justify-between md:space-x-4">
       <div className="flex items-center space-x-4">
         <Avatar className="h-8 w-8">
           <AvatarFallback>{userInitials(member)}</AvatarFallback>
@@ -113,10 +113,13 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
             {member.username}
             {isCurrentUser && ' (You)'}
           </p>
-          <UserIdDisplay userId={member.id} />
+          <UserIdDisplay
+            userId={member.id}
+            className="[&>p]:whitespace-normal [&>p]:md:whitespace-nowrap"
+          />
         </div>
       </div>
-      <div className="flex flex-row flex-wrap items-center justify-end gap-2">
+      <div className="flex w-full flex-col flex-wrap gap-2 md:flex-row md:items-center md:justify-end">
         <div className="flex flex-row flex-wrap items-center gap-0.5">
           {isUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           <Select
@@ -124,7 +127,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
             onValueChange={handleRoleChange}
             disabled={isCurrentUser || isUpdateLoading}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="md:w-[180px]">
               <SelectValue placeholder="Select a role" />
             </SelectTrigger>
             <SelectContent>

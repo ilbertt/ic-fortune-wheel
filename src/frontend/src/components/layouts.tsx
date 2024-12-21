@@ -9,10 +9,10 @@ export const PageLayout: React.FC<MainLayoutProps> = ({
   return (
     <div
       className={cn(
-        'grid gap-4',
+        'grid gap-3 md:gap-4',
         "[grid-template-areas:'header_header_header_header''subheader_subheader_subheader_subheader''content_content_content_content']",
         "md:[grid-template-areas:'header_header_header_header_header_header_header_header_header_header_header_header''subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader''content_content_content_content_content_content_content_content_content_content_content_content']",
-        'p-8 pt-6',
+        'p-4 pt-3 md:p-8 md:pt-6',
         className,
       )}
       {...props}
@@ -62,10 +62,7 @@ export const PageContent: React.FC<PageContentProps> = ({
 }) => {
   return (
     <div
-      className={cn(
-        'grid grid-cols-subgrid [grid-area:content] [&>div]:mt-4',
-        className,
-      )}
+      className={cn('grid grid-cols-subgrid [grid-area:content]', className)}
       {...props}
     />
   );
