@@ -91,6 +91,11 @@ type ListWheelAssetsResponse = variant {
   err : Err;
 };
 
+type SetDefaultWheelAssetsResponse = variant {
+  ok;
+  err : Err;
+};
+
 service : {
   get_my_user_profile : () -> (GetMyUserProfileResponse) query;
   create_my_user_profile : () -> (CreateMyUserProfileResponse);
@@ -100,4 +105,5 @@ service : {
   list_users: () -> (ListUsersResponse) query;
 
   list_wheel_assets: (ListWheelAssetsRequest) -> (ListWheelAssetsResponse) query;
+  set_default_wheel_assets: () -> (SetDefaultWheelAssetsResponse);
 }

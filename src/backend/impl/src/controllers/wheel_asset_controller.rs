@@ -1,7 +1,7 @@
 use backend_api::{ApiError, ApiResult, ListWheelAssetsRequest, ListWheelAssetsResponse};
 use backend_macros::log_errors;
 use candid::Principal;
-use ic_cdk::{caller, query};
+use ic_cdk::{caller, query, update};
 
 use crate::{
     repositories::{UserProfileRepositoryImpl, WheelAssetRepositoryImpl, WheelAssetState},
@@ -17,6 +17,17 @@ fn list_wheel_assets(request: ListWheelAssetsRequest) -> ApiResult<ListWheelAsse
 
     WheelAssetController::default()
         .list_wheel_assets(calling_principal, request)
+        .into()
+}
+
+#[update]
+#[log_errors]
+async fn set_default_wheel_assets() -> ApiResult<()> {
+    let calling_principal = caller();
+
+    WheelAssetController::default()
+        .set_default_wheel_assets(calling_principal)
+        .await
         .into()
 }
 
@@ -60,5 +71,12 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         }
 
         self.wheel_asset_service.list_wheel_assets(request)
+    }
+
+    async fn set_default_wheel_assets(&self, calling_principal: Principal) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_is_admin(&calling_principal)?;
+
+        self.wheel_asset_service.set_default_wheel_assets().await
     }
 }

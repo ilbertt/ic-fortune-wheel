@@ -2,7 +2,10 @@ use backend_api::{ApiError, ListWheelAssetsRequest, ListWheelAssetsResponse};
 
 use crate::{
     mappings::map_wheel_asset,
-    repositories::{WheelAssetRepository, WheelAssetRepositoryImpl},
+    repositories::{
+        ckbtc_wheel_asset, cketh_wheel_asset, ckusdc_wheel_asset, icp_wheel_asset,
+        WheelAssetRepository, WheelAssetRepositoryImpl,
+    },
 };
 
 #[cfg_attr(test, mockall::automock)]
@@ -11,6 +14,8 @@ pub trait WheelAssetService {
         &self,
         request: ListWheelAssetsRequest,
     ) -> Result<ListWheelAssetsResponse, ApiError>;
+
+    async fn set_default_wheel_assets(&self) -> Result<(), ApiError>;
 }
 
 pub struct WheelAssetServiceImpl<W: WheelAssetRepository> {
@@ -38,6 +43,27 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
             .collect();
 
         Ok(items)
+    }
+
+    async fn set_default_wheel_assets(&self) -> Result<(), ApiError> {
+        let existing_assets_count = self.wheel_asset_repository.list_wheel_assets(None)?.len();
+
+        if existing_assets_count > 0 {
+            return Err(ApiError::conflict("Wheel assets already exist"));
+        }
+
+        for asset in [
+            icp_wheel_asset(),
+            ckbtc_wheel_asset(),
+            cketh_wheel_asset(),
+            ckusdc_wheel_asset(),
+        ] {
+            self.wheel_asset_repository
+                .create_wheel_asset(asset)
+                .await?;
+        }
+
+        Ok(())
     }
 }
 
