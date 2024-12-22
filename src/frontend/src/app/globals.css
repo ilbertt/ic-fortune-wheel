@@ -8,7 +8,7 @@ body {
 
 @layer base {
   :root {
-    --infinite: 259 100% 36%;
+    --infinite: 259 100% 36%; /* #3B00B9 */
     --dark-infinite: 259 100% 18%;
     --indaco-blue: 228 83% 68%;
 
