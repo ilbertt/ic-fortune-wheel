@@ -31,6 +31,16 @@ async fn set_default_wheel_assets() -> ApiResult<()> {
         .into()
 }
 
+#[update]
+#[log_errors]
+fn fetch_tokens_prices() -> ApiResult<()> {
+    let calling_principal = caller();
+
+    WheelAssetController::default()
+        .fetch_tokens_prices(calling_principal)
+        .into()
+}
+
 pub struct WheelAssetController<A: AccessControlService, W: WheelAssetService> {
     access_control_service: A,
     wheel_asset_service: W,
@@ -78,6 +88,13 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
             .assert_principal_is_admin(&calling_principal)?;
 
         self.wheel_asset_service.set_default_wheel_assets().await
+    }
+
+    pub fn fetch_tokens_prices(&self, calling_principal: Principal) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_is_admin(&calling_principal)?;
+
+        self.wheel_asset_service.fetch_tokens_prices()
     }
 
     pub fn fetch_tokens_prices_job(&self) -> Result<(), ApiError> {
