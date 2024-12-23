@@ -3,9 +3,10 @@ use std::cell::RefCell;
 use backend_api::ApiError;
 
 use super::{
-    init_wheel_asset_state_index, init_wheel_assets, Timestamped, WheelAsset, WheelAssetId,
-    WheelAssetMemory, WheelAssetState as WheelAssetStateEnum, WheelAssetStateIndexMemory,
-    WheelAssetStateKey, WheelAssetStateRange,
+    init_wheel_asset_state_index, init_wheel_asset_type_index, init_wheel_assets, Timestamped,
+    WheelAsset, WheelAssetId, WheelAssetMemory, WheelAssetState as WheelAssetStateEnum,
+    WheelAssetStateIndexMemory, WheelAssetStateKey, WheelAssetStateRange, WheelAssetType,
+    WheelAssetTypeIndexMemory, WheelAssetTypeRange,
 };
 
 #[cfg_attr(test, mockall::automock)]
@@ -18,10 +19,17 @@ pub trait WheelAssetRepository {
 
     fn delete_wheel_asset(&self, id: &WheelAssetId) -> Result<(), ApiError>;
 
-    fn list_wheel_assets(
+    fn list_wheel_assets_by_state(
         &self,
-        state: Option<WheelAssetStateEnum>,
+        state: WheelAssetStateEnum,
     ) -> Result<Vec<(WheelAssetId, WheelAsset)>, ApiError>;
+
+    fn list_wheel_assets_by_type(
+        &self,
+        state: &WheelAssetType,
+    ) -> Result<Vec<(WheelAssetId, WheelAsset)>, ApiError>;
+
+    fn list_wheel_assets(&self) -> Vec<(WheelAssetId, WheelAsset)>;
 }
 
 pub struct WheelAssetRepositoryImpl {}
@@ -77,21 +85,36 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
         })
     }
 
-    fn list_wheel_assets(
+    fn list_wheel_assets_by_state(
         &self,
-        state: Option<WheelAssetStateEnum>,
+        state: WheelAssetStateEnum,
     ) -> Result<Vec<(WheelAssetId, WheelAsset)>, ApiError> {
-        STATE.with_borrow(|s| match state {
-            Some(state) => {
-                let range = WheelAssetStateRange::new(state)?;
+        STATE.with_borrow(|s| {
+            let range = WheelAssetStateRange::new(state)?;
 
-                Ok(s.wheel_asset_state_index
-                    .range(range)
-                    .map(|(_, id)| (id, s.wheel_assets.get(&id).unwrap()))
-                    .collect())
-            }
-            None => Ok(s.wheel_assets.iter().collect()),
+            Ok(s.wheel_asset_state_index
+                .range(range)
+                .map(|(_, id)| (id, s.wheel_assets.get(&id).unwrap()))
+                .collect())
         })
+    }
+
+    fn list_wheel_assets_by_type(
+        &self,
+        state: &WheelAssetType,
+    ) -> Result<Vec<(WheelAssetId, WheelAsset)>, ApiError> {
+        STATE.with_borrow(|s| {
+            let range = WheelAssetTypeRange::new(state)?;
+
+            Ok(s.wheel_asset_type_index
+                .range(range)
+                .map(|(_, id)| (id, s.wheel_assets.get(&id).unwrap()))
+                .collect())
+        })
+    }
+
+    fn list_wheel_assets(&self) -> Vec<(WheelAssetId, WheelAsset)> {
+        STATE.with_borrow(|s| s.wheel_assets.iter().collect())
     }
 }
 
@@ -104,6 +127,7 @@ impl WheelAssetRepositoryImpl {
 struct WheelAssetState {
     wheel_assets: WheelAssetMemory,
     wheel_asset_state_index: WheelAssetStateIndexMemory,
+    wheel_asset_type_index: WheelAssetTypeIndexMemory,
 }
 
 impl Default for WheelAssetState {
@@ -111,6 +135,7 @@ impl Default for WheelAssetState {
         Self {
             wheel_assets: init_wheel_assets(),
             wheel_asset_state_index: init_wheel_asset_state_index(),
+            wheel_asset_type_index: init_wheel_asset_type_index(),
         }
     }
 }

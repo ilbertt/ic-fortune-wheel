@@ -2,15 +2,11 @@ use rstest::*;
 
 use crate::repositories::{TimestampFields, WheelAsset, WheelAssetState, WheelAssetType};
 
-use super::principal;
-
 #[fixture]
 pub fn wheel_asset_token() -> WheelAsset {
     WheelAsset {
         name: "Token1".to_string(),
-        asset_type: WheelAssetType::Token {
-            ledger_canister_id: principal(),
-        },
+        asset_type: WheelAssetType::empty_token(),
         total_amount: 100,
         used_amount: 0,
         state: WheelAssetState::Enabled,

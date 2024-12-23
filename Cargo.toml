@@ -1,10 +1,17 @@
 [workspace]
-members = ["src/backend/impl", "src/backend/api", "src/backend/macros"]
+members = [
+  "src/backend/impl",
+  "src/backend/api",
+  "src/backend/macros",
+  "src/backend/external_canisters",
+]
 resolver = "2"
 
 [workspace.dependencies]
 candid = "0.10"
 candid_parser = "0.1"
 ic-cdk = "0.17"
+
+ic-xrc-types = "1.2"
 
 serde = "1.0"

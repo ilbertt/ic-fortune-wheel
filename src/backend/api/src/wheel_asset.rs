@@ -1,6 +1,6 @@
 use candid::{CandidType, Deserialize, Principal};
 
-#[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, CandidType, Deserialize)]
 pub enum WheelAssetState {
     #[serde(rename = "enabled")]
     Enabled,
@@ -8,17 +8,28 @@ pub enum WheelAssetState {
     Disabled,
 }
 
-#[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct WheelAssetTokenPrice {
+    pub usd_price: f64,
+    pub last_fetched_at: String,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
 pub enum WheelAssetType {
     #[serde(rename = "token")]
-    Token { ledger_canister_id: Principal },
+    Token {
+        ledger_canister_id: Principal,
+        exchange_rate_symbol: String,
+        should_fetch_usd_price: bool,
+        usd_price: Option<WheelAssetTokenPrice>,
+    },
     #[serde(rename = "gadget")]
     Gadget,
     #[serde(rename = "jackpot")]
     Jackpot,
 }
 
-#[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, CandidType, Deserialize, Clone)]
 pub struct WheelAsset {
     pub id: String,
     pub name: String,
@@ -30,7 +41,7 @@ pub struct WheelAsset {
 
 pub type CreateWheelAssetResponse = WheelAsset;
 
-#[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct UpdateWheelAssetRequest {
     pub id: String,
     pub name: Option<String>,
@@ -39,7 +50,7 @@ pub struct UpdateWheelAssetRequest {
     pub state: Option<WheelAssetState>,
 }
 
-#[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct ListWheelAssetsRequest {
     pub state: Option<WheelAssetState>,
 }

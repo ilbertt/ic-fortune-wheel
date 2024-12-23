@@ -16,6 +16,8 @@ fn init() {
         spawn(init_admin(calling_principal))
     });
 
+    jobs::start_jobs();
+
     println!("init:done");
 }
 
@@ -31,6 +33,8 @@ fn post_upgrade() {
     set_timer(Duration::from_secs(0), move || {
         spawn(init_admin(calling_principal))
     });
+
+    jobs::start_jobs();
 
     println!("post_upgrade:done");
 }
@@ -59,5 +63,33 @@ impl<T: InitService> InitController<T> {
 
     async fn init(&self, calling_principal: Principal) -> Result<(), ApiError> {
         self.init_service.init(calling_principal).await
+    }
+}
+
+mod jobs {
+    use ic_cdk::println;
+    use ic_cdk_timers::set_timer_interval;
+    use std::time::Duration;
+
+    /// Starts all cron jobs.
+    pub fn start_jobs() {
+        wheel_assets::start();
+
+        println!("jobs: Jobs started");
+    }
+
+    mod wheel_assets {
+        use super::*;
+        use ic_cdk::println;
+
+        use crate::controllers::wheel_asset_controller::WheelAssetController;
+
+        pub fn start() {
+            set_timer_interval(Duration::from_secs(3_600), || {
+                if let Err(err) = WheelAssetController::default().fetch_tokens_prices_job() {
+                    println!("wheel_assets: Failed to fetch token prices: {}", err);
+                }
+            });
+        }
     }
 }

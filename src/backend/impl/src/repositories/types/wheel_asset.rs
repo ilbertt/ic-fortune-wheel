@@ -7,15 +7,75 @@ use ic_stable_structures::{
     Storable,
 };
 
-use super::{TimestampFields, Timestamped, Uuid};
+use super::{get_current_date_time, DateTime, TimestampFields, Timestamped, Uuid};
 
 pub type WheelAssetId = Uuid;
 
-#[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
+pub struct WheelAssetTokenPrice {
+    pub usd_price: f64,
+    pub last_fetched_at: DateTime,
+}
+
+impl WheelAssetTokenPrice {
+    pub fn new(usd_price: f64) -> Self {
+        Self {
+            usd_price,
+            last_fetched_at: get_current_date_time(),
+        }
+    }
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub enum WheelAssetType {
-    Token { ledger_canister_id: Principal },
+    Token {
+        ledger_canister_id: Principal,
+        // The symbol used to fetch the exchange rate against USD.
+        exchange_rate_symbol: String,
+        /// Whether the USD price should be fetched or not.
+        should_fetch_usd_price: bool,
+        /// The last fetched USD price, if any.
+        usd_price: Option<WheelAssetTokenPrice>,
+    },
     Gadget,
     Jackpot,
+}
+
+impl From<&WheelAssetType> for u8 {
+    fn from(asset_type: &WheelAssetType) -> u8 {
+        match asset_type {
+            WheelAssetType::Token { .. } => 1,
+            WheelAssetType::Gadget => 2,
+            WheelAssetType::Jackpot => 3,
+        }
+    }
+}
+
+impl WheelAssetType {
+    pub fn empty_token() -> Self {
+        WheelAssetType::Token {
+            ledger_canister_id: Principal::from_slice(&[0]),
+            exchange_rate_symbol: "".to_string(),
+            should_fetch_usd_price: false,
+            usd_price: None,
+        }
+    }
+
+    pub fn set_latest_price(&mut self, input_usd_price: WheelAssetTokenPrice) {
+        if let WheelAssetType::Token { usd_price, .. } = self {
+            *usd_price = Some(input_usd_price);
+        }
+    }
+
+    pub fn should_fetch_usd_price(&self) -> bool {
+        match self {
+            WheelAssetType::Token {
+                should_fetch_usd_price,
+                ..
+            } => *should_fetch_usd_price,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, CandidType, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
@@ -34,7 +94,7 @@ impl From<WheelAssetState> for u8 {
     }
 }
 
-#[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub struct WheelAsset {
     pub name: String,
     pub asset_type: WheelAssetType,
@@ -54,6 +114,14 @@ impl WheelAsset {
         }
         self.used_amount += 1;
         Ok(())
+    }
+
+    pub fn set_latest_price(&mut self, input_usd_price: WheelAssetTokenPrice) {
+        self.asset_type.set_latest_price(input_usd_price);
+    }
+
+    pub fn should_fetch_usd_price(&self) -> bool {
+        self.asset_type.should_fetch_usd_price()
     }
 }
 
@@ -134,11 +202,76 @@ impl RangeBounds<WheelAssetStateKey> for WheelAssetStateRange {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct WheelAssetTypeKey(Blob<{ Self::MAX_SIZE as usize }>);
+
+impl WheelAssetTypeKey {
+    const MAX_SIZE: u32 = <(u8, WheelAssetId)>::BOUND.max_size();
+
+    pub fn new(
+        asset_type: &WheelAssetType,
+        wheel_asset_id: WheelAssetId,
+    ) -> Result<Self, ApiError> {
+        Ok(Self(
+            Blob::try_from((u8::from(asset_type), wheel_asset_id).to_bytes().as_ref()).map_err(
+                |_| {
+                    ApiError::internal(&format!(
+                        "Failed to convert asset type {:?}, wheel asset id {:?} to bytes.",
+                        asset_type, wheel_asset_id
+                    ))
+                },
+            )?,
+        ))
+    }
+}
+
+impl Storable for WheelAssetTypeKey {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        self.0.to_bytes()
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        Self(Blob::from_bytes(bytes))
+    }
+
+    const BOUND: Bound = Bound::Bounded {
+        max_size: Self::MAX_SIZE,
+        is_fixed_size: true,
+    };
+}
+
+pub struct WheelAssetTypeRange {
+    start_bound: WheelAssetTypeKey,
+    end_bound: WheelAssetTypeKey,
+}
+
+impl WheelAssetTypeRange {
+    pub fn new(asset_type: &WheelAssetType) -> Result<Self, ApiError> {
+        Ok(Self {
+            start_bound: WheelAssetTypeKey::new(asset_type, Uuid::MIN)?,
+            end_bound: WheelAssetTypeKey::new(asset_type, Uuid::MAX)?,
+        })
+    }
+}
+
+impl RangeBounds<WheelAssetTypeKey> for WheelAssetTypeRange {
+    fn start_bound(&self) -> std::ops::Bound<&WheelAssetTypeKey> {
+        std::ops::Bound::Included(&self.start_bound)
+    }
+
+    fn end_bound(&self) -> std::ops::Bound<&WheelAssetTypeKey> {
+        std::ops::Bound::Included(&self.end_bound)
+    }
+}
+
 pub fn icp_wheel_asset() -> WheelAsset {
     WheelAsset {
         name: "ICP".to_string(),
         asset_type: WheelAssetType::Token {
             ledger_canister_id: Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap(),
+            exchange_rate_symbol: "ICP".to_string(),
+            should_fetch_usd_price: true,
+            usd_price: None,
         },
         total_amount: 0,
         used_amount: 0,
@@ -152,6 +285,9 @@ pub fn ckbtc_wheel_asset() -> WheelAsset {
         name: "ckBTC".to_string(),
         asset_type: WheelAssetType::Token {
             ledger_canister_id: Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai").unwrap(),
+            exchange_rate_symbol: "BTC".to_string(),
+            should_fetch_usd_price: true,
+            usd_price: None,
         },
         total_amount: 0,
         used_amount: 0,
@@ -165,6 +301,9 @@ pub fn cketh_wheel_asset() -> WheelAsset {
         name: "ckETH".to_string(),
         asset_type: WheelAssetType::Token {
             ledger_canister_id: Principal::from_text("ss2fx-dyaaa-aaaar-qacoq-cai").unwrap(),
+            exchange_rate_symbol: "ETH".to_string(),
+            should_fetch_usd_price: true,
+            usd_price: None,
         },
         total_amount: 0,
         used_amount: 0,
@@ -178,6 +317,9 @@ pub fn ckusdc_wheel_asset() -> WheelAsset {
         name: "ckUSDC".to_string(),
         asset_type: WheelAssetType::Token {
             ledger_canister_id: Principal::from_text("xevnm-gaaaa-aaaar-qafnq-cai").unwrap(),
+            exchange_rate_symbol: "USDC".to_string(),
+            should_fetch_usd_price: false,
+            usd_price: Some(WheelAssetTokenPrice::new(1.0)),
         },
         total_amount: 0,
         used_amount: 0,
@@ -242,5 +384,36 @@ mod tests {
         let deserialized_key = WheelAssetStateKey::from_bytes(serialized_key);
 
         assert_eq!(key, deserialized_key);
+    }
+
+    #[rstest]
+    #[case::token(fixtures::wheel_asset_token())]
+    #[case::gadget(fixtures::wheel_asset_gadget())]
+    #[case::jackpot(fixtures::wheel_asset_jackpot())]
+    fn wheel_asset_type_key_storable_impl(#[case] wheel_asset: WheelAsset) {
+        let asset_type = wheel_asset.asset_type;
+        let wheel_asset_id = fixtures::uuid();
+
+        let key = WheelAssetTypeKey::new(&asset_type, wheel_asset_id).unwrap();
+
+        let serialized_key = key.to_bytes();
+        let deserialized_key = WheelAssetTypeKey::from_bytes(serialized_key);
+
+        assert_eq!(key, deserialized_key);
+    }
+
+    #[rstest]
+    #[case::icp(icp_wheel_asset())]
+    #[case::ckbtc(ckbtc_wheel_asset())]
+    #[case::cketh(cketh_wheel_asset())]
+    #[case::ckusdc(ckusdc_wheel_asset())]
+    fn wheel_asset_type_set_latest_price(#[case] mut wheel_asset: WheelAsset) {
+        let usd_price = WheelAssetTokenPrice::new(42.42);
+        wheel_asset.set_latest_price(usd_price.clone());
+        let new_usd_price = match wheel_asset.asset_type {
+            WheelAssetType::Token { usd_price, .. } => usd_price.unwrap(),
+            _ => unreachable!(),
+        };
+        assert_eq!(new_usd_price.usd_price, 42.42);
     }
 }

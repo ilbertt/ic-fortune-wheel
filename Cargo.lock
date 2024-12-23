@@ -67,9 +67,11 @@ dependencies = [
  "candid",
  "candid_parser",
  "chrono",
+ "external_canisters",
  "ic-cdk",
  "ic-cdk-timers",
  "ic-stable-structures",
+ "ic-xrc-types",
  "mockall",
  "rand",
  "rand_chacha",
@@ -349,6 +351,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
+name = "external_canisters"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "ic-cdk",
+ "ic-xrc-types",
+]
+
+[[package]]
 name = "fixedbitset"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -548,6 +559,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b492c5a16455ae78623eaa12ead96dda6c69a83c535b1b00789f19b381c8a24c"
 dependencies = [
  "ic_principal",
+]
+
+[[package]]
+name = "ic-xrc-types"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1a2b2eaa332201f4abbd1192a307f7a5b6ea55d077a7f489ac62bf8e358b5a2"
+dependencies = [
+ "candid",
+ "serde",
 ]
 
 [[package]]

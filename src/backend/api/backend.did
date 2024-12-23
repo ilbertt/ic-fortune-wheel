@@ -65,9 +65,17 @@ type WheelAssetState = variant {
   disabled;
 };
 
+type WheelAssetTokenPrice = record {
+  usd_price: float64;
+  last_fetched_at: text;
+};
+
 type WheelAssetType = variant {
   token : record {
     ledger_canister_id : principal;
+    exchange_rate_symbol : text;
+    should_fetch_usd_price : bool;
+    usd_price : opt WheelAssetTokenPrice;
   };
   gadget;
   jackpot;

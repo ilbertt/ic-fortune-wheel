@@ -1,4 +1,6 @@
-use crate::repositories::{WheelAsset, WheelAssetId, WheelAssetState, WheelAssetType};
+use crate::repositories::{
+    WheelAsset, WheelAssetId, WheelAssetState, WheelAssetTokenPrice, WheelAssetType,
+};
 
 impl From<WheelAssetState> for backend_api::WheelAssetState {
     fn from(state: WheelAssetState) -> Self {
@@ -18,12 +20,29 @@ impl From<backend_api::WheelAssetState> for WheelAssetState {
     }
 }
 
+impl From<WheelAssetTokenPrice> for backend_api::WheelAssetTokenPrice {
+    fn from(value: WheelAssetTokenPrice) -> Self {
+        backend_api::WheelAssetTokenPrice {
+            usd_price: value.usd_price,
+            last_fetched_at: value.last_fetched_at.to_string(),
+        }
+    }
+}
+
 impl From<WheelAssetType> for backend_api::WheelAssetType {
     fn from(asset_type: WheelAssetType) -> Self {
         match asset_type {
-            WheelAssetType::Token { ledger_canister_id } => {
-                backend_api::WheelAssetType::Token { ledger_canister_id }
-            }
+            WheelAssetType::Token {
+                ledger_canister_id,
+                exchange_rate_symbol,
+                should_fetch_usd_price,
+                usd_price,
+            } => backend_api::WheelAssetType::Token {
+                ledger_canister_id,
+                exchange_rate_symbol,
+                should_fetch_usd_price,
+                usd_price: usd_price.map(|el| el.into()),
+            },
             WheelAssetType::Gadget => backend_api::WheelAssetType::Gadget,
             WheelAssetType::Jackpot => backend_api::WheelAssetType::Jackpot,
         }

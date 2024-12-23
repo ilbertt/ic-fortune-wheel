@@ -31,7 +31,7 @@ async fn set_default_wheel_assets() -> ApiResult<()> {
         .into()
 }
 
-struct WheelAssetController<A: AccessControlService, W: WheelAssetService> {
+pub struct WheelAssetController<A: AccessControlService, W: WheelAssetService> {
     access_control_service: A,
     wheel_asset_service: W,
 }
@@ -78,5 +78,9 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
             .assert_principal_is_admin(&calling_principal)?;
 
         self.wheel_asset_service.set_default_wheel_assets().await
+    }
+
+    pub fn fetch_tokens_prices_job(&self) -> Result<(), ApiError> {
+        self.wheel_asset_service.fetch_tokens_prices()
     }
 }
