@@ -52,7 +52,7 @@ const TokenRow: React.FC<TokenRowProps> = ({ token, refreshingTokens }) => {
         <AvatarImage src="https://github.com/indaco.png" />
       </Avatar>
       <div className="font-medium">{token.name}</div>
-      <div className="*:text-right">
+      <div className="flex flex-col items-end gap-0.5 *:text-right">
         {refreshingTokens ? (
           <Skeleton className="h-5 w-16" />
         ) : (
@@ -61,7 +61,7 @@ const TokenRow: React.FC<TokenRowProps> = ({ token, refreshingTokens }) => {
           </p>
         )}
         {refreshingTokens ? (
-          <Skeleton className="mt-0.5 h-4 w-14" />
+          <Skeleton className="h-4 w-14" />
         ) : (
           <span className="text-xs font-light text-slate-400">
             {renderUsdValue(wheelAssetTokenTotalUsdValue(token))}
@@ -128,7 +128,7 @@ export default function Page() {
 
   const fetchAssets = useCallback(async () => {
     return actor
-      .list_wheel_assets({ state: [] })
+      ?.list_wheel_assets({ state: [] })
       .then(extractOk)
       .then(res => {
         setAssets(res);
@@ -199,7 +199,7 @@ export default function Page() {
                     {renderUsdValue(wheelAssetsUsdValueSum(tokenAssets))}
                   </h3>
                 )}
-                <div className="mt-4 flex flex-row items-center justify-center gap-4">
+                <div className="mt-4 flex flex-row flex-wrap items-center justify-center gap-4">
                   <TopUpModal />
                   <Button variant="outline">
                     <Send />
@@ -217,7 +217,9 @@ export default function Page() {
               </div>
             </BorderVerticalGradientContainer>
             <div className="mt-6 flex flex-col gap-6 px-4">
-              {fetchingAssets && <Loader2 className="animate-spin" />}
+              {fetchingAssets && (
+                <Loader2 className="animate-spin self-center" />
+              )}
               {!fetchingAssets && tokenAssets.length === 0 ? (
                 <p>No tokens found</p>
               ) : (
