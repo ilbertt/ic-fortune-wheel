@@ -233,38 +233,45 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const { isCurrentUserAdmin } = useUser();
 
   return (
+    // we need to wrap divs in order to obtain the proper background color
     <div
       className={cn(
-        'fixed inset-x-0 top-0 z-50 flex h-[65px] flex-row items-center justify-between border-b px-8',
+        'bg-background fixed inset-x-0 top-0 z-50 h-[65px] border-b',
         className,
       )}
     >
-      <Logo />
-      <div className="hidden flex-1 flex-row items-center justify-center md:flex">
-        <HeaderLink
-          title="Dashboard"
-          href={ROUTES.dashboard.ROOT}
-          icon={LayoutDashboard}
-        />
-        <HeaderLink
-          title="Assets"
-          href={ROUTES.dashboard.assets}
-          icon={WalletMinimal}
-        />
-        {isCurrentUserAdmin && (
-          <HeaderLink title="Team" href={ROUTES.dashboard.team} icon={Users} />
-        )}
-        <HeaderLink
-          title="Design"
-          href={ROUTES.dashboard.design}
-          icon={Settings2}
-        />
-      </div>
-      <div className="flex flex-row items-center justify-end gap-6">
-        <Button variant="outline">
-          <ScanLine /> Scanner
-        </Button>
-        <UserNav />
+      <div className="bg-dark-infinite/25 flex h-full w-full flex-row items-center justify-between px-8">
+        <Logo />
+        <div className="hidden flex-1 flex-row items-center justify-center md:flex">
+          <HeaderLink
+            title="Dashboard"
+            href={ROUTES.dashboard.ROOT}
+            icon={LayoutDashboard}
+          />
+          <HeaderLink
+            title="Assets"
+            href={ROUTES.dashboard.assets}
+            icon={WalletMinimal}
+          />
+          {isCurrentUserAdmin && (
+            <HeaderLink
+              title="Team"
+              href={ROUTES.dashboard.team}
+              icon={Users}
+            />
+          )}
+          <HeaderLink
+            title="Design"
+            href={ROUTES.dashboard.design}
+            icon={Settings2}
+          />
+        </div>
+        <div className="flex flex-row items-center justify-end gap-6">
+          <Button variant="outline">
+            <ScanLine /> Scanner
+          </Button>
+          <UserNav />
+        </div>
       </div>
     </div>
   );
