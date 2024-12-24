@@ -34,16 +34,18 @@ import {
   wheelAssetTokenTotalUsdValue,
   type WheelAssetToken,
 } from '@/lib/wheelAsset';
-import { Loader2, PlusCircle, Send } from 'lucide-react';
+import { Loader2, PlusCircle, RefreshCcw, Send } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { TopUpModal } from './modals';
 
 const FETCH_ASSETS_INTERVAL = 30_000;
 
 type TokenRowProps = {
   token: WheelAssetToken;
+  refreshingTokens: boolean;
 };
 
-const TokenRow: React.FC<TokenRowProps> = ({ token }) => {
+const TokenRow: React.FC<TokenRowProps> = ({ token, refreshingTokens }) => {
   return (
     <div className='grid grid-cols-[theme("spacing.10")_1fr_auto] items-center gap-4'>
       <Avatar>
@@ -51,12 +53,20 @@ const TokenRow: React.FC<TokenRowProps> = ({ token }) => {
       </Avatar>
       <div className="font-medium">{token.name}</div>
       <div className="*:text-right">
-        <p className="m-0 font-medium leading-none">
-          {wheelAssetBalance(token)}
-        </p>
-        <span className="text-xs font-light text-slate-400">
-          {renderUsdValue(wheelAssetTokenTotalUsdValue(token))}
-        </span>
+        {refreshingTokens ? (
+          <Skeleton className="h-5 w-16" />
+        ) : (
+          <p className="m-0 font-medium leading-none">
+            {wheelAssetBalance(token)}
+          </p>
+        )}
+        {refreshingTokens ? (
+          <Skeleton className="mt-0.5 h-4 w-14" />
+        ) : (
+          <span className="text-xs font-light text-slate-400">
+            {renderUsdValue(wheelAssetTokenTotalUsdValue(token))}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -111,6 +121,7 @@ const EmptyAssets: React.FC<EmptyAssetsProps> = ({ fetchAssets }) => {
 export default function Page() {
   const { actor } = useAuth();
   const [fetchingAssets, setFetchingAssets] = useState(false);
+  const [refreshingTokens, setRefreshingTokens] = useState(false);
   const [assets, setAssets] = useState<WheelAsset[]>([]);
   const [tokenAssets, setTokenAssets] = useState<WheelAssetToken[]>([]);
   const { toast } = useToast();
@@ -139,6 +150,23 @@ export default function Page() {
       });
   }, [actor, toast]);
 
+  const handleRefresh = useCallback(() => {
+    setRefreshingTokens(true);
+    actor
+      .fetch_tokens_data()
+      .then(extractOk)
+      .then(() => new Promise(resolve => setTimeout(resolve, 10_000)))
+      .then(fetchAssets)
+      .catch((e: Err) => {
+        toast({
+          title: 'Error refreshing tokens',
+          description: renderError(e),
+          variant: 'destructive',
+        });
+      })
+      .finally(() => setRefreshingTokens(false));
+  }, [actor, toast, fetchAssets]);
+
   useEffect(() => {
     setFetchingAssets(true);
     fetchAssets().finally(() => setFetchingAssets(false));
@@ -162,9 +190,9 @@ export default function Page() {
                 <p className="text-center text-xs font-medium">
                   Available Balance
                 </p>
-                {fetchingAssets ? (
+                {fetchingAssets || refreshingTokens ? (
                   <div className="flex w-full justify-center">
-                    <Skeleton className="h-10 w-48" />
+                    <Skeleton className="mt-1 h-10 w-48" />
                   </div>
                 ) : (
                   <h3 className="text-center text-4xl font-bold">
@@ -172,13 +200,18 @@ export default function Page() {
                   </h3>
                 )}
                 <div className="mt-4 flex flex-row items-center justify-center gap-4">
-                  <Button variant="outline">
-                    <PlusCircle />
-                    Top-up
-                  </Button>
+                  <TopUpModal />
                   <Button variant="outline">
                     <Send />
                     Send
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleRefresh}
+                    loading={refreshingTokens}
+                  >
+                    <RefreshCcw />
+                    Refresh
                   </Button>
                 </div>
               </div>
@@ -189,7 +222,11 @@ export default function Page() {
                 <p>No tokens found</p>
               ) : (
                 tokenAssets.map(token => (
-                  <TokenRow key={token.id} token={token} />
+                  <TokenRow
+                    key={token.id}
+                    token={token}
+                    refreshingTokens={refreshingTokens}
+                  />
                 ))
               )}
             </div>
