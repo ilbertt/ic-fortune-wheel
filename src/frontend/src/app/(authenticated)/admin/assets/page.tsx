@@ -37,6 +37,8 @@ import {
 import { Loader2, PlusCircle, Send } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
+const FETCH_ASSETS_INTERVAL = 30_000;
+
 type TokenRowProps = {
   token: WheelAssetToken;
 };
@@ -133,6 +135,9 @@ export default function Page() {
   useEffect(() => {
     setFetchingAssets(true);
     fetchAssets().finally(() => setFetchingAssets(false));
+
+    const intervalId = setInterval(fetchAssets, FETCH_ASSETS_INTERVAL);
+    return () => clearInterval(intervalId);
   }, [fetchAssets]);
 
   return (
