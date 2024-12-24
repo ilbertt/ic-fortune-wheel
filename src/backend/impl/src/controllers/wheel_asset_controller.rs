@@ -1,4 +1,6 @@
-use backend_api::{ApiError, ApiResult, ListWheelAssetsRequest, ListWheelAssetsResponse};
+use backend_api::{
+    ApiError, ApiResult, ListWheelAssetsRequest, ListWheelAssetsResponse, UpdateWheelAssetRequest,
+};
 use backend_macros::log_errors;
 use candid::Principal;
 use ic_cdk::{caller, query, update};
@@ -38,6 +40,16 @@ fn fetch_tokens_data() -> ApiResult<()> {
 
     WheelAssetController::default()
         .fetch_tokens_data(calling_principal)
+        .into()
+}
+
+#[update]
+#[log_errors]
+fn update_wheel_asset(request: UpdateWheelAssetRequest) -> ApiResult<()> {
+    let calling_principal = caller();
+
+    WheelAssetController::default()
+        .update_wheel_asset(calling_principal, request)
         .into()
 }
 
@@ -90,7 +102,7 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         self.wheel_asset_service.set_default_wheel_assets().await
     }
 
-    pub fn fetch_tokens_data(&self, calling_principal: Principal) -> Result<(), ApiError> {
+    fn fetch_tokens_data(&self, calling_principal: Principal) -> Result<(), ApiError> {
         self.access_control_service
             .assert_principal_is_admin(&calling_principal)?;
 
@@ -99,5 +111,16 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
 
     pub fn fetch_tokens_data_job(&self) -> Result<(), ApiError> {
         self.wheel_asset_service.fetch_tokens_data()
+    }
+
+    fn update_wheel_asset(
+        &self,
+        calling_principal: Principal,
+        request: UpdateWheelAssetRequest,
+    ) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_is_admin(&calling_principal)?;
+
+        self.wheel_asset_service.update_wheel_asset(request)
     }
 }

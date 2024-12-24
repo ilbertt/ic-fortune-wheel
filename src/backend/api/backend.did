@@ -116,6 +116,19 @@ type FetchTokensDataResponse = variant {
   err : Err;
 };
 
+type UpdateWheelAssetRequest = record {
+  id : text;
+  name : opt text;
+  total_amount : opt nat32;
+  used_amount : opt nat32;
+  state : opt WheelAssetState;
+};
+
+type UpdateWheelAssetResponse = variant {
+  ok;
+  err : Err;
+};
+
 service : {
   get_my_user_profile : () -> (GetMyUserProfileResponse) query;
   create_my_user_profile : () -> (CreateMyUserProfileResponse);
@@ -127,4 +140,5 @@ service : {
   list_wheel_assets: (ListWheelAssetsRequest) -> (ListWheelAssetsResponse) query;
   set_default_wheel_assets: () -> (SetDefaultWheelAssetsResponse);
   fetch_tokens_data: () -> (FetchTokensDataResponse);
+  update_wheel_asset: (UpdateWheelAssetRequest) -> (UpdateWheelAssetResponse);
 }

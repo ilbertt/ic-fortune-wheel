@@ -1,7 +1,9 @@
 import type {
   WheelAsset,
+  WheelAssetState,
   WheelAssetType,
 } from '@/declarations/backend/backend.did';
+import { enumKey } from '@/lib/utils';
 
 export type WheelAssetToken = Omit<WheelAsset, 'asset_type'> & {
   asset_type: Extract<WheelAssetType, { token: unknown }>;
@@ -39,4 +41,12 @@ export const wheelAssetsUsdValueSum = (assets: WheelAsset[]): number => {
       (isWheelAssetToken(asset) ? wheelAssetTokenTotalUsdValue(asset) : 0),
     0,
   );
+};
+
+export const isWheelAssetDisabled = (
+  asset: WheelAsset,
+): asset is Omit<WheelAsset, 'state'> & {
+  state: Extract<WheelAssetState, { disabled: null }>;
+} => {
+  return enumKey(asset.state) === 'disabled';
 };

@@ -1,6 +1,8 @@
 use std::time::Duration;
 
-use backend_api::{ApiError, ListWheelAssetsRequest, ListWheelAssetsResponse};
+use backend_api::{
+    ApiError, ListWheelAssetsRequest, ListWheelAssetsResponse, UpdateWheelAssetRequest,
+};
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{println, spawn};
 use ic_cdk_timers::set_timer;
@@ -16,6 +18,8 @@ use crate::{
     },
 };
 
+const WHEEL_ASSET_NAME_MAX_LENGTH: usize = 100;
+
 #[cfg_attr(test, mockall::automock)]
 pub trait WheelAssetService {
     fn list_wheel_assets(
@@ -26,6 +30,8 @@ pub trait WheelAssetService {
     async fn set_default_wheel_assets(&self) -> Result<(), ApiError>;
 
     fn fetch_tokens_data(&self) -> Result<(), ApiError>;
+
+    fn update_wheel_asset(&self, request: UpdateWheelAssetRequest) -> Result<(), ApiError>;
 }
 
 pub struct WheelAssetServiceImpl<W: WheelAssetRepository> {
@@ -102,6 +108,39 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
 
         Ok(())
     }
+
+    fn update_wheel_asset(&self, request: UpdateWheelAssetRequest) -> Result<(), ApiError> {
+        self.validate_update_wheel_asset_request(&request)?;
+
+        let asset_id = WheelAssetId::try_from(request.id.as_str())?;
+        let mut existing_asset = self
+            .wheel_asset_repository
+            .get_wheel_asset(&asset_id)
+            .ok_or_else(|| {
+                ApiError::not_found(&format!("Wheel asset with id {} not found", request.id))
+            })?;
+
+        if let Some(name) = request.name {
+            existing_asset.name = name;
+        }
+
+        if let Some(total_amount) = request.total_amount {
+            existing_asset.total_amount = total_amount;
+        }
+
+        if let Some(used_amount) = request.used_amount {
+            existing_asset.used_amount = used_amount;
+        }
+
+        self.validate_wheel_asset_amounts(existing_asset.total_amount, existing_asset.used_amount)?;
+
+        if let Some(state) = request.state {
+            existing_asset.state = state.into();
+        }
+
+        self.wheel_asset_repository
+            .update_wheel_asset(asset_id, existing_asset)
+    }
 }
 
 impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
@@ -109,6 +148,43 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
         Self {
             wheel_asset_repository,
         }
+    }
+
+    fn validate_update_wheel_asset_request(
+        &self,
+        request: &UpdateWheelAssetRequest,
+    ) -> Result<(), ApiError> {
+        if let Some(name) = &request.name {
+            if name.is_empty() {
+                return Err(ApiError::invalid_argument("Name must not be empty"));
+            }
+            if name.chars().count() > WHEEL_ASSET_NAME_MAX_LENGTH {
+                return Err(ApiError::invalid_argument(&format!(
+                    "Name must be at most {WHEEL_ASSET_NAME_MAX_LENGTH} characters"
+                )));
+            }
+        }
+
+        if let (Some(total_amount), Some(used_amount)) = (request.total_amount, request.used_amount)
+        {
+            self.validate_wheel_asset_amounts(total_amount, used_amount)?;
+        }
+
+        Ok(())
+    }
+
+    fn validate_wheel_asset_amounts(
+        &self,
+        total_amount: u32,
+        used_amount: u32,
+    ) -> Result<(), ApiError> {
+        if total_amount < used_amount {
+            return Err(ApiError::invalid_argument(
+                "Total amount must be greater or equal to used amount",
+            ));
+        }
+
+        Ok(())
     }
 
     /// Immediately (= after 0 seconds) starts a task to fetch the price of the given asset,

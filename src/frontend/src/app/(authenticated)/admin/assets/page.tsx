@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { renderError, renderUsdValue } from '@/lib/utils';
 import {
+  isWheelAssetDisabled,
   isWheelAssetToken,
   wheelAssetBalance,
   wheelAssetsUsdValueSum,
@@ -37,6 +38,7 @@ import {
 import { Loader2, PlusCircle, RefreshCcw, Send } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { TopUpModal } from './modals';
+import { AssetsTable } from './AssetsTable';
 
 const FETCH_ASSETS_INTERVAL = 30_000;
 
@@ -122,7 +124,10 @@ export default function Page() {
   const { actor } = useAuth();
   const [fetchingAssets, setFetchingAssets] = useState(false);
   const [refreshingTokens, setRefreshingTokens] = useState(false);
-  const [assets, setAssets] = useState<WheelAsset[]>([]);
+  const [assets, setAssets] = useState<{
+    enabled: WheelAsset[];
+    disabled: WheelAsset[];
+  }>({ enabled: [], disabled: [] });
   const [tokenAssets, setTokenAssets] = useState<WheelAssetToken[]>([]);
   const { toast } = useToast();
 
@@ -131,7 +136,18 @@ export default function Page() {
       ?.list_wheel_assets({ state: [] })
       .then(extractOk)
       .then(res => {
-        setAssets(res);
+        const newAssets = res.reduce(
+          (acc, asset) => {
+            if (isWheelAssetDisabled(asset)) {
+              acc.disabled.push(asset);
+            } else {
+              acc.enabled.push(asset);
+            }
+            return acc;
+          },
+          { enabled: [] as WheelAsset[], disabled: [] as WheelAsset[] },
+        );
+        setAssets(newAssets);
         const tokenAssetsArr = res
           .filter(isWheelAssetToken)
           .sort((a, b) =>
@@ -247,11 +263,31 @@ export default function Page() {
           </CardHeader>
           <CardContent>
             {fetchingAssets && <Loader2 className="animate-spin" />}
-            {!fetchingAssets && assets.length === 0 ? (
+            {!fetchingAssets &&
+            assets.enabled.length === 0 &&
+            assets.disabled.length === 0 ? (
               <EmptyAssets fetchAssets={fetchAssets} />
             ) : (
-              // TODO: implement assets table
-              assets.map(el => <p key={el.id}>{el.name}</p>)
+              <div className="flex flex-col gap-4">
+                {assets.enabled.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    <CardTitle className="text-sm">Enabled</CardTitle>
+                    <AssetsTable
+                      data={assets.enabled}
+                      onToggleEnabledComplete={fetchAssets}
+                    />
+                  </div>
+                )}
+                {assets.disabled.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    <CardTitle className="text-sm">Disabled</CardTitle>
+                    <AssetsTable
+                      data={assets.disabled}
+                      onToggleEnabledComplete={fetchAssets}
+                    />
+                  </div>
+                )}
+              </div>
             )}
           </CardContent>
         </Card>
