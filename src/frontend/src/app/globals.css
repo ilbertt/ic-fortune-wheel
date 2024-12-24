@@ -51,4 +51,7 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  pre {
+    @apply bg-indaco-blue/20 rounded-md px-2 py-1.5;
+  }
 }

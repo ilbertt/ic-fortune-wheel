@@ -28,13 +28,13 @@ export const TopUpModal = () => {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Top up balance</AlertDialogTitle>
+          <AlertDialogTitle>Top up tokens balances</AlertDialogTitle>
           <AlertDialogDescription>
             Send one or more of the tokens available in the assets to the
-            backend principal:
+            backend&apos;s canister principal:
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex flex-row flex-wrap items-center gap-2">
+        <div className="flex flex-row flex-wrap items-center justify-center gap-2">
           <pre>{backendCanisterId.toText()}</pre>
           <CopyToClipboardButton value={backendCanisterId.toText()} />
         </div>
