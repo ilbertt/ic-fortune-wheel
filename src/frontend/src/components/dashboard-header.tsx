@@ -168,7 +168,11 @@ const EditUserDialog = () => {
   );
 };
 
-const UserNav = () => {
+type UserNavProps = {
+  headerLinks: React.ReactNode;
+};
+
+const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
   const { logout } = useAuth();
   const { user } = useUser();
 
@@ -192,21 +196,29 @@ const UserNav = () => {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent
+        className="[&>a>svg]:text-foreground [&>a]:text-foreground w-56 [&>a]:justify-start"
+        align="end"
+        forceMount
+      >
         {user && (
-          <DropdownMenuLabel>
-            <div className="flex flex-col space-y-1">
-              <div className="flex items-center gap-1 text-sm font-semibold">
-                {user.username}
-                <EditUserDialog />
+          <>
+            <DropdownMenuLabel>
+              <div className="flex flex-col space-y-1">
+                <div className="flex items-center gap-1 text-sm font-semibold">
+                  {user.username}
+                  <EditUserDialog />
+                </div>
+                <p className="text-xs font-light">User ID</p>
+                <UserIdDisplay userId={user.id} />
+                <p className="text-xs font-light">Principal</p>
+                <PrincipalDisplay principal={user.principal_id} />
               </div>
-              <p className="text-xs font-light">User ID</p>
-              <UserIdDisplay userId={user.id} />
-              <p className="text-xs font-light">Principal</p>
-              <PrincipalDisplay principal={user.principal_id} />
-            </div>
-          </DropdownMenuLabel>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+          </>
         )}
+        {headerLinks}
         <DropdownMenuSeparator />
         <DropdownMenuItem className="[&>img]:size-4" asChild>
           <Link href={GITHUB_REPO_URL} target="_blank">
@@ -232,6 +244,29 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const { isCurrentUserAdmin } = useUser();
 
+  const headerLinks = (
+    <>
+      <HeaderLink
+        title="Dashboard"
+        href={ROUTES.dashboard.ROOT}
+        icon={LayoutDashboard}
+      />
+      <HeaderLink
+        title="Assets"
+        href={ROUTES.dashboard.assets}
+        icon={WalletMinimal}
+      />
+      {isCurrentUserAdmin && (
+        <HeaderLink title="Team" href={ROUTES.dashboard.team} icon={Users} />
+      )}
+      <HeaderLink
+        title="Design"
+        href={ROUTES.dashboard.design}
+        icon={Settings2}
+      />
+    </>
+  );
+
   return (
     // we need to wrap divs in order to obtain the proper background color
     <div
@@ -243,34 +278,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="bg-dark-infinite/25 flex h-full w-full flex-row items-center justify-between px-8">
         <Logo />
         <div className="hidden flex-1 flex-row items-center justify-center md:flex">
-          <HeaderLink
-            title="Dashboard"
-            href={ROUTES.dashboard.ROOT}
-            icon={LayoutDashboard}
-          />
-          <HeaderLink
-            title="Assets"
-            href={ROUTES.dashboard.assets}
-            icon={WalletMinimal}
-          />
-          {isCurrentUserAdmin && (
-            <HeaderLink
-              title="Team"
-              href={ROUTES.dashboard.team}
-              icon={Users}
-            />
-          )}
-          <HeaderLink
-            title="Design"
-            href={ROUTES.dashboard.design}
-            icon={Settings2}
-          />
+          {headerLinks}
         </div>
         <div className="flex flex-row items-center justify-end gap-6">
           <Button variant="outline">
             <ScanLine /> Scanner
           </Button>
-          <UserNav />
+          <UserNav headerLinks={headerLinks} />
         </div>
       </div>
     </div>
