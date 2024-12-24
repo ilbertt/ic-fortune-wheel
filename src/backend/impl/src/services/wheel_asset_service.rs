@@ -10,8 +10,8 @@ use icrc_ledger_types::icrc1::account::Account;
 use crate::{
     mappings::map_wheel_asset,
     repositories::{
-        ckbtc_wheel_asset, cketh_wheel_asset, ckusdc_wheel_asset, icp_wheel_asset, WheelAsset,
-        WheelAssetId, WheelAssetRepository, WheelAssetRepositoryImpl, WheelAssetTokenBalance,
+        ckbtc_wheel_asset, cketh_wheel_asset, ckusdc_wheel_asset, icp_wheel_asset, WheelAssetId,
+        WheelAssetRepository, WheelAssetRepositoryImpl, WheelAssetTokenBalance,
         WheelAssetTokenPrice, WheelAssetType,
     },
 };
@@ -76,8 +76,8 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
                 .create_wheel_asset(asset.clone())
                 .await?;
 
-            self.schedule_balance_fetcher(asset_id, asset.clone());
-            self.schedule_price_fetcher(asset_id, asset);
+            self.schedule_balance_fetcher(asset_id, asset.asset_type.clone());
+            self.schedule_price_fetcher(asset_id, asset.asset_type);
         }
 
         Ok(())
@@ -88,14 +88,16 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
             .wheel_asset_repository
             .list_wheel_assets_by_type(&WheelAssetType::empty_token())?;
 
-        for (asset_id, asset) in &token_assets {
-            self.schedule_balance_fetcher(*asset_id, asset.clone());
-            self.schedule_price_fetcher(*asset_id, asset.clone());
+        let token_assets_count = token_assets.len();
+
+        for (asset_id, asset) in token_assets {
+            self.schedule_balance_fetcher(asset_id, asset.asset_type.clone());
+            self.schedule_price_fetcher(asset_id, asset.asset_type);
         }
 
         println!(
             "fetch_tokens_data: Scheduled price and balance fetchers for {} token assets",
-            token_assets.len()
+            token_assets_count
         );
 
         Ok(())
@@ -111,8 +113,8 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
 
     /// Immediately (= after 0 seconds) starts a task to fetch the price of the given asset,
     /// if the asset has a price that should be fetched.
-    fn schedule_price_fetcher(&self, asset_id: WheelAssetId, asset: WheelAsset) {
-        if !asset.should_fetch_usd_price() {
+    fn schedule_price_fetcher(&self, asset_id: WheelAssetId, asset_type: WheelAssetType) {
+        if !asset_type.should_fetch_usd_price() {
             return;
         }
 
@@ -124,19 +126,19 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
         set_timer(Duration::from_secs(0), move || {
             spawn(async move {
                 WheelAssetServiceImpl::default()
-                    .fetch_and_save_token_price(asset_id, asset)
+                    .fetch_and_save_token_price(asset_id, asset_type)
                     .await
             });
         });
     }
 
-    async fn fetch_and_save_token_price(&self, asset_id: WheelAssetId, mut asset: WheelAsset) {
+    async fn fetch_and_save_token_price(&self, asset_id: WheelAssetId, asset_type: WheelAssetType) {
         println!(
             "fetch_and_save_token_price: Fetching price for asset {}",
             asset_id
         );
 
-        let symbol = match &asset.asset_type {
+        let symbol = match asset_type {
             WheelAssetType::Token {
                 exchange_rate_symbol,
                 ..
@@ -166,6 +168,17 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
             Ok(result) => {
                 let usd_price = result.rate as f64 / 10_f64.powi(result.metadata.decimals as i32);
 
+                let mut asset = match self.wheel_asset_repository.get_wheel_asset(&asset_id) {
+                    Some(asset) => asset,
+                    None => {
+                        println!(
+                            "fetch_and_save_token_price: asset with id {} not found, it may have been deleted",
+                            asset_id
+                        );
+                        return;
+                    }
+                };
+
                 asset.set_latest_price(WheelAssetTokenPrice::new(usd_price));
 
                 if let Err(err) = self
@@ -180,7 +193,7 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
                 }
 
                 println!(
-                    "fetch_and_save_token_price: Successfully fetched price for asset {}",
+                    "fetch_and_save_token_price: Successfully fetched and saved price for asset {}",
                     asset_id
                 );
             }
@@ -195,7 +208,7 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
     }
 
     /// Immediately (= after 0 seconds) starts a task to fetch the balance of the given token asset.
-    fn schedule_balance_fetcher(&self, asset_id: WheelAssetId, asset: WheelAsset) {
+    fn schedule_balance_fetcher(&self, asset_id: WheelAssetId, asset_type: WheelAssetType) {
         println!(
             "schedule_balance_fetcher: Scheduling balance fetcher for asset {}",
             asset_id
@@ -204,19 +217,23 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
         set_timer(Duration::from_secs(0), move || {
             spawn(async move {
                 WheelAssetServiceImpl::default()
-                    .fetch_and_save_token_balance(asset_id, asset)
+                    .fetch_and_save_token_balance(asset_id, asset_type)
                     .await
             });
         });
     }
 
-    async fn fetch_and_save_token_balance(&self, asset_id: WheelAssetId, mut asset: WheelAsset) {
+    async fn fetch_and_save_token_balance(
+        &self,
+        asset_id: WheelAssetId,
+        asset_type: WheelAssetType,
+    ) {
         println!(
             "fetch_and_save_token_balance: Fetching balance for asset {}",
             asset_id
         );
 
-        let ledger_canister_id = match &asset.asset_type {
+        let ledger_canister_id = match asset_type {
             WheelAssetType::Token {
                 ledger_canister_id, ..
             } => ledger_canister_id,
@@ -227,7 +244,7 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
             }
         };
 
-        let ledger_canister = LedgerCanisterService(*ledger_canister_id);
+        let ledger_canister = LedgerCanisterService(ledger_canister_id);
 
         match ledger_canister
             .icrc1_balance_of(Account {
@@ -237,6 +254,17 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
             .await
         {
             Ok(balance) => {
+                let mut asset = match self.wheel_asset_repository.get_wheel_asset(&asset_id) {
+                    Some(asset) => asset,
+                    None => {
+                        println!(
+                            "fetch_and_save_token_balance: asset with id {} not found, it may have been deleted",
+                            asset_id
+                        );
+                        return;
+                    }
+                };
+
                 asset.set_latest_balance(WheelAssetTokenBalance::new(balance));
 
                 if let Err(err) = self
@@ -251,7 +279,7 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
                 }
 
                 println!(
-                    "fetch_and_save_token_balance: Successfully fetched balance for asset {}",
+                    "fetch_and_save_token_balance: Successfully fetched and saved balance for asset {}",
                     asset_id
                 );
             }

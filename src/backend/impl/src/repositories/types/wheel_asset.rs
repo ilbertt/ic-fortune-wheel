@@ -147,10 +147,6 @@ impl WheelAsset {
         self.asset_type.set_latest_price(input_usd_price);
     }
 
-    pub fn should_fetch_usd_price(&self) -> bool {
-        self.asset_type.should_fetch_usd_price()
-    }
-
     pub fn set_latest_balance(&mut self, input_balance: WheelAssetTokenBalance) {
         self.asset_type.set_latest_balance(input_balance);
     }
