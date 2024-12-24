@@ -71,7 +71,7 @@ type WheelAssetTokenPrice = record {
 };
 
 type WheelAssetTokenBalance = record {
-  balance: nat64;
+  balance: nat;
   last_fetched_at: text;
 };
 

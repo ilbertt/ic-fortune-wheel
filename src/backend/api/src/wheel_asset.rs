@@ -16,7 +16,7 @@ pub struct WheelAssetTokenPrice {
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct WheelAssetTokenBalance {
-    pub balance: u64,
+    pub balance: u128,
     pub last_fetched_at: String,
 }
 

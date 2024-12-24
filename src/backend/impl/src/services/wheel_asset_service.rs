@@ -88,12 +88,15 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
             .wheel_asset_repository
             .list_wheel_assets_by_type(&WheelAssetType::empty_token())?;
 
-        for (asset_id, asset) in token_assets {
-            self.schedule_balance_fetcher(asset_id, asset.clone());
-            self.schedule_price_fetcher(asset_id, asset);
+        for (asset_id, asset) in &token_assets {
+            self.schedule_balance_fetcher(*asset_id, asset.clone());
+            self.schedule_price_fetcher(*asset_id, asset.clone());
         }
 
-        println!("fetch_token_prices: Scheduled all price fetchers");
+        println!(
+            "fetch_tokens_data: Scheduled price and balance fetchers for {} token assets",
+            token_assets.len()
+        );
 
         Ok(())
     }

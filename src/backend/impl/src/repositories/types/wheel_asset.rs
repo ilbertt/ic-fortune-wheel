@@ -28,12 +28,12 @@ impl WheelAssetTokenPrice {
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub struct WheelAssetTokenBalance {
-    pub balance: u64,
+    pub balance: u128,
     pub last_fetched_at: DateTime,
 }
 
 impl WheelAssetTokenBalance {
-    pub fn new(balance: u64) -> Self {
+    pub fn new(balance: u128) -> Self {
         Self {
             balance,
             last_fetched_at: get_current_date_time(),
