@@ -1,5 +1,6 @@
 use crate::repositories::{
-    WheelAsset, WheelAssetId, WheelAssetState, WheelAssetTokenPrice, WheelAssetType,
+    WheelAsset, WheelAssetId, WheelAssetState, WheelAssetTokenBalance, WheelAssetTokenPrice,
+    WheelAssetType,
 };
 
 impl From<WheelAssetState> for backend_api::WheelAssetState {
@@ -29,6 +30,15 @@ impl From<WheelAssetTokenPrice> for backend_api::WheelAssetTokenPrice {
     }
 }
 
+impl From<WheelAssetTokenBalance> for backend_api::WheelAssetTokenBalance {
+    fn from(value: WheelAssetTokenBalance) -> Self {
+        backend_api::WheelAssetTokenBalance {
+            balance: value.balance,
+            last_fetched_at: value.last_fetched_at.to_string(),
+        }
+    }
+}
+
 impl From<WheelAssetType> for backend_api::WheelAssetType {
     fn from(asset_type: WheelAssetType) -> Self {
         match asset_type {
@@ -37,11 +47,15 @@ impl From<WheelAssetType> for backend_api::WheelAssetType {
                 exchange_rate_symbol,
                 should_fetch_usd_price,
                 usd_price,
+                decimals,
+                balance,
             } => backend_api::WheelAssetType::Token {
                 ledger_canister_id,
                 exchange_rate_symbol,
                 should_fetch_usd_price,
                 usd_price: usd_price.map(|el| el.into()),
+                decimals,
+                balance: balance.map(|el| el.into()),
             },
             WheelAssetType::Gadget => backend_api::WheelAssetType::Gadget,
             WheelAssetType::Jackpot => backend_api::WheelAssetType::Jackpot,

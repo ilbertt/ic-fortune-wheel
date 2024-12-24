@@ -29,6 +29,7 @@ import { extractOk } from '@/lib/api';
 import { renderError, renderUsdValue } from '@/lib/utils';
 import {
   isWheelAssetToken,
+  wheelAssetBalance,
   wheelAssetsUsdValueSum,
   wheelAssetTokenTotalUsdValue,
   type WheelAssetToken,
@@ -48,7 +49,9 @@ const TokenRow: React.FC<TokenRowProps> = ({ token }) => {
       </Avatar>
       <div className="font-medium">{token.name}</div>
       <div className="*:text-right">
-        <p className="m-0 font-medium leading-none">{token.total_amount}</p>
+        <p className="m-0 font-medium leading-none">
+          {wheelAssetBalance(token)}
+        </p>
         <span className="text-xs font-light text-slate-400">
           {renderUsdValue(wheelAssetTokenTotalUsdValue(token))}
         </span>

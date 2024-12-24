@@ -33,11 +33,11 @@ async fn set_default_wheel_assets() -> ApiResult<()> {
 
 #[update]
 #[log_errors]
-fn fetch_tokens_prices() -> ApiResult<()> {
+fn fetch_tokens_data() -> ApiResult<()> {
     let calling_principal = caller();
 
     WheelAssetController::default()
-        .fetch_tokens_prices(calling_principal)
+        .fetch_tokens_data(calling_principal)
         .into()
 }
 
@@ -90,14 +90,14 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         self.wheel_asset_service.set_default_wheel_assets().await
     }
 
-    pub fn fetch_tokens_prices(&self, calling_principal: Principal) -> Result<(), ApiError> {
+    pub fn fetch_tokens_data(&self, calling_principal: Principal) -> Result<(), ApiError> {
         self.access_control_service
             .assert_principal_is_admin(&calling_principal)?;
 
-        self.wheel_asset_service.fetch_tokens_prices()
+        self.wheel_asset_service.fetch_tokens_data()
     }
 
-    pub fn fetch_tokens_prices_job(&self) -> Result<(), ApiError> {
-        self.wheel_asset_service.fetch_tokens_prices()
+    pub fn fetch_tokens_data_job(&self) -> Result<(), ApiError> {
+        self.wheel_asset_service.fetch_tokens_data()
     }
 }

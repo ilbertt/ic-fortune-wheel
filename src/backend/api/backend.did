@@ -70,12 +70,19 @@ type WheelAssetTokenPrice = record {
   last_fetched_at: text;
 };
 
+type WheelAssetTokenBalance = record {
+  balance: nat64;
+  last_fetched_at: text;
+};
+
 type WheelAssetType = variant {
   token : record {
     ledger_canister_id : principal;
     exchange_rate_symbol : text;
     should_fetch_usd_price : bool;
     usd_price : opt WheelAssetTokenPrice;
+    decimals : nat8;
+    balance : opt WheelAssetTokenBalance;
   };
   gadget;
   jackpot;
@@ -104,7 +111,7 @@ type SetDefaultWheelAssetsResponse = variant {
   err : Err;
 };
 
-type FetchTokensPricesResponse = variant {
+type FetchTokensDataResponse = variant {
   ok;
   err : Err;
 };
@@ -119,5 +126,5 @@ service : {
 
   list_wheel_assets: (ListWheelAssetsRequest) -> (ListWheelAssetsResponse) query;
   set_default_wheel_assets: () -> (SetDefaultWheelAssetsResponse);
-  fetch_tokens_prices: () -> (FetchTokensPricesResponse);
+  fetch_tokens_data: () -> (FetchTokensDataResponse);
 }

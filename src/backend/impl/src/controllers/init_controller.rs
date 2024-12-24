@@ -86,8 +86,8 @@ mod jobs {
 
         pub fn start() {
             set_timer_interval(Duration::from_secs(3_600), || {
-                if let Err(err) = WheelAssetController::default().fetch_tokens_prices_job() {
-                    println!("wheel_assets: Failed to fetch token prices: {}", err);
+                if let Err(err) = WheelAssetController::default().fetch_tokens_data_job() {
+                    println!("wheel_assets: Failed to fetch token data: {}", err);
                 }
             });
         }

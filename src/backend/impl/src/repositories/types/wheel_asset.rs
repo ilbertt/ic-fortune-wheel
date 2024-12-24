@@ -27,6 +27,21 @@ impl WheelAssetTokenPrice {
 }
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
+pub struct WheelAssetTokenBalance {
+    pub balance: u64,
+    pub last_fetched_at: DateTime,
+}
+
+impl WheelAssetTokenBalance {
+    pub fn new(balance: u64) -> Self {
+        Self {
+            balance,
+            last_fetched_at: get_current_date_time(),
+        }
+    }
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub enum WheelAssetType {
     Token {
         ledger_canister_id: Principal,
@@ -36,6 +51,10 @@ pub enum WheelAssetType {
         should_fetch_usd_price: bool,
         /// The last fetched USD price, if any.
         usd_price: Option<WheelAssetTokenPrice>,
+        /// The decimals that the token uses.
+        decimals: u8,
+        /// The last fetched token balance, if any.
+        balance: Option<WheelAssetTokenBalance>,
     },
     Gadget,
     Jackpot,
@@ -58,6 +77,8 @@ impl WheelAssetType {
             exchange_rate_symbol: "".to_string(),
             should_fetch_usd_price: false,
             usd_price: None,
+            decimals: 0,
+            balance: None,
         }
     }
 
@@ -74,6 +95,12 @@ impl WheelAssetType {
                 ..
             } => *should_fetch_usd_price,
             _ => false,
+        }
+    }
+
+    pub fn set_latest_balance(&mut self, input_balance: WheelAssetTokenBalance) {
+        if let WheelAssetType::Token { balance, .. } = self {
+            *balance = Some(input_balance);
         }
     }
 }
@@ -122,6 +149,10 @@ impl WheelAsset {
 
     pub fn should_fetch_usd_price(&self) -> bool {
         self.asset_type.should_fetch_usd_price()
+    }
+
+    pub fn set_latest_balance(&mut self, input_balance: WheelAssetTokenBalance) {
+        self.asset_type.set_latest_balance(input_balance);
     }
 }
 
@@ -272,6 +303,8 @@ pub fn icp_wheel_asset() -> WheelAsset {
             exchange_rate_symbol: "ICP".to_string(),
             should_fetch_usd_price: true,
             usd_price: None,
+            decimals: 8,
+            balance: None,
         },
         total_amount: 0,
         used_amount: 0,
@@ -288,6 +321,8 @@ pub fn ckbtc_wheel_asset() -> WheelAsset {
             exchange_rate_symbol: "BTC".to_string(),
             should_fetch_usd_price: true,
             usd_price: None,
+            decimals: 8,
+            balance: None,
         },
         total_amount: 0,
         used_amount: 0,
@@ -304,6 +339,8 @@ pub fn cketh_wheel_asset() -> WheelAsset {
             exchange_rate_symbol: "ETH".to_string(),
             should_fetch_usd_price: true,
             usd_price: None,
+            decimals: 18,
+            balance: None,
         },
         total_amount: 0,
         used_amount: 0,
@@ -320,6 +357,8 @@ pub fn ckusdc_wheel_asset() -> WheelAsset {
             exchange_rate_symbol: "USDC".to_string(),
             should_fetch_usd_price: false,
             usd_price: Some(WheelAssetTokenPrice::new(1.0)),
+            decimals: 6,
+            balance: None,
         },
         total_amount: 0,
         used_amount: 0,
@@ -415,5 +454,20 @@ mod tests {
             _ => unreachable!(),
         };
         assert_eq!(new_usd_price.usd_price, 42.42);
+    }
+
+    #[rstest]
+    #[case::icp(icp_wheel_asset())]
+    #[case::ckbtc(ckbtc_wheel_asset())]
+    #[case::cketh(cketh_wheel_asset())]
+    #[case::ckusdc(ckusdc_wheel_asset())]
+    fn wheel_asset_type_set_latest_balance(#[case] mut wheel_asset: WheelAsset) {
+        let balance = WheelAssetTokenBalance::new(42);
+        wheel_asset.set_latest_balance(balance.clone());
+        let new_balance = match wheel_asset.asset_type {
+            WheelAssetType::Token { balance, .. } => balance.unwrap(),
+            _ => unreachable!(),
+        };
+        assert_eq!(new_balance.balance, 42);
     }
 }

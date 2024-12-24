@@ -19,6 +19,7 @@ ic-cdk-timers = "0.11"
 ic-stable-structures = "0.6"
 
 ic-xrc-types.workspace = true
+icrc-ledger-types.workspace = true
 
 serde.workspace = true
 

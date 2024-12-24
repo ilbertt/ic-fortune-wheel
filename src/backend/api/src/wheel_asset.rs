@@ -15,6 +15,12 @@ pub struct WheelAssetTokenPrice {
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct WheelAssetTokenBalance {
+    pub balance: u64,
+    pub last_fetched_at: String,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
 pub enum WheelAssetType {
     #[serde(rename = "token")]
     Token {
@@ -22,6 +28,8 @@ pub enum WheelAssetType {
         exchange_rate_symbol: String,
         should_fetch_usd_price: bool,
         usd_price: Option<WheelAssetTokenPrice>,
+        decimals: u8,
+        balance: Option<WheelAssetTokenBalance>,
     },
     #[serde(rename = "gadget")]
     Gadget,

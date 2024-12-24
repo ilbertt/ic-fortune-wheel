@@ -8,3 +8,4 @@ candid.workspace = true
 ic-cdk.workspace = true
 
 ic-xrc-types.workspace = true
+icrc-ledger-types.workspace = true

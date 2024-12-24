@@ -29,3 +29,13 @@ export const wheelAssetsUsdValueSum = (assets: WheelAsset[]): number => {
     0,
   );
 };
+
+export const wheelAssetBalance = (asset: WheelAssetToken): number => {
+  const balance = asset.asset_type.token.balance[0];
+  if (!balance) {
+    return 0;
+  }
+  // we can reasonably assume the balance won't overflow the Number type
+  const balanceNumber = Number(balance.balance);
+  return balanceNumber / 10 ** asset.asset_type.token.decimals;
+};

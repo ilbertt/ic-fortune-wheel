@@ -1,17 +1,18 @@
 use std::time::Duration;
 
 use backend_api::{ApiError, ListWheelAssetsRequest, ListWheelAssetsResponse};
-use external_canisters::xrc::ExchangeRateCanisterService;
+use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{println, spawn};
 use ic_cdk_timers::set_timer;
 use ic_xrc_types::{Asset, AssetClass, GetExchangeRateRequest};
+use icrc_ledger_types::icrc1::account::Account;
 
 use crate::{
     mappings::map_wheel_asset,
     repositories::{
         ckbtc_wheel_asset, cketh_wheel_asset, ckusdc_wheel_asset, icp_wheel_asset, WheelAsset,
-        WheelAssetId, WheelAssetRepository, WheelAssetRepositoryImpl, WheelAssetTokenPrice,
-        WheelAssetType,
+        WheelAssetId, WheelAssetRepository, WheelAssetRepositoryImpl, WheelAssetTokenBalance,
+        WheelAssetTokenPrice, WheelAssetType,
     },
 };
 
@@ -24,7 +25,7 @@ pub trait WheelAssetService {
 
     async fn set_default_wheel_assets(&self) -> Result<(), ApiError>;
 
-    fn fetch_tokens_prices(&self) -> Result<(), ApiError>;
+    fn fetch_tokens_data(&self) -> Result<(), ApiError>;
 }
 
 pub struct WheelAssetServiceImpl<W: WheelAssetRepository> {
@@ -75,18 +76,20 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
                 .create_wheel_asset(asset.clone())
                 .await?;
 
+            self.schedule_balance_fetcher(asset_id, asset.clone());
             self.schedule_price_fetcher(asset_id, asset);
         }
 
         Ok(())
     }
 
-    fn fetch_tokens_prices(&self) -> Result<(), ApiError> {
+    fn fetch_tokens_data(&self) -> Result<(), ApiError> {
         let token_assets = self
             .wheel_asset_repository
             .list_wheel_assets_by_type(&WheelAssetType::empty_token())?;
 
         for (asset_id, asset) in token_assets {
+            self.schedule_balance_fetcher(asset_id, asset.clone());
             self.schedule_price_fetcher(asset_id, asset);
         }
 
@@ -183,6 +186,77 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
                 println!(
                     "Error: fetch_and_save_token_price: failed to get exchange rate for asset {}: symbol {}, error: {:?}",
                     asset_id, symbol, err
+                )
+            }
+        }
+    }
+
+    /// Immediately (= after 0 seconds) starts a task to fetch the balance of the given token asset.
+    fn schedule_balance_fetcher(&self, asset_id: WheelAssetId, asset: WheelAsset) {
+        println!(
+            "schedule_balance_fetcher: Scheduling balance fetcher for asset {}",
+            asset_id
+        );
+
+        set_timer(Duration::from_secs(0), move || {
+            spawn(async move {
+                WheelAssetServiceImpl::default()
+                    .fetch_and_save_token_balance(asset_id, asset)
+                    .await
+            });
+        });
+    }
+
+    async fn fetch_and_save_token_balance(&self, asset_id: WheelAssetId, mut asset: WheelAsset) {
+        println!(
+            "fetch_and_save_token_balance: Fetching balance for asset {}",
+            asset_id
+        );
+
+        let ledger_canister_id = match &asset.asset_type {
+            WheelAssetType::Token {
+                ledger_canister_id, ..
+            } => ledger_canister_id,
+            _ => {
+                // should never happen
+                println!("fetch_and_save_token_balance: invalid asset type");
+                return;
+            }
+        };
+
+        let ledger_canister = LedgerCanisterService(*ledger_canister_id);
+
+        match ledger_canister
+            .icrc1_balance_of(Account {
+                owner: ic_cdk::id(),
+                subaccount: None,
+            })
+            .await
+        {
+            Ok(balance) => {
+                asset.set_latest_balance(WheelAssetTokenBalance::new(balance));
+
+                if let Err(err) = self
+                    .wheel_asset_repository
+                    .update_wheel_asset(asset_id, asset)
+                {
+                    println!(
+                        "Error: fetch_and_save_token_balance: failed to update asset with id {}: {}",
+                        asset_id, err,
+                    );
+                    return;
+                }
+
+                println!(
+                    "fetch_and_save_token_balance: Successfully fetched balance for asset {}",
+                    asset_id
+                );
+            }
+            Err(err) => {
+                // TODO: implement retry
+                println!(
+                    "Error: fetch_and_save_token_balance: failed to get balance for asset {}: error: {:?}",
+                    asset_id, err
                 )
             }
         }
