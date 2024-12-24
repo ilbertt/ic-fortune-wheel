@@ -13,12 +13,23 @@ export const isWheelAssetToken = (
   return 'token' in asset.asset_type;
 };
 
+export const wheelAssetBalance = (asset: WheelAssetToken): number => {
+  const balance = asset.asset_type.token.balance[0];
+  if (!balance) {
+    return 0;
+  }
+  // we can reasonably assume the balance won't overflow the Number type
+  const balanceNumber = Number(balance.balance);
+  return balanceNumber / 10 ** asset.asset_type.token.decimals;
+};
+
 export const wheelAssetTokenTotalUsdValue = (
   asset: WheelAssetToken,
 ): number => {
   const usdPrice = asset.asset_type.token.usd_price[0];
+  const balance = wheelAssetBalance(asset);
 
-  return usdPrice ? usdPrice.usd_price * asset.total_amount : 0;
+  return usdPrice ? usdPrice.usd_price * balance : 0;
 };
 
 export const wheelAssetsUsdValueSum = (assets: WheelAsset[]): number => {
@@ -28,14 +39,4 @@ export const wheelAssetsUsdValueSum = (assets: WheelAsset[]): number => {
       (isWheelAssetToken(asset) ? wheelAssetTokenTotalUsdValue(asset) : 0),
     0,
   );
-};
-
-export const wheelAssetBalance = (asset: WheelAssetToken): number => {
-  const balance = asset.asset_type.token.balance[0];
-  if (!balance) {
-    return 0;
-  }
-  // we can reasonably assume the balance won't overflow the Number type
-  const balanceNumber = Number(balance.balance);
-  return balanceNumber / 10 ** asset.asset_type.token.decimals;
 };

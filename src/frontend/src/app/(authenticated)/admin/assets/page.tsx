@@ -121,7 +121,14 @@ export default function Page() {
       .then(extractOk)
       .then(res => {
         setAssets(res);
-        setTokenAssets(res.filter(isWheelAssetToken));
+        const tokenAssetsArr = res
+          .filter(isWheelAssetToken)
+          .sort((a, b) =>
+            wheelAssetTokenTotalUsdValue(a) > wheelAssetTokenTotalUsdValue(b)
+              ? -1
+              : 1,
+          );
+        setTokenAssets(tokenAssetsArr);
       })
       .catch((e: Err) => {
         toast({
