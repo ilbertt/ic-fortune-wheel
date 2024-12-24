@@ -30,3 +30,10 @@ export const toCandidEnum = <T extends GenericCandidEnum>(
 ): T => {
   return { [key]: val } as T;
 };
+
+export const renderUsdValue = (usdValue: number): string => {
+  return usdValue.toLocaleString(undefined, {
+    style: 'currency',
+    currency: 'USD',
+  });
+};
