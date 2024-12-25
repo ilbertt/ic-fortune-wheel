@@ -92,6 +92,23 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({
           <AssetTypeBadge variant="outline" assetType={ctx.getValue()} />
         ),
       }),
+      columnHelper.accessor('total_amount', {
+        header: 'Prize Q.ty',
+        cell: ctx => {
+          const { total_amount, used_amount } = ctx.row.original;
+          return (
+            <>
+              <span className="text-indaco-blue">
+                {total_amount - used_amount}
+              </span>
+              /{total_amount}
+            </>
+          );
+        },
+      }),
+      columnHelper.accessor('used_amount', {
+        header: 'Draws',
+      }),
       columnHelper.accessor('asset_type', {
         header: 'Prize Value',
         cell: ctx => {
