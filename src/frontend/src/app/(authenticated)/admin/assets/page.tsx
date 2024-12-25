@@ -274,7 +274,7 @@ export default function Page() {
                     <CardTitle className="text-sm">Enabled</CardTitle>
                     <AssetsTable
                       data={assets.enabled}
-                      onToggleEnabledComplete={fetchAssets}
+                      fetchAssets={fetchAssets}
                     />
                   </div>
                 )}
@@ -283,7 +283,7 @@ export default function Page() {
                     <CardTitle className="text-sm">Disabled</CardTitle>
                     <AssetsTable
                       data={assets.disabled}
-                      onToggleEnabledComplete={fetchAssets}
+                      fetchAssets={fetchAssets}
                     />
                   </div>
                 )}

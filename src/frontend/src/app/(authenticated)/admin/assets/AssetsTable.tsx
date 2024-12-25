@@ -12,6 +12,7 @@ import { isWheelAssetDisabled } from '@/lib/wheelAsset';
 import { createColumnHelper } from '@tanstack/react-table';
 import { Loader2, MinusCircle, PlusCircle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { EditAssetModal } from './modals';
 
 type AssetStateToggleProps = {
   asset: WheelAsset;
@@ -38,6 +39,7 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({
         name: [],
         total_amount: [],
         used_amount: [],
+        asset_type_config: [],
       })
       .then(extractOk)
       .then(onToggleEnabledComplete)
@@ -73,12 +75,12 @@ const columnHelper = createColumnHelper<WheelAsset>();
 
 type AssetsTableProps = {
   data: WheelAsset[];
-  onToggleEnabledComplete: () => Promise<void>;
+  fetchAssets: () => Promise<void>;
 };
 
 export const AssetsTable: React.FC<AssetsTableProps> = ({
   data,
-  onToggleEnabledComplete,
+  fetchAssets,
 }) => {
   const columns = useMemo(() => {
     return [
@@ -109,7 +111,8 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({
       columnHelper.accessor('used_amount', {
         header: 'Draws',
       }),
-      columnHelper.accessor('asset_type', {
+      columnHelper.accessor(row => row.asset_type, {
+        id: 'prizeValue',
         header: 'Prize Value',
         cell: ctx => {
           const assetType = ctx.getValue();
@@ -120,16 +123,22 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({
         },
       }),
       columnHelper.display({
-        id: '__toggleEnabled',
+        id: '__actions',
         cell: ctx => (
-          <AssetStateToggle
-            asset={ctx.row.original}
-            onToggleEnabledComplete={onToggleEnabledComplete}
-          />
+          <div className="flex items-center justify-end gap-2">
+            <EditAssetModal
+              asset={ctx.row.original}
+              onEditComplete={fetchAssets}
+            />
+            <AssetStateToggle
+              asset={ctx.row.original}
+              onToggleEnabledComplete={fetchAssets}
+            />
+          </div>
         ),
       }),
     ];
-  }, [onToggleEnabledComplete]);
+  }, [fetchAssets]);
 
   return <DataTable columns={columns} data={data} />;
 };

@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use backend_api::{
     ApiError, ListWheelAssetsRequest, ListWheelAssetsResponse, UpdateWheelAssetRequest,
+    UpdateWheelAssetTypeConfig,
 };
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{println, spawn};
@@ -138,6 +139,31 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
             existing_asset.state = state.into();
         }
 
+        if let Some(asset_type_config) = request.asset_type_config {
+            match (asset_type_config, &mut existing_asset.asset_type) {
+                (
+                    UpdateWheelAssetTypeConfig::Token {
+                        prize_usd_amount: new_prize_usd_amount,
+                    },
+                    WheelAssetType::Token {
+                        prize_usd_amount: existing_prize_usd_amount,
+                        ..
+                    },
+                ) => {
+                    if let Some(new_prize_usd_amount) = new_prize_usd_amount {
+                        *existing_prize_usd_amount = new_prize_usd_amount;
+                    }
+                }
+                (UpdateWheelAssetTypeConfig::Gadget, WheelAssetType::Gadget) => {}
+                (UpdateWheelAssetTypeConfig::Jackpot, WheelAssetType::Jackpot) => {}
+                _ => {
+                    return Err(ApiError::invalid_argument(
+                        "Asset type config does not match existing asset type",
+                    ))
+                }
+            }
+        }
+
         self.wheel_asset_repository
             .update_wheel_asset(asset_id, existing_asset)
     }
@@ -168,6 +194,21 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
         if let (Some(total_amount), Some(used_amount)) = (request.total_amount, request.used_amount)
         {
             self.validate_wheel_asset_amounts(total_amount, used_amount)?;
+        }
+
+        if let Some(asset_type_config) = &request.asset_type_config {
+            match asset_type_config {
+                UpdateWheelAssetTypeConfig::Token { prize_usd_amount } => {
+                    if let Some(prize_usd_amount) = prize_usd_amount {
+                        if *prize_usd_amount <= 0.0 {
+                            return Err(ApiError::invalid_argument(
+                                "Prize USD amount must be greater than 0",
+                            ));
+                        }
+                    }
+                }
+                UpdateWheelAssetTypeConfig::Gadget | UpdateWheelAssetTypeConfig::Jackpot => {}
+            }
         }
 
         Ok(())

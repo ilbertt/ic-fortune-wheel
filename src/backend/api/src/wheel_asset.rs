@@ -51,12 +51,23 @@ pub struct WheelAsset {
 pub type CreateWheelAssetResponse = WheelAsset;
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
+pub enum UpdateWheelAssetTypeConfig {
+    #[serde(rename = "token")]
+    Token { prize_usd_amount: Option<f64> },
+    #[serde(rename = "gadget")]
+    Gadget,
+    #[serde(rename = "jackpot")]
+    Jackpot,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct UpdateWheelAssetRequest {
     pub id: String,
     pub name: Option<String>,
     pub total_amount: Option<u32>,
     pub used_amount: Option<u32>,
     pub state: Option<WheelAssetState>,
+    pub asset_type_config: Option<UpdateWheelAssetTypeConfig>,
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize)]

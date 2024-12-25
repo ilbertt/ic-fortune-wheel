@@ -117,12 +117,21 @@ type FetchTokensDataResponse = variant {
   err : Err;
 };
 
+type UpdateWheelAssetTypeConfig = variant {
+  token : record {
+    prize_usd_amount : opt float64;
+  };
+  gadget;
+  jackpot;
+};
+
 type UpdateWheelAssetRequest = record {
   id : text;
   name : opt text;
   total_amount : opt nat32;
   used_amount : opt nat32;
   state : opt WheelAssetState;
+  asset_type_config : opt UpdateWheelAssetTypeConfig;
 };
 
 type UpdateWheelAssetResponse = variant {
