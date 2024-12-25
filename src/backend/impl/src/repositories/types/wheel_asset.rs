@@ -55,6 +55,8 @@ pub enum WheelAssetType {
         decimals: u8,
         /// The last fetched token balance, if any.
         balance: Option<WheelAssetTokenBalance>,
+        /// The amount of USD to be paid per prize.
+        prize_usd_amount: f64,
     },
     Gadget,
     Jackpot,
@@ -79,6 +81,7 @@ impl WheelAssetType {
             usd_price: None,
             decimals: 0,
             balance: None,
+            prize_usd_amount: 0.0,
         }
     }
 
@@ -301,6 +304,7 @@ pub fn icp_wheel_asset() -> WheelAsset {
             usd_price: None,
             decimals: 8,
             balance: None,
+            prize_usd_amount: 1.0,
         },
         total_amount: 0,
         used_amount: 0,
@@ -319,6 +323,7 @@ pub fn ckbtc_wheel_asset() -> WheelAsset {
             usd_price: None,
             decimals: 8,
             balance: None,
+            prize_usd_amount: 1.0,
         },
         total_amount: 0,
         used_amount: 0,
@@ -337,6 +342,7 @@ pub fn cketh_wheel_asset() -> WheelAsset {
             usd_price: None,
             decimals: 18,
             balance: None,
+            prize_usd_amount: 1.0,
         },
         total_amount: 0,
         used_amount: 0,
@@ -355,6 +361,7 @@ pub fn ckusdc_wheel_asset() -> WheelAsset {
             usd_price: Some(WheelAssetTokenPrice::new(1.0)),
             decimals: 6,
             balance: None,
+            prize_usd_amount: 1.0,
         },
         total_amount: 0,
         used_amount: 0,

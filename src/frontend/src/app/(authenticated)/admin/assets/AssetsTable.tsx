@@ -7,8 +7,7 @@ import { useAuth } from '@/contexts/auth-context';
 import type { Err, WheelAsset } from '@/declarations/backend/backend.did';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
-import type { GenericColumnDef } from '@/lib/types/utils';
-import { renderError, toCandidEnum } from '@/lib/utils';
+import { renderError, renderUsdValue, toCandidEnum } from '@/lib/utils';
 import { isWheelAssetDisabled } from '@/lib/wheelAsset';
 import { createColumnHelper } from '@tanstack/react-table';
 import { Loader2, MinusCircle, PlusCircle } from 'lucide-react';
@@ -81,7 +80,7 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({
   data,
   onToggleEnabledComplete,
 }) => {
-  const columns: GenericColumnDef<WheelAsset>[] = useMemo(() => {
+  const columns = useMemo(() => {
     return [
       columnHelper.accessor('name', {
         header: 'Name',
@@ -92,6 +91,16 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({
         cell: ctx => (
           <AssetTypeBadge variant="outline" assetType={ctx.getValue()} />
         ),
+      }),
+      columnHelper.accessor('asset_type', {
+        header: 'Prize Value',
+        cell: ctx => {
+          const assetType = ctx.getValue();
+          if ('token' in assetType) {
+            return renderUsdValue(assetType.token.prize_usd_amount);
+          }
+          return '-';
+        },
       }),
       columnHelper.display({
         id: '__toggleEnabled',

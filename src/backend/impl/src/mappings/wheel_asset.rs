@@ -49,6 +49,7 @@ impl From<WheelAssetType> for backend_api::WheelAssetType {
                 usd_price,
                 decimals,
                 balance,
+                prize_usd_amount,
             } => backend_api::WheelAssetType::Token {
                 ledger_canister_id,
                 exchange_rate_symbol,
@@ -56,6 +57,7 @@ impl From<WheelAssetType> for backend_api::WheelAssetType {
                 usd_price: usd_price.map(|el| el.into()),
                 decimals,
                 balance: balance.map(|el| el.into()),
+                prize_usd_amount,
             },
             WheelAssetType::Gadget => backend_api::WheelAssetType::Gadget,
             WheelAssetType::Jackpot => backend_api::WheelAssetType::Jackpot,
