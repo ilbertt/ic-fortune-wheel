@@ -153,6 +153,10 @@ impl WheelAsset {
     pub fn set_latest_balance(&mut self, input_balance: WheelAssetTokenBalance) {
         self.asset_type.set_latest_balance(input_balance);
     }
+
+    pub fn is_token(&self) -> bool {
+        matches!(self.asset_type, WheelAssetType::Token { .. })
+    }
 }
 
 impl Timestamped for WheelAsset {
@@ -374,6 +378,7 @@ pub fn ckusdc_wheel_asset() -> WheelAsset {
 mod tests {
     use super::*;
     use crate::fixtures;
+    use fixtures::{wheel_asset_gadget, wheel_asset_jackpot, wheel_asset_token};
     use rstest::*;
 
     #[rstest]
@@ -472,5 +477,13 @@ mod tests {
             _ => unreachable!(),
         };
         assert_eq!(new_balance.balance, 42);
+    }
+
+    #[rstest]
+    #[case::token((wheel_asset_token(), true))]
+    #[case::gadget((wheel_asset_gadget(), false))]
+    #[case::jackpot((wheel_asset_jackpot(), false))]
+    fn wheel_asset_is_token(#[case] (wheel_asset, expected_is_token): (WheelAsset, bool)) {
+        assert_eq!(wheel_asset.is_token(), expected_is_token);
     }
 }

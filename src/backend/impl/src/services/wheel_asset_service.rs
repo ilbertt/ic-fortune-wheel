@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use backend_api::{
-    ApiError, ListWheelAssetsRequest, ListWheelAssetsResponse, UpdateWheelAssetRequest,
-    UpdateWheelAssetTypeConfig,
+    ApiError, DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
+    UpdateWheelAssetRequest, UpdateWheelAssetTypeConfig,
 };
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{println, spawn};
@@ -33,6 +33,8 @@ pub trait WheelAssetService {
     fn fetch_tokens_data(&self) -> Result<(), ApiError>;
 
     fn update_wheel_asset(&self, request: UpdateWheelAssetRequest) -> Result<(), ApiError>;
+
+    fn delete_wheel_asset(&self, request: DeleteWheelAssetRequest) -> Result<(), ApiError>;
 }
 
 pub struct WheelAssetServiceImpl<W: WheelAssetRepository> {
@@ -166,6 +168,24 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
 
         self.wheel_asset_repository
             .update_wheel_asset(asset_id, existing_asset)
+    }
+
+    fn delete_wheel_asset(&self, request: DeleteWheelAssetRequest) -> Result<(), ApiError> {
+        let asset_id = WheelAssetId::try_from(request.id.as_str())?;
+
+        let existing_asset = self
+            .wheel_asset_repository
+            .get_wheel_asset(&asset_id)
+            .ok_or_else(|| {
+                ApiError::not_found(&format!("Wheel asset with id {} not found", request.id))
+            })?;
+
+        if existing_asset.is_token() {
+            // TODO: implement token deletion once we know what to do with the remaining balance
+            return Err(ApiError::invalid_argument("Cannot delete token asset"));
+        }
+
+        self.wheel_asset_repository.delete_wheel_asset(&asset_id)
     }
 }
 

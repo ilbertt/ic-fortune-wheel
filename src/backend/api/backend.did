@@ -139,6 +139,15 @@ type UpdateWheelAssetResponse = variant {
   err : Err;
 };
 
+type DeleteWheelAssetRequest = record {
+  id : text;
+};
+
+type DeleteWheelAssetResponse = variant {
+  ok;
+  err : Err;
+};
+
 service : {
   get_my_user_profile : () -> (GetMyUserProfileResponse) query;
   create_my_user_profile : () -> (CreateMyUserProfileResponse);
@@ -151,4 +160,5 @@ service : {
   set_default_wheel_assets: () -> (SetDefaultWheelAssetsResponse);
   fetch_tokens_data: () -> (FetchTokensDataResponse);
   update_wheel_asset: (UpdateWheelAssetRequest) -> (UpdateWheelAssetResponse);
+  delete_wheel_asset: (DeleteWheelAssetRequest) -> (DeleteWheelAssetResponse);
 }

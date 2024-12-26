@@ -73,8 +73,10 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
             match s.wheel_assets.remove(id) {
                 Some(asset) => {
                     let state_key = WheelAssetStateKey::new(asset.state, *id)?;
-
                     s.wheel_asset_state_index.remove(&state_key);
+
+                    let asset_type_key = WheelAssetTypeKey::new(&asset.asset_type, *id)?;
+                    s.wheel_asset_type_index.remove(&asset_type_key);
                 }
                 None => {
                     return Err(ApiError::not_found(&format!(

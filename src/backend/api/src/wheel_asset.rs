@@ -76,3 +76,8 @@ pub struct ListWheelAssetsRequest {
 }
 
 pub type ListWheelAssetsResponse = Vec<WheelAsset>;
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct DeleteWheelAssetRequest {
+    pub id: String,
+}

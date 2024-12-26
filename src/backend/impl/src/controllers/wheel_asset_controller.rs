@@ -1,5 +1,6 @@
 use backend_api::{
-    ApiError, ApiResult, ListWheelAssetsRequest, ListWheelAssetsResponse, UpdateWheelAssetRequest,
+    ApiError, ApiResult, DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
+    UpdateWheelAssetRequest,
 };
 use backend_macros::log_errors;
 use candid::Principal;
@@ -50,6 +51,16 @@ fn update_wheel_asset(request: UpdateWheelAssetRequest) -> ApiResult<()> {
 
     WheelAssetController::default()
         .update_wheel_asset(calling_principal, request)
+        .into()
+}
+
+#[update]
+#[log_errors]
+fn delete_wheel_asset(request: DeleteWheelAssetRequest) -> ApiResult<()> {
+    let calling_principal = caller();
+
+    WheelAssetController::default()
+        .delete_wheel_asset(calling_principal, request)
         .into()
 }
 
@@ -122,5 +133,16 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
             .assert_principal_is_admin(&calling_principal)?;
 
         self.wheel_asset_service.update_wheel_asset(request)
+    }
+
+    fn delete_wheel_asset(
+        &self,
+        calling_principal: Principal,
+        request: DeleteWheelAssetRequest,
+    ) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_is_admin(&calling_principal)?;
+
+        self.wheel_asset_service.delete_wheel_asset(request)
     }
 }

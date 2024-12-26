@@ -11,8 +11,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
   AlertDialogAction,
+  AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -43,7 +44,7 @@ import { candidOpt, getDecimalSeparator, renderError } from '@/lib/utils';
 import { isWheelAssetToken } from '@/lib/wheelAsset';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Coins, Settings2 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -72,6 +73,85 @@ export const TopUpModal = () => {
         </div>
         <AlertDialogFooter>
           <AlertDialogAction>I understand</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+type DeleteAssetModalProps = {
+  asset: WheelAsset;
+  onDeleteComplete: () => Promise<void>;
+};
+
+export const DeleteAssetModal: React.FC<DeleteAssetModalProps> = ({
+  asset,
+  onDeleteComplete,
+}) => {
+  const { actor } = useAuth();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const canDelete = useMemo(() => !isWheelAssetToken(asset), [asset]);
+
+  const onDelete = async () => {
+    setIsDeleting(true);
+    await actor
+      .delete_wheel_asset({ id: asset.id })
+      .then(extractOk)
+      .then(onDeleteComplete)
+      .then(() => {
+        setOpen(false);
+      })
+      .catch((e: Err) =>
+        toast({
+          title: 'Error deleting asset',
+          description: renderError(e),
+          variant: 'destructive',
+        }),
+      )
+      .finally(() => {
+        setIsDeleting(false);
+      });
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive">Delete</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete {asset.name}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            {canDelete ? (
+              <>
+                Are you sure you want to delete {asset.name}? This action cannot
+                be undone.
+              </>
+            ) : (
+              <>
+                The {asset.name} asset
+                {isWheelAssetToken(asset) ? ' is a token and' : ''} cannot be
+                deleted.
+              </>
+            )}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            asChild
+            className={buttonVariants({ variant: 'destructive' })}
+          >
+            <Button
+              loading={isDeleting}
+              onClick={onDelete}
+              disabled={!canDelete}
+            >
+              Delete
+            </Button>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -202,7 +282,14 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
                 />
               )}
             </div>
-            <DialogFooter>
+            <DialogFooter className="sm:justify-between">
+              <DeleteAssetModal
+                asset={asset}
+                onDeleteComplete={async () => {
+                  await onEditComplete();
+                  setOpen(false);
+                }}
+              />
               <Button
                 type="submit"
                 variant="secondary"
