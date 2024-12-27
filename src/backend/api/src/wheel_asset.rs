@@ -45,6 +45,8 @@ pub struct WheelAsset {
     pub asset_type: WheelAssetType,
     pub total_amount: u32,
     pub used_amount: u32,
+    pub wheel_image_path: Option<String>,
+    pub modal_image_path: Option<String>,
     pub state: WheelAssetState,
 }
 
@@ -80,4 +82,24 @@ pub type ListWheelAssetsResponse = Vec<WheelAsset>;
 #[derive(Debug, Clone, CandidType, Deserialize)]
 pub struct DeleteWheelAssetRequest {
     pub id: String,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct WheelAssetImageConfig {
+    pub content_type: String,
+    pub content_bytes: Vec<u8>,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub enum UpdateWheelAssetImageConfig {
+    #[serde(rename = "wheel")]
+    Wheel(WheelAssetImageConfig),
+    #[serde(rename = "modal")]
+    Modal(WheelAssetImageConfig),
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct UpdateWheelAssetImageRequest {
+    pub id: String,
+    pub image_config: UpdateWheelAssetImageConfig,
 }

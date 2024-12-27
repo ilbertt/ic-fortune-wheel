@@ -1,13 +1,16 @@
 use backend_api::{
     ApiError, ApiResult, DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
-    UpdateWheelAssetRequest,
+    UpdateWheelAssetImageRequest, UpdateWheelAssetRequest,
 };
 use backend_macros::log_errors;
 use candid::Principal;
 use ic_cdk::{caller, query, update};
 
 use crate::{
-    repositories::{UserProfileRepositoryImpl, WheelAssetRepositoryImpl, WheelAssetState},
+    repositories::{
+        HttpAssetRepositoryImpl, UserProfileRepositoryImpl, WheelAssetRepositoryImpl,
+        WheelAssetState,
+    },
     services::{
         AccessControlService, AccessControlServiceImpl, WheelAssetService, WheelAssetServiceImpl,
     },
@@ -64,6 +67,17 @@ fn delete_wheel_asset(request: DeleteWheelAssetRequest) -> ApiResult<()> {
         .into()
 }
 
+#[update]
+#[log_errors]
+async fn update_wheel_asset_image(request: UpdateWheelAssetImageRequest) -> ApiResult<()> {
+    let calling_principal = caller();
+
+    WheelAssetController::default()
+        .update_wheel_asset_image(calling_principal, request)
+        .await
+        .into()
+}
+
 pub struct WheelAssetController<A: AccessControlService, W: WheelAssetService> {
     access_control_service: A,
     wheel_asset_service: W,
@@ -72,7 +86,7 @@ pub struct WheelAssetController<A: AccessControlService, W: WheelAssetService> {
 impl Default
     for WheelAssetController<
         AccessControlServiceImpl<UserProfileRepositoryImpl>,
-        WheelAssetServiceImpl<WheelAssetRepositoryImpl>,
+        WheelAssetServiceImpl<WheelAssetRepositoryImpl, HttpAssetRepositoryImpl>,
     >
 {
     fn default() -> Self {
@@ -144,5 +158,20 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
             .assert_principal_is_admin(&calling_principal)?;
 
         self.wheel_asset_service.delete_wheel_asset(request)
+    }
+
+    async fn update_wheel_asset_image(
+        &self,
+        calling_principal: Principal,
+        request: UpdateWheelAssetImageRequest,
+    ) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_not_anonymous(&calling_principal)?;
+        self.access_control_service
+            .assert_principal_is_admin(&calling_principal)?;
+
+        self.wheel_asset_service
+            .update_wheel_asset_image(request)
+            .await
     }
 }

@@ -56,6 +56,8 @@ impl HttpAssetRepository for HttpAssetRepositoryImpl {
         })
     }
 
+    /// You must call the `certify_all_assets` method **after** calling this method,
+    /// in order to update the assets router and certification.
     fn create_http_asset(
         &self,
         path: HttpAssetPath,
@@ -64,14 +66,17 @@ impl HttpAssetRepository for HttpAssetRepositoryImpl {
         STATE.with_borrow_mut(|s| {
             s.http_assets.insert(path, http_asset);
 
-            self.certify_all_assets()
+            Ok(())
         })
     }
 
+    /// You must call the `certify_all_assets` method **after** calling this method,
+    /// in order to update the assets router and certification.
     fn delete_http_asset(&self, path: &HttpAssetPath) -> Result<(), ApiError> {
         STATE.with_borrow_mut(|s| {
             s.http_assets.remove(path);
-            self.certify_all_assets()
+
+            Ok(())
         })
     }
 }
@@ -79,7 +84,7 @@ impl HttpAssetRepository for HttpAssetRepositoryImpl {
 fn asset_configs() -> Vec<AssetConfig> {
     vec![
         AssetConfig::Pattern {
-            pattern: "/images/**/*.png".to_string(),
+            pattern: "/images/**".to_string(),
             content_type: Some("image/png".to_string()),
             headers: get_asset_headers(vec![(
                 "cache-control".to_string(),
@@ -88,7 +93,7 @@ fn asset_configs() -> Vec<AssetConfig> {
             encodings: vec![AssetEncoding::Identity.default_config()],
         },
         AssetConfig::Pattern {
-            pattern: "/images/**/*.svg".to_string(),
+            pattern: "/images/**".to_string(),
             content_type: Some("image/svg+xml".to_string()),
             headers: get_asset_headers(vec![(
                 "cache-control".to_string(),

@@ -76,5 +76,7 @@ pub fn map_wheel_asset(
         total_amount: wheel_asset.total_amount,
         used_amount: wheel_asset.used_amount,
         state: wheel_asset.state.into(),
+        wheel_image_path: wheel_asset.wheel_image_path.map(|el| el.to_string()),
+        modal_image_path: wheel_asset.modal_image_path.map(|el| el.to_string()),
     }
 }

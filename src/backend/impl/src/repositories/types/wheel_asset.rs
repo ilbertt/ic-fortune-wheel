@@ -7,7 +7,7 @@ use ic_stable_structures::{
     Storable,
 };
 
-use super::{get_current_date_time, DateTime, TimestampFields, Timestamped, Uuid};
+use super::{get_current_date_time, DateTime, HttpAssetPath, TimestampFields, Timestamped, Uuid};
 
 pub type WheelAssetId = Uuid;
 
@@ -131,6 +131,8 @@ pub struct WheelAsset {
     pub total_amount: u32,
     pub used_amount: u32,
     pub state: WheelAssetState,
+    pub wheel_image_path: Option<HttpAssetPath>,
+    pub modal_image_path: Option<HttpAssetPath>,
     pub timestamps: TimestampFields,
 }
 
@@ -313,6 +315,8 @@ pub fn icp_wheel_asset() -> WheelAsset {
         total_amount: 0,
         used_amount: 0,
         state: WheelAssetState::Enabled,
+        wheel_image_path: None,
+        modal_image_path: None,
         timestamps: TimestampFields::new(),
     }
 }
@@ -332,6 +336,8 @@ pub fn ckbtc_wheel_asset() -> WheelAsset {
         total_amount: 0,
         used_amount: 0,
         state: WheelAssetState::Enabled,
+        wheel_image_path: None,
+        modal_image_path: None,
         timestamps: TimestampFields::new(),
     }
 }
@@ -351,6 +357,8 @@ pub fn cketh_wheel_asset() -> WheelAsset {
         total_amount: 0,
         used_amount: 0,
         state: WheelAssetState::Enabled,
+        wheel_image_path: None,
+        modal_image_path: None,
         timestamps: TimestampFields::new(),
     }
 }
@@ -370,6 +378,8 @@ pub fn ckusdc_wheel_asset() -> WheelAsset {
         total_amount: 0,
         used_amount: 0,
         state: WheelAssetState::Enabled,
+        wheel_image_path: None,
+        modal_image_path: None,
         timestamps: TimestampFields::new(),
     }
 }

@@ -95,6 +95,8 @@ type WheelAsset = record {
   asset_type : WheelAssetType;
   total_amount : nat32;
   used_amount : nat32;
+  wheel_image_path : opt text;
+  modal_image_path : opt text;
   state : WheelAssetState;
 };
 
@@ -148,6 +150,27 @@ type DeleteWheelAssetResponse = variant {
   err : Err;
 };
 
+type UpdateWheelAssetImageConfig = variant {
+  wheel : record {
+    content_type : text;
+    content_bytes : blob;
+  };
+  modal : record {
+    content_type : text;
+    content_bytes : blob;
+  };
+};
+
+type UpdateWheelAssetImageRequest = record {
+  id : text;
+  image_config : UpdateWheelAssetImageConfig;
+};
+
+type UpdateWheelAssetImageResponse = variant {
+  ok;
+  err : Err;
+};
+
 service : {
   get_my_user_profile : () -> (GetMyUserProfileResponse) query;
   create_my_user_profile : () -> (CreateMyUserProfileResponse);
@@ -161,4 +184,5 @@ service : {
   fetch_tokens_data: () -> (FetchTokensDataResponse);
   update_wheel_asset: (UpdateWheelAssetRequest) -> (UpdateWheelAssetResponse);
   delete_wheel_asset: (DeleteWheelAssetRequest) -> (DeleteWheelAssetResponse);
+  update_wheel_asset_image: (UpdateWheelAssetImageRequest) -> (UpdateWheelAssetImageResponse);
 }

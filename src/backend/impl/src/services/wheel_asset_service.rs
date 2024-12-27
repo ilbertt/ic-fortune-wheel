@@ -1,8 +1,9 @@
-use std::time::Duration;
+use std::{path::Path, time::Duration};
 
 use backend_api::{
     ApiError, DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
-    UpdateWheelAssetRequest, UpdateWheelAssetTypeConfig,
+    UpdateWheelAssetImageConfig, UpdateWheelAssetImageRequest, UpdateWheelAssetRequest,
+    UpdateWheelAssetTypeConfig,
 };
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{println, spawn};
@@ -13,13 +14,16 @@ use icrc_ledger_types::icrc1::account::Account;
 use crate::{
     mappings::map_wheel_asset,
     repositories::{
-        ckbtc_wheel_asset, cketh_wheel_asset, ckusdc_wheel_asset, icp_wheel_asset, WheelAssetId,
+        ckbtc_wheel_asset, cketh_wheel_asset, ckusdc_wheel_asset, icp_wheel_asset, HttpAsset,
+        HttpAssetRepository, HttpAssetRepositoryImpl, WheelAsset, WheelAssetId,
         WheelAssetRepository, WheelAssetRepositoryImpl, WheelAssetTokenBalance,
         WheelAssetTokenPrice, WheelAssetType,
     },
 };
 
 const WHEEL_ASSET_NAME_MAX_LENGTH: usize = 100;
+const WHEEL_ASSET_IMAGES_HTTP_PATH: &str = "/images/wheel";
+const WHEEL_ASSET_IMAGES_ALLOWED_CONTENT_TYPES: [&str; 2] = ["image/png", "image/svg+xml"];
 
 #[cfg_attr(test, mockall::automock)]
 pub trait WheelAssetService {
@@ -35,19 +39,30 @@ pub trait WheelAssetService {
     fn update_wheel_asset(&self, request: UpdateWheelAssetRequest) -> Result<(), ApiError>;
 
     fn delete_wheel_asset(&self, request: DeleteWheelAssetRequest) -> Result<(), ApiError>;
+
+    async fn update_wheel_asset_image(
+        &self,
+        request: UpdateWheelAssetImageRequest,
+    ) -> Result<(), ApiError>;
 }
 
-pub struct WheelAssetServiceImpl<W: WheelAssetRepository> {
+pub struct WheelAssetServiceImpl<W: WheelAssetRepository, H: HttpAssetRepository> {
     wheel_asset_repository: W,
+    http_asset_repository: H,
 }
 
-impl Default for WheelAssetServiceImpl<WheelAssetRepositoryImpl> {
+impl Default for WheelAssetServiceImpl<WheelAssetRepositoryImpl, HttpAssetRepositoryImpl> {
     fn default() -> Self {
-        Self::new(WheelAssetRepositoryImpl::default())
+        Self::new(
+            WheelAssetRepositoryImpl::default(),
+            HttpAssetRepositoryImpl::default(),
+        )
     }
 }
 
-impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
+impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
+    for WheelAssetServiceImpl<W, H>
+{
     fn list_wheel_assets(
         &self,
         request: ListWheelAssetsRequest,
@@ -116,12 +131,7 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
         self.validate_update_wheel_asset_request(&request)?;
 
         let asset_id = WheelAssetId::try_from(request.id.as_str())?;
-        let mut existing_asset = self
-            .wheel_asset_repository
-            .get_wheel_asset(&asset_id)
-            .ok_or_else(|| {
-                ApiError::not_found(&format!("Wheel asset with id {} not found", request.id))
-            })?;
+        let mut existing_asset = self.get_wheel_asset(&asset_id)?;
 
         if let Some(name) = request.name {
             existing_asset.name = name;
@@ -173,27 +183,81 @@ impl<W: WheelAssetRepository> WheelAssetService for WheelAssetServiceImpl<W> {
     fn delete_wheel_asset(&self, request: DeleteWheelAssetRequest) -> Result<(), ApiError> {
         let asset_id = WheelAssetId::try_from(request.id.as_str())?;
 
-        let existing_asset = self
-            .wheel_asset_repository
-            .get_wheel_asset(&asset_id)
-            .ok_or_else(|| {
-                ApiError::not_found(&format!("Wheel asset with id {} not found", request.id))
-            })?;
+        let existing_asset = self.get_wheel_asset(&asset_id)?;
 
         if existing_asset.is_token() {
             // TODO: implement token deletion once we know what to do with the remaining balance
             return Err(ApiError::invalid_argument("Cannot delete token asset"));
         }
 
+        if let Some(path) = &existing_asset.modal_image_path {
+            self.http_asset_repository.delete_http_asset(path)?;
+        }
+        if let Some(path) = &existing_asset.wheel_image_path {
+            self.http_asset_repository.delete_http_asset(path)?;
+        }
+        self.http_asset_repository.certify_all_assets()?;
+
         self.wheel_asset_repository.delete_wheel_asset(&asset_id)
+    }
+
+    async fn update_wheel_asset_image(
+        &self,
+        request: UpdateWheelAssetImageRequest,
+    ) -> Result<(), ApiError> {
+        self.validate_wheel_asset_image_request(&request)?;
+
+        let asset_id = WheelAssetId::try_from(request.id.as_str())?;
+
+        let mut existing_asset = self.get_wheel_asset(&asset_id)?;
+
+        let (content_type, content_bytes) = match request.image_config.clone() {
+            UpdateWheelAssetImageConfig::Modal(config) => {
+                (config.content_type, config.content_bytes)
+            }
+            UpdateWheelAssetImageConfig::Wheel(config) => {
+                (config.content_type, config.content_bytes)
+            }
+        };
+        let (http_asset_path, http_asset) = HttpAsset::new_at_path(
+            Path::new(WHEEL_ASSET_IMAGES_HTTP_PATH),
+            content_type,
+            content_bytes,
+        )
+        .await?;
+        self.http_asset_repository
+            .create_http_asset(http_asset_path.clone(), http_asset)?;
+
+        let existing_asset_path = match request.image_config {
+            UpdateWheelAssetImageConfig::Modal(_) => {
+                existing_asset.modal_image_path.replace(http_asset_path)
+            }
+            UpdateWheelAssetImageConfig::Wheel(_) => {
+                existing_asset.wheel_image_path.replace(http_asset_path)
+            }
+        };
+        if let Some(path) = existing_asset_path {
+            self.http_asset_repository.delete_http_asset(&path)?;
+        }
+        self.http_asset_repository.certify_all_assets()?;
+
+        self.wheel_asset_repository
+            .update_wheel_asset(asset_id, existing_asset)
     }
 }
 
-impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
-    fn new(wheel_asset_repository: W) -> Self {
+impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H> {
+    fn new(wheel_asset_repository: W, http_asset_repository: H) -> Self {
         Self {
             wheel_asset_repository,
+            http_asset_repository,
         }
+    }
+
+    fn get_wheel_asset(&self, id: &WheelAssetId) -> Result<WheelAsset, ApiError> {
+        self.wheel_asset_repository
+            .get_wheel_asset(id)
+            .ok_or_else(|| ApiError::not_found(&format!("Wheel asset with id {} not found", id)))
     }
 
     fn validate_update_wheel_asset_request(
@@ -243,6 +307,25 @@ impl<W: WheelAssetRepository> WheelAssetServiceImpl<W> {
             return Err(ApiError::invalid_argument(
                 "Total amount must be greater or equal to used amount",
             ));
+        }
+
+        Ok(())
+    }
+
+    fn validate_wheel_asset_image_request(
+        &self,
+        request: &UpdateWheelAssetImageRequest,
+    ) -> Result<(), ApiError> {
+        let content_type = match &request.image_config {
+            UpdateWheelAssetImageConfig::Modal(config) => &config.content_type,
+            UpdateWheelAssetImageConfig::Wheel(config) => &config.content_type,
+        };
+
+        if !WHEEL_ASSET_IMAGES_ALLOWED_CONTENT_TYPES.contains(&content_type.as_str()) {
+            return Err(ApiError::invalid_argument(&format!(
+                "Invalid content type: {}",
+                content_type
+            )));
         }
 
         Ok(())

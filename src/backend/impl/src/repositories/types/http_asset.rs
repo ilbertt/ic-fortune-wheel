@@ -1,5 +1,6 @@
 use std::{
     borrow::Cow,
+    fmt::Display,
     path::{Path, PathBuf},
 };
 
@@ -20,6 +21,12 @@ impl HttpAssetPath {
 
     pub fn as_path_buf(&self) -> &PathBuf {
         &self.0
+    }
+}
+
+impl Display for HttpAssetPath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0.to_string_lossy())
     }
 }
 
@@ -117,7 +124,7 @@ mod tests {
         let deserialized_path = HttpAssetPath::from_bytes(serialized_path);
 
         assert_eq!(path, deserialized_path);
-        assert_eq!(path_str, deserialized_path.as_path_buf().to_str().unwrap());
+        assert_eq!(path_str, deserialized_path.to_string());
     }
 
     #[rstest]
