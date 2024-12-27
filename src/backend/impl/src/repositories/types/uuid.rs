@@ -15,9 +15,6 @@ const UUID_SIZE: usize = 16;
 pub struct Uuid(UuidImpl);
 
 impl Uuid {
-    pub const MIN: Uuid = Self(UuidImpl::from_bytes([0; UUID_SIZE]));
-    pub const MAX: Uuid = Self(UuidImpl::from_bytes([255; UUID_SIZE]));
-
     pub async fn new() -> Result<Self, ApiError> {
         with_random_bytes(|bytes: [u8; UUID_SIZE]| Self::from_random_bytes(bytes)).await
     }

@@ -220,8 +220,8 @@ pub struct WheelAssetStateRange {
 impl WheelAssetStateRange {
     pub fn new(state: WheelAssetState) -> Result<Self, ApiError> {
         Ok(Self {
-            start_bound: WheelAssetStateKey::new(state, Uuid::MIN)?,
-            end_bound: WheelAssetStateKey::new(state, Uuid::MAX)?,
+            start_bound: WheelAssetStateKey::new(state, Uuid::min())?,
+            end_bound: WheelAssetStateKey::new(state, Uuid::max())?,
         })
     }
 }
@@ -282,8 +282,8 @@ pub struct WheelAssetTypeRange {
 impl WheelAssetTypeRange {
     pub fn new(asset_type: &WheelAssetType) -> Result<Self, ApiError> {
         Ok(Self {
-            start_bound: WheelAssetTypeKey::new(asset_type, Uuid::MIN)?,
-            end_bound: WheelAssetTypeKey::new(asset_type, Uuid::MAX)?,
+            start_bound: WheelAssetTypeKey::new(asset_type, Uuid::min())?,
+            end_bound: WheelAssetTypeKey::new(asset_type, Uuid::max())?,
         })
     }
 }
