@@ -12,42 +12,37 @@ use std::time::Duration;
 fn init() {
     let calling_principal = caller();
 
-    set_timer(Duration::from_secs(0), move || {
-        spawn(init_admin(calling_principal))
-    });
-
-    jobs::start_jobs();
-
-    println!("init:done");
+    InitController::default().init(calling_principal);
 }
 
 #[pre_upgrade]
 fn pre_upgrade() {
-    println!("pre_upgrade:done");
+    InitController::default().pre_upgrade();
 }
 
 #[post_upgrade]
 fn post_upgrade() {
     let calling_principal = caller();
 
+    InitController::default().post_upgrade(calling_principal);
+}
+
+fn spawn_init_admin(calling_principal: Principal) {
     set_timer(Duration::from_secs(0), move || {
-        spawn(init_admin(calling_principal))
+        spawn(async move {
+            if let Err(err) = InitController::default()
+                .init_admin(calling_principal)
+                .await
+            {
+                ic_cdk::trap(&format!("Failed to initialize admins: {:?}", err));
+            }
+            println!("Admins initialized");
+        })
     });
-
-    jobs::start_jobs();
-
-    println!("post_upgrade:done");
 }
 
-async fn init_admin(calling_principal: Principal) {
-    if let Err(err) = InitController::default().init(calling_principal).await {
-        ic_cdk::trap(&format!("Failed to initialize canister: {:?}", err));
-    }
-    println!("Initialization complete");
-}
-
-struct InitController<T: InitService> {
-    init_service: T,
+struct InitController<I: InitService> {
+    init_service: I,
 }
 
 impl Default for InitController<InitServiceImpl<UserProfileRepositoryImpl>> {
@@ -56,13 +51,33 @@ impl Default for InitController<InitServiceImpl<UserProfileRepositoryImpl>> {
     }
 }
 
-impl<T: InitService> InitController<T> {
-    fn new(init_service: T) -> Self {
+impl<I: InitService> InitController<I> {
+    fn new(init_service: I) -> Self {
         Self { init_service }
     }
 
-    async fn init(&self, calling_principal: Principal) -> Result<(), ApiError> {
+    async fn init_admin(&self, calling_principal: Principal) -> Result<(), ApiError> {
         self.init_service.init(calling_principal).await
+    }
+
+    fn init(&self, calling_principal: Principal) {
+        spawn_init_admin(calling_principal);
+
+        jobs::start_jobs();
+
+        println!("init:done");
+    }
+
+    fn pre_upgrade(&self) {
+        println!("pre_upgrade:done");
+    }
+
+    fn post_upgrade(&self, calling_principal: Principal) {
+        spawn_init_admin(calling_principal);
+
+        jobs::start_jobs();
+
+        println!("post_upgrade:done");
     }
 }
 
@@ -90,6 +105,8 @@ mod jobs {
                     println!("wheel_assets: Failed to fetch token data: {}", err);
                 }
             });
+
+            println!("jobs:wheel_assets: Job started");
         }
     }
 }
