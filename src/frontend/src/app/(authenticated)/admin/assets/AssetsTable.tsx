@@ -8,7 +8,12 @@ import type { Err, WheelAsset } from '@/declarations/backend/backend.did';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { renderError, renderUsdValue, toCandidEnum } from '@/lib/utils';
-import { isWheelAssetDisabled } from '@/lib/wheel-asset';
+import {
+  isWheelAssetDisabled,
+  isWheelAssetToken,
+  isWheelAssetTypeToken,
+  wheelAssetTokenTotalUsdValue,
+} from '@/lib/wheel-asset';
 import { createColumnHelper } from '@tanstack/react-table';
 import { Loader2, MinusCircle, PlusCircle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
@@ -108,15 +113,26 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({
           );
         },
       }),
-      columnHelper.accessor('used_amount', {
-        header: 'Draws',
+      columnHelper.accessor(row => row, {
+        id: 'availableDraws',
+        header: 'Avail. Draws',
+        cell: ctx => {
+          const asset = ctx.getValue();
+          if (isWheelAssetToken(asset)) {
+            const prizeAmount = asset.asset_type.token.prize_usd_amount;
+            const totalUsd = wheelAssetTokenTotalUsdValue(asset);
+            const availableDraws = Math.floor(totalUsd / prizeAmount);
+            return availableDraws;
+          }
+          return 'N/A';
+        },
       }),
       columnHelper.accessor(row => row.asset_type, {
         id: 'prizeValue',
         header: 'Prize Value',
         cell: ctx => {
           const assetType = ctx.getValue();
-          if ('token' in assetType) {
+          if (isWheelAssetTypeToken(assetType)) {
             return renderUsdValue(assetType.token.prize_usd_amount);
           }
           return '-';

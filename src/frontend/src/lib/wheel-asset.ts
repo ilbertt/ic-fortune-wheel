@@ -10,10 +10,16 @@ export type WheelAssetToken = Omit<WheelAsset, 'asset_type'> & {
   asset_type: Extract<WheelAssetType, { token: unknown }>;
 };
 
+export const isWheelAssetTypeToken = (
+  assetType: WheelAssetType,
+): assetType is Extract<WheelAssetType, { token: unknown }> => {
+  return 'token' in assetType;
+};
+
 export const isWheelAssetToken = (
   asset: WheelAsset,
 ): asset is WheelAssetToken => {
-  return 'token' in asset.asset_type;
+  return isWheelAssetTypeToken(asset.asset_type);
 };
 
 export const wheelAssetBalance = (asset: WheelAssetToken): number => {
