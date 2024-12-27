@@ -33,8 +33,9 @@ import {
   wheelAssetBalance,
   wheelAssetsUsdValueSum,
   wheelAssetTokenTotalUsdValue,
+  wheelAssetUrl,
   type WheelAssetToken,
-} from '@/lib/wheelAsset';
+} from '@/lib/wheel-asset';
 import {
   CircleDollarSign,
   Loader2,
@@ -57,7 +58,7 @@ const TokenRow: React.FC<TokenRowProps> = ({ token, refreshingTokens }) => {
   return (
     <div className='grid grid-cols-[theme("spacing.10")_1fr_auto] items-center gap-4'>
       <Avatar>
-        <AvatarImage src={token.wheel_image_path[0]} />
+        <AvatarImage src={wheelAssetUrl(token)} />
         <AvatarFallback>
           <CircleDollarSign />
         </AvatarFallback>

@@ -2,12 +2,13 @@ use std::cell::RefCell;
 
 use backend_api::ApiError;
 use ic_asset_certification::{Asset, AssetConfig, AssetEncoding, AssetRouter};
-use ic_cdk::api::set_certified_data;
-use ic_http_certification::HeaderField;
+use ic_cdk::api::{data_certificate, set_certified_data};
+use ic_http_certification::{HeaderField, HttpRequest, HttpResponse};
 
 use super::{init_http_assets, HttpAsset, HttpAssetMemory, HttpAssetPath};
 
-const ONE_HOUR_CACHE_CONTROL: &str = "public, max-age=86400, immutable";
+/// 1 week public cache
+const ONE_HOUR_CACHE_CONTROL: &str = "public, max-age=604800, immutable";
 
 #[cfg_attr(test, mockall::automock)]
 pub trait HttpAssetRepository {
@@ -17,6 +18,8 @@ pub trait HttpAssetRepository {
         -> Result<(), ApiError>;
 
     fn delete_http_asset(&self, path: &HttpAssetPath) -> Result<(), ApiError>;
+
+    fn serve_assets(&self, request: &HttpRequest<'static>) -> HttpResponse<'static>;
 }
 
 pub struct HttpAssetRepositoryImpl {}
@@ -77,6 +80,15 @@ impl HttpAssetRepository for HttpAssetRepositoryImpl {
             s.http_assets.remove(path);
 
             Ok(())
+        })
+    }
+
+    fn serve_assets(&self, request: &HttpRequest<'static>) -> HttpResponse<'static> {
+        STATE.with_borrow(|s| {
+            let data_certificate = data_certificate().expect("Failed to get data certificate");
+            s.router
+                .serve_asset(&data_certificate, request)
+                .expect("Failed to serve asset")
         })
     }
 }

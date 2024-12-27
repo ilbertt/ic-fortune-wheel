@@ -171,6 +171,24 @@ type UpdateWheelAssetImageResponse = variant {
   err : Err;
 };
 
+// HTTP
+type HeaderField = record { text; text };
+
+type HttpRequest = record {
+  method : text;
+  url : text;
+  headers : vec HeaderField;
+  body : blob;
+  certificate_version : opt nat16;
+};
+
+type HttpResponse = record {
+  status_code : nat16;
+  headers : vec HeaderField;
+  body : blob;
+};
+// End HTTP
+
 service : {
   get_my_user_profile : () -> (GetMyUserProfileResponse) query;
   create_my_user_profile : () -> (CreateMyUserProfileResponse);
@@ -185,4 +203,8 @@ service : {
   update_wheel_asset: (UpdateWheelAssetRequest) -> (UpdateWheelAssetResponse);
   delete_wheel_asset: (DeleteWheelAssetRequest) -> (DeleteWheelAssetResponse);
   update_wheel_asset_image: (UpdateWheelAssetImageRequest) -> (UpdateWheelAssetImageResponse);
+
+  // HTTP
+  http_request : (request : HttpRequest) -> (HttpResponse) query;
+  // End HTTP
 }

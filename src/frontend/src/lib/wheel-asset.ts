@@ -4,6 +4,7 @@ import type {
   WheelAssetType,
 } from '@/declarations/backend/backend.did';
 import { enumKey } from '@/lib/utils';
+import { backendBaseUrl } from '@/lib/api';
 
 export type WheelAssetToken = Omit<WheelAsset, 'asset_type'> & {
   asset_type: Extract<WheelAssetType, { token: unknown }>;
@@ -49,4 +50,13 @@ export const isWheelAssetDisabled = (
   state: Extract<WheelAssetState, { disabled: null }>;
 } => {
   return enumKey(asset.state) === 'disabled';
+};
+
+export const wheelAssetUrl = (asset: WheelAsset): string | undefined => {
+  const assetPath = asset.wheel_image_path[0];
+  if (!assetPath) {
+    return undefined;
+  }
+
+  return `${backendBaseUrl}${assetPath}`;
 };

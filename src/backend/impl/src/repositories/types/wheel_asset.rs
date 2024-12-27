@@ -300,88 +300,100 @@ impl RangeBounds<WheelAssetTypeKey> for WheelAssetTypeRange {
     }
 }
 
-pub fn icp_wheel_asset() -> WheelAsset {
-    WheelAsset {
-        name: "ICP".to_string(),
-        asset_type: WheelAssetType::Token {
-            ledger_canister_id: Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap(),
-            exchange_rate_symbol: "ICP".to_string(),
-            should_fetch_usd_price: true,
-            usd_price: None,
-            decimals: 8,
-            balance: None,
-            prize_usd_amount: 1.0,
+pub fn icp_wheel_asset() -> (WheelAsset, Vec<u8>) {
+    (
+        WheelAsset {
+            name: "ICP".to_string(),
+            asset_type: WheelAssetType::Token {
+                ledger_canister_id: Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap(),
+                exchange_rate_symbol: "ICP".to_string(),
+                should_fetch_usd_price: true,
+                usd_price: None,
+                decimals: 8,
+                balance: None,
+                prize_usd_amount: 1.0,
+            },
+            total_amount: 0,
+            used_amount: 0,
+            state: WheelAssetState::Enabled,
+            wheel_image_path: None,
+            modal_image_path: None,
+            timestamps: TimestampFields::new(),
         },
-        total_amount: 0,
-        used_amount: 0,
-        state: WheelAssetState::Enabled,
-        wheel_image_path: None,
-        modal_image_path: None,
-        timestamps: TimestampFields::new(),
-    }
+        include_bytes!("../../static/images/tokens/icp.png").to_vec(),
+    )
 }
 
-pub fn ckbtc_wheel_asset() -> WheelAsset {
-    WheelAsset {
-        name: "ckBTC".to_string(),
-        asset_type: WheelAssetType::Token {
-            ledger_canister_id: Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai").unwrap(),
-            exchange_rate_symbol: "BTC".to_string(),
-            should_fetch_usd_price: true,
-            usd_price: None,
-            decimals: 8,
-            balance: None,
-            prize_usd_amount: 1.0,
+pub fn ckbtc_wheel_asset() -> (WheelAsset, Vec<u8>) {
+    (
+        WheelAsset {
+            name: "ckBTC".to_string(),
+            asset_type: WheelAssetType::Token {
+                ledger_canister_id: Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai").unwrap(),
+                exchange_rate_symbol: "BTC".to_string(),
+                should_fetch_usd_price: true,
+                usd_price: None,
+                decimals: 8,
+                balance: None,
+                prize_usd_amount: 1.0,
+            },
+            total_amount: 0,
+            used_amount: 0,
+            state: WheelAssetState::Enabled,
+            wheel_image_path: None,
+            modal_image_path: None,
+            timestamps: TimestampFields::new(),
         },
-        total_amount: 0,
-        used_amount: 0,
-        state: WheelAssetState::Enabled,
-        wheel_image_path: None,
-        modal_image_path: None,
-        timestamps: TimestampFields::new(),
-    }
+        include_bytes!("../../static/images/tokens/ckbtc.png").to_vec(),
+    )
 }
 
-pub fn cketh_wheel_asset() -> WheelAsset {
-    WheelAsset {
-        name: "ckETH".to_string(),
-        asset_type: WheelAssetType::Token {
-            ledger_canister_id: Principal::from_text("ss2fx-dyaaa-aaaar-qacoq-cai").unwrap(),
-            exchange_rate_symbol: "ETH".to_string(),
-            should_fetch_usd_price: true,
-            usd_price: None,
-            decimals: 18,
-            balance: None,
-            prize_usd_amount: 1.0,
+pub fn cketh_wheel_asset() -> (WheelAsset, Vec<u8>) {
+    (
+        WheelAsset {
+            name: "ckETH".to_string(),
+            asset_type: WheelAssetType::Token {
+                ledger_canister_id: Principal::from_text("ss2fx-dyaaa-aaaar-qacoq-cai").unwrap(),
+                exchange_rate_symbol: "ETH".to_string(),
+                should_fetch_usd_price: true,
+                usd_price: None,
+                decimals: 18,
+                balance: None,
+                prize_usd_amount: 1.0,
+            },
+            total_amount: 0,
+            used_amount: 0,
+            state: WheelAssetState::Enabled,
+            wheel_image_path: None,
+            modal_image_path: None,
+            timestamps: TimestampFields::new(),
         },
-        total_amount: 0,
-        used_amount: 0,
-        state: WheelAssetState::Enabled,
-        wheel_image_path: None,
-        modal_image_path: None,
-        timestamps: TimestampFields::new(),
-    }
+        include_bytes!("../../static/images/tokens/cketh.png").to_vec(),
+    )
 }
 
-pub fn ckusdc_wheel_asset() -> WheelAsset {
-    WheelAsset {
-        name: "ckUSDC".to_string(),
-        asset_type: WheelAssetType::Token {
-            ledger_canister_id: Principal::from_text("xevnm-gaaaa-aaaar-qafnq-cai").unwrap(),
-            exchange_rate_symbol: "USDC".to_string(),
-            should_fetch_usd_price: false,
-            usd_price: Some(WheelAssetTokenPrice::new(1.0)),
-            decimals: 6,
-            balance: None,
-            prize_usd_amount: 1.0,
+pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
+    (
+        WheelAsset {
+            name: "ckUSDC".to_string(),
+            asset_type: WheelAssetType::Token {
+                ledger_canister_id: Principal::from_text("xevnm-gaaaa-aaaar-qafnq-cai").unwrap(),
+                exchange_rate_symbol: "USDC".to_string(),
+                should_fetch_usd_price: false,
+                usd_price: Some(WheelAssetTokenPrice::new(1.0)),
+                decimals: 6,
+                balance: None,
+                prize_usd_amount: 1.0,
+            },
+            total_amount: 0,
+            used_amount: 0,
+            state: WheelAssetState::Enabled,
+            wheel_image_path: None,
+            modal_image_path: None,
+            timestamps: TimestampFields::new(),
         },
-        total_amount: 0,
-        used_amount: 0,
-        state: WheelAssetState::Enabled,
-        wheel_image_path: None,
-        modal_image_path: None,
-        timestamps: TimestampFields::new(),
-    }
+        include_bytes!("../../static/images/tokens/ckusdc.png").to_vec(),
+    )
 }
 
 #[cfg(test)]
@@ -464,7 +476,7 @@ mod tests {
     #[case::ckbtc(ckbtc_wheel_asset())]
     #[case::cketh(cketh_wheel_asset())]
     #[case::ckusdc(ckusdc_wheel_asset())]
-    fn wheel_asset_type_set_latest_price(#[case] mut wheel_asset: WheelAsset) {
+    fn wheel_asset_type_set_latest_price(#[case] (mut wheel_asset, _): (WheelAsset, Vec<u8>)) {
         let usd_price = WheelAssetTokenPrice::new(42.42);
         wheel_asset.set_latest_price(usd_price.clone());
         let new_usd_price = match wheel_asset.asset_type {
@@ -479,7 +491,7 @@ mod tests {
     #[case::ckbtc(ckbtc_wheel_asset())]
     #[case::cketh(cketh_wheel_asset())]
     #[case::ckusdc(ckusdc_wheel_asset())]
-    fn wheel_asset_type_set_latest_balance(#[case] mut wheel_asset: WheelAsset) {
+    fn wheel_asset_type_set_latest_balance(#[case] (mut wheel_asset, _): (WheelAsset, Vec<u8>)) {
         let balance = WheelAssetTokenBalance::new(42);
         wheel_asset.set_latest_balance(balance.clone());
         let new_balance = match wheel_asset.asset_type {

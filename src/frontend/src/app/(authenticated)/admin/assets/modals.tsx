@@ -41,7 +41,7 @@ import type {
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { candidOpt, getDecimalSeparator, renderError } from '@/lib/utils';
-import { isWheelAssetToken } from '@/lib/wheelAsset';
+import { isWheelAssetToken } from '@/lib/wheel-asset';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Coins, Settings2 } from 'lucide-react';
 import { useMemo, useState } from 'react';

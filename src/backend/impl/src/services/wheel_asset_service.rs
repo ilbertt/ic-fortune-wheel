@@ -3,7 +3,7 @@ use std::{path::Path, time::Duration};
 use backend_api::{
     ApiError, DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
     UpdateWheelAssetImageConfig, UpdateWheelAssetImageRequest, UpdateWheelAssetRequest,
-    UpdateWheelAssetTypeConfig,
+    UpdateWheelAssetTypeConfig, WheelAssetImageConfig,
 };
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{println, spawn};
@@ -89,7 +89,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
             return Err(ApiError::conflict("Wheel assets already exist"));
         }
 
-        for asset in [
+        for (asset, wheel_image_content_bytes) in [
             icp_wheel_asset(),
             ckbtc_wheel_asset(),
             cketh_wheel_asset(),
@@ -99,6 +99,16 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
                 .wheel_asset_repository
                 .create_wheel_asset(asset.clone())
                 .await?;
+
+            // Not so nice done in this way, but it's quicker
+            self.update_wheel_asset_image(UpdateWheelAssetImageRequest {
+                id: asset_id.to_string(),
+                image_config: UpdateWheelAssetImageConfig::Wheel(WheelAssetImageConfig {
+                    content_bytes: wheel_image_content_bytes,
+                    content_type: "image/png".to_string(),
+                }),
+            })
+            .await?;
 
             self.schedule_balance_fetcher(asset_id, asset.asset_type.clone());
             self.schedule_price_fetcher(asset_id, asset.asset_type);

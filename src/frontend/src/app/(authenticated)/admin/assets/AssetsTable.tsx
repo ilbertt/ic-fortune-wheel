@@ -8,7 +8,7 @@ import type { Err, WheelAsset } from '@/declarations/backend/backend.did';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { renderError, renderUsdValue, toCandidEnum } from '@/lib/utils';
-import { isWheelAssetDisabled } from '@/lib/wheelAsset';
+import { isWheelAssetDisabled } from '@/lib/wheel-asset';
 import { createColumnHelper } from '@tanstack/react-table';
 import { Loader2, MinusCircle, PlusCircle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
