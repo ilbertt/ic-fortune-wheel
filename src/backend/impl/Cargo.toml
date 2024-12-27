@@ -17,7 +17,8 @@ candid.workspace = true
 ic-cdk.workspace = true
 ic-cdk-timers = "0.11"
 ic-stable-structures = "0.6"
-
+ic-asset-certification = "3.0"
+ic-http-certification = "3.0"
 ic-xrc-types.workspace = true
 icrc-ledger-types.workspace = true
 
@@ -33,3 +34,4 @@ uuid = "1.11"
 candid_parser.workspace = true
 mockall = "0.13"
 rstest = "0.23"
+async-std = { version = "1.13", features = ["attributes"] }

@@ -1,6 +1,6 @@
 use crate::{
-    repositories::UserProfileRepositoryImpl,
-    services::{InitService, InitServiceImpl},
+    repositories::{HttpAssetRepositoryImpl, UserProfileRepositoryImpl},
+    services::{HttpAssetService, HttpAssetServiceImpl, InitService, InitServiceImpl},
 };
 use backend_api::ApiError;
 use candid::Principal;
@@ -41,19 +41,28 @@ fn spawn_init_admin(calling_principal: Principal) {
     });
 }
 
-struct InitController<I: InitService> {
+struct InitController<I: InitService, H: HttpAssetService> {
     init_service: I,
+    http_asset_service: H,
 }
 
-impl Default for InitController<InitServiceImpl<UserProfileRepositoryImpl>> {
+impl Default
+    for InitController<
+        InitServiceImpl<UserProfileRepositoryImpl>,
+        HttpAssetServiceImpl<HttpAssetRepositoryImpl>,
+    >
+{
     fn default() -> Self {
-        Self::new(InitServiceImpl::default())
+        Self::new(InitServiceImpl::default(), HttpAssetServiceImpl::default())
     }
 }
 
-impl<I: InitService> InitController<I> {
-    fn new(init_service: I) -> Self {
-        Self { init_service }
+impl<I: InitService, H: HttpAssetService> InitController<I, H> {
+    fn new(init_service: I, http_asset_service: H) -> Self {
+        Self {
+            init_service,
+            http_asset_service,
+        }
     }
 
     async fn init_admin(&self, calling_principal: Principal) -> Result<(), ApiError> {
@@ -61,9 +70,7 @@ impl<I: InitService> InitController<I> {
     }
 
     fn init(&self, calling_principal: Principal) {
-        spawn_init_admin(calling_principal);
-
-        jobs::start_jobs();
+        self.internal_init(calling_principal);
 
         println!("init:done");
     }
@@ -73,11 +80,22 @@ impl<I: InitService> InitController<I> {
     }
 
     fn post_upgrade(&self, calling_principal: Principal) {
-        spawn_init_admin(calling_principal);
-
-        jobs::start_jobs();
+        self.internal_init(calling_principal);
 
         println!("post_upgrade:done");
+    }
+
+    fn internal_init(&self, calling_principal: Principal) {
+        spawn_init_admin(calling_principal);
+
+        match self.http_asset_service.init() {
+            Ok(_) => println!("init: http_asset_service initialized"),
+            Err(err) => {
+                ic_cdk::trap(&format!("Failed to initialize http_asset_service: {}", err));
+            }
+        };
+
+        jobs::start_jobs();
     }
 }
 
