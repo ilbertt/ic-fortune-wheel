@@ -2,7 +2,7 @@
 
 import { BorderVerticalGradientContainer } from '@/components/border-gradient-container';
 import { PageContent, PageHeader, PageLayout } from '@/components/layouts';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -35,7 +35,13 @@ import {
   wheelAssetTokenTotalUsdValue,
   type WheelAssetToken,
 } from '@/lib/wheelAsset';
-import { Loader2, PlusCircle, RefreshCcw, Send } from 'lucide-react';
+import {
+  CircleDollarSign,
+  Loader2,
+  PlusCircle,
+  RefreshCcw,
+  Send,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { TopUpModal } from './modals';
 import { AssetsTable } from './AssetsTable';
@@ -51,7 +57,10 @@ const TokenRow: React.FC<TokenRowProps> = ({ token, refreshingTokens }) => {
   return (
     <div className='grid grid-cols-[theme("spacing.10")_1fr_auto] items-center gap-4'>
       <Avatar>
-        <AvatarImage src="https://github.com/indaco.png" />
+        <AvatarImage src={token.wheel_image_path[0]} />
+        <AvatarFallback>
+          <CircleDollarSign />
+        </AvatarFallback>
       </Avatar>
       <div className="font-medium">{token.name}</div>
       <div className="flex flex-col items-end gap-0.5 *:text-right">
