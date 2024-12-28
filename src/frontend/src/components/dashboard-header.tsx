@@ -275,7 +275,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         className,
       )}
     >
-      <div className="bg-dark-infinite/25 flex h-full w-full flex-row items-center justify-between px-8">
+      <div className="bg-dark-infinite/25 flex h-full w-full flex-row items-center justify-between px-4 md:px-8">
         <Logo />
         <div className="hidden flex-1 flex-row items-center justify-center md:flex">
           {headerLinks}

@@ -10,8 +10,8 @@ export const PageLayout: React.FC<MainLayoutProps> = ({
     <div
       className={cn(
         'grid gap-3 md:gap-4',
-        "[grid-template-areas:'header_header_header_header''subheader_subheader_subheader_subheader''content_content_content_content']",
-        "md:[grid-template-areas:'header_header_header_header_header_header_header_header_header_header_header_header''subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader''content_content_content_content_content_content_content_content_content_content_content_content']",
+        "grid-cols-4 [grid-template-areas:'header_header_header_header''subheader_subheader_subheader_subheader''content_content_content_content']",
+        "md:grid-cols-12 md:[grid-template-areas:'header_header_header_header_header_header_header_header_header_header_header_header''subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader_subheader''content_content_content_content_content_content_content_content_content_content_content_content']",
         'p-4 pt-3 md:p-8 md:pt-6',
         className,
       )}

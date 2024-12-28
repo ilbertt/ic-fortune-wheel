@@ -400,6 +400,11 @@ const EditAssetImagesForm: React.FC<EditAssetModalProps> = ({
           variant="secondary"
           loading={isSubmitting}
           onClick={handleSaveChanges}
+          disabled={
+            // if either of the images are a file, this means that the user has
+            // uploaded a new image
+            !(wheelImageSrc instanceof File || modalImageSrc instanceof File)
+          }
         >
           Save changes
         </Button>
