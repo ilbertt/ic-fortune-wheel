@@ -58,11 +58,13 @@ export const isWheelAssetDisabled = (
   return enumKey(asset.state) === 'disabled';
 };
 
-export const wheelAssetUrl = (asset: WheelAsset): string | undefined => {
-  const assetPath = asset.wheel_image_path[0];
-  if (!assetPath) {
+export const wheelAssetUrl = (
+  imagePath: WheelAsset['wheel_image_path'] | WheelAsset['modal_image_path'],
+): string | undefined => {
+  const imgPath = imagePath[0];
+  if (!imgPath) {
     return undefined;
   }
 
-  return `${backendBaseUrl}${assetPath}`;
+  return `${backendBaseUrl}${imgPath}`;
 };
