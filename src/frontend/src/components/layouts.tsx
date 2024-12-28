@@ -62,7 +62,10 @@ export const PageContent: React.FC<PageContentProps> = ({
 }) => {
   return (
     <div
-      className={cn('grid grid-cols-subgrid [grid-area:content]', className)}
+      className={cn(
+        'grid grid-cols-subgrid space-y-4 [grid-area:content] md:space-y-0',
+        className,
+      )}
       {...props}
     />
   );
