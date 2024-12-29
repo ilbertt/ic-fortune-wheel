@@ -41,7 +41,7 @@ impl From<WheelAssetTokenBalance> for backend_api::WheelAssetTokenBalance {
 
 impl From<WheelAssetType> for backend_api::WheelAssetType {
     fn from(asset_type: WheelAssetType) -> Self {
-        match asset_type {
+        match asset_type.clone() {
             WheelAssetType::Token {
                 ledger_canister_id,
                 exchange_rate_symbol,
@@ -58,6 +58,7 @@ impl From<WheelAssetType> for backend_api::WheelAssetType {
                 decimals,
                 balance: balance.map(|el| el.into()),
                 prize_usd_amount,
+                available_draws_count: asset_type.available_draws_count(),
             },
             WheelAssetType::Gadget => backend_api::WheelAssetType::Gadget,
             WheelAssetType::Jackpot => backend_api::WheelAssetType::Jackpot,

@@ -106,6 +106,28 @@ impl WheelAssetType {
             *balance = Some(input_balance);
         }
     }
+
+    pub fn available_draws_count(&self) -> u32 {
+        if let WheelAssetType::Token {
+            balance,
+            decimals,
+            usd_price,
+            prize_usd_amount,
+            ..
+        } = self
+        {
+            let balance = balance
+                .as_ref()
+                .map(|el| (el.balance / 10u128.pow(*decimals as u32)))
+                .unwrap_or(0);
+            let total_usd_amount =
+                balance as f64 * usd_price.as_ref().map(|el| el.usd_price).unwrap_or(0f64);
+
+            (total_usd_amount / prize_usd_amount).trunc() as u32
+        } else {
+            0
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, CandidType, Deserialize, PartialEq, Eq, PartialOrd, Ord)]

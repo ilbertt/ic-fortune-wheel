@@ -84,6 +84,7 @@ type WheelAssetType = variant {
     decimals : nat8;
     balance : opt WheelAssetTokenBalance;
     prize_usd_amount : float64;
+    available_draws_count : nat32;
   };
   gadget;
   jackpot;

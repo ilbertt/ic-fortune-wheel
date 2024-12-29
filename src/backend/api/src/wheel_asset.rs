@@ -30,6 +30,7 @@ pub enum WheelAssetType {
         usd_price: Option<WheelAssetTokenPrice>,
         decimals: u8,
         balance: Option<WheelAssetTokenBalance>,
+        available_draws_count: u32,
         prize_usd_amount: f64,
     },
     #[serde(rename = "gadget")]
