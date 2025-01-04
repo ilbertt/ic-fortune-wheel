@@ -272,6 +272,19 @@ const EditAssetImagesForm: React.FC<EditAssetModalProps> = ({
             maxSizeBytes={MAX_IMAGE_SIZE_BYTES}
           />
         </div>
+        <div className="col-span-full">
+          <p className="text-muted-foreground text-xs">
+            <b>Tip:</b> you can use online tools like{' '}
+            <a
+              href="https://tinypng.com/"
+              target="_blank"
+              className="text-indaco-blue underline"
+            >
+              Tinify
+            </a>{' '}
+            to reduce the image size while preserving quality.
+          </p>
+        </div>
       </div>
       <DialogFooter className="sm:justify-between">
         <DeleteAssetModal asset={asset} onDeleteComplete={onEditComplete} />
