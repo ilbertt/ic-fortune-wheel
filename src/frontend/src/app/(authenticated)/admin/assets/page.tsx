@@ -36,16 +36,11 @@ import {
   wheelAssetUrl,
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
-import {
-  CircleDollarSign,
-  Loader2,
-  PlusCircle,
-  RefreshCcw,
-  Send,
-} from 'lucide-react';
+import { CircleDollarSign, PlusCircle, RefreshCcw, Send } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { TopUpModal } from './modals';
 import { AssetsTable } from './AssetsTable';
+import { Loader } from '@/components/loader';
 
 const FETCH_ASSETS_INTERVAL = 30_000;
 
@@ -243,9 +238,7 @@ export default function Page() {
               </div>
             </BorderVerticalGradientContainer>
             <div className="mt-6 flex flex-col gap-6 px-4">
-              {fetchingAssets && (
-                <Loader2 className="animate-spin self-center" />
-              )}
+              {fetchingAssets && <Loader className="self-center" />}
               {!fetchingAssets && tokenAssets.length === 0 ? (
                 <p>No tokens found</p>
               ) : (
@@ -272,7 +265,7 @@ export default function Page() {
             </Button>
           </CardHeader>
           <CardContent>
-            {fetchingAssets && <Loader2 className="animate-spin" />}
+            {fetchingAssets && <Loader />}
             {!fetchingAssets &&
             assets.enabled.length === 0 &&
             assets.disabled.length === 0 ? (

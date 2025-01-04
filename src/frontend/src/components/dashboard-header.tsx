@@ -4,7 +4,6 @@ import { cn, renderError } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import {
   LayoutDashboard,
-  Loader2,
   LogOut,
   PenLine,
   ScanLine,
@@ -56,6 +55,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { PrincipalDisplay } from '@/components/principal-display';
 import { UserIdDisplay } from './user-id-display';
+import { Loader } from '@/components/loader';
 
 type HeaderLinkProps = {
   title: string;
@@ -191,7 +191,7 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
         >
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-infinite">
-              {Boolean(user) ? <User /> : <Loader2 className="animate-spin" />}
+              {Boolean(user) ? <User /> : <Loader />}
             </AvatarFallback>
           </Avatar>
         </Button>

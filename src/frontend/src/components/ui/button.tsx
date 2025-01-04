@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { Slot, Slottable } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
-
 import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
+import { Loader } from '@/components/loader';
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
@@ -67,10 +66,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         type={type}
         {...props}
       >
-        {loading && (
-          // TODO: fix the spinner animation moving the svg up and down on Safari
-          <Loader2 className="animate-spin" />
-        )}
+        {loading && <Loader />}
         <Slottable>
           {loading ? (size !== 'icon' ? 'Loading' : null) : children}
         </Slottable>

@@ -31,7 +31,7 @@ import { extractOk } from '@/lib/api';
 import type { ExtractKeysFromCandidEnum } from '@/lib/types/utils';
 import { userInitials } from '@/lib/user';
 import { enumKey, renderError, toCandidEnum } from '@/lib/utils';
-import { Loader2, UserMinus2 } from 'lucide-react';
+import { UserMinus2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import {
   AlertDialog,
@@ -43,6 +43,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Loader } from '@/components/loader';
 
 type TeamMemberRowProps = {
   member: UserProfile;
@@ -121,7 +122,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
       </div>
       <div className="flex w-full flex-col flex-wrap gap-2 md:flex-row md:items-center md:justify-end">
         <div className="flex flex-row flex-wrap items-center gap-0.5">
-          {isUpdateLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isUpdateLoading && <Loader className="mr-2 h-4 w-4" />}
           <Select
             value={role}
             onValueChange={handleRoleChange}
@@ -214,7 +215,7 @@ export default function Page() {
                 />
               ))
             ) : (
-              <Loader2 className="animate-spin" />
+              <Loader />
             )}
           </CardContent>
         </Card>

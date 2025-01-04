@@ -10,9 +10,10 @@ import { extractOk } from '@/lib/api';
 import { renderError, renderUsdValue, toCandidEnum } from '@/lib/utils';
 import { isWheelAssetDisabled, isWheelAssetTypeToken } from '@/lib/wheel-asset';
 import { createColumnHelper } from '@tanstack/react-table';
-import { Loader2, MinusCircle, PlusCircle } from 'lucide-react';
+import { MinusCircle, PlusCircle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { EditAssetModal } from './modals';
+import { Loader } from '@/components/loader';
 
 type AssetStateToggleProps = {
   asset: WheelAsset;
@@ -61,7 +62,7 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({
       onClick={handleToggle}
     >
       {isLoading ? (
-        <Loader2 className="animate-spin" />
+        <Loader />
       ) : isDisabled ? (
         <PlusCircle className="text-green-500" />
       ) : (
