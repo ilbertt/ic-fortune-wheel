@@ -12,7 +12,7 @@ import { isWheelAssetDisabled, isWheelAssetTypeToken } from '@/lib/wheel-asset';
 import { createColumnHelper } from '@tanstack/react-table';
 import { MinusCircle, PlusCircle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
-import { EditAssetModal } from './modals';
+import { EditAssetModal } from './modals/Edit';
 import { Loader } from '@/components/loader';
 
 type AssetStateToggleProps = {

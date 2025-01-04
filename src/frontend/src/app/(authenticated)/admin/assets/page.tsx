@@ -38,7 +38,7 @@ import {
 } from '@/lib/wheel-asset';
 import { CircleDollarSign, PlusCircle, RefreshCcw, Send } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { TopUpModal } from './modals';
+import { TopUpModal } from './modals/TopUp';
 import { AssetsTable } from './AssetsTable';
 import { Loader } from '@/components/loader';
 
