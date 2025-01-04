@@ -25,8 +25,7 @@ pub enum WheelAssetType {
     #[serde(rename = "token")]
     Token {
         ledger_canister_id: Principal,
-        exchange_rate_symbol: String,
-        should_fetch_usd_price: bool,
+        exchange_rate_symbol: Option<String>,
         usd_price: Option<WheelAssetTokenPrice>,
         decimals: u8,
         balance: Option<WheelAssetTokenBalance>,

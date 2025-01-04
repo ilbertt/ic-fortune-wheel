@@ -45,10 +45,9 @@ impl WheelAssetTokenBalance {
 pub enum WheelAssetType {
     Token {
         ledger_canister_id: Principal,
-        // The symbol used to fetch the exchange rate against USD.
-        exchange_rate_symbol: String,
-        /// Whether the USD price should be fetched or not.
-        should_fetch_usd_price: bool,
+        /// The symbol used to fetch the exchange rate against USD.
+        /// If not provided, the USD price will not be fetched.
+        exchange_rate_symbol: Option<String>,
         /// The last fetched USD price, if any.
         usd_price: Option<WheelAssetTokenPrice>,
         /// The decimals that the token uses.
@@ -76,8 +75,7 @@ impl WheelAssetType {
     pub fn empty_token() -> Self {
         WheelAssetType::Token {
             ledger_canister_id: Principal::from_slice(&[0]),
-            exchange_rate_symbol: "".to_string(),
-            should_fetch_usd_price: false,
+            exchange_rate_symbol: None,
             usd_price: None,
             decimals: 0,
             balance: None,
@@ -94,9 +92,9 @@ impl WheelAssetType {
     pub fn should_fetch_usd_price(&self) -> bool {
         match self {
             WheelAssetType::Token {
-                should_fetch_usd_price,
+                exchange_rate_symbol,
                 ..
-            } => *should_fetch_usd_price,
+            } => exchange_rate_symbol.is_some(),
             _ => false,
         }
     }
@@ -328,8 +326,7 @@ pub fn icp_wheel_asset() -> (WheelAsset, Vec<u8>) {
             name: "ICP".to_string(),
             asset_type: WheelAssetType::Token {
                 ledger_canister_id: Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap(),
-                exchange_rate_symbol: "ICP".to_string(),
-                should_fetch_usd_price: true,
+                exchange_rate_symbol: Some("ICP".to_string()),
                 usd_price: None,
                 decimals: 8,
                 balance: None,
@@ -352,8 +349,7 @@ pub fn ckbtc_wheel_asset() -> (WheelAsset, Vec<u8>) {
             name: "ckBTC".to_string(),
             asset_type: WheelAssetType::Token {
                 ledger_canister_id: Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai").unwrap(),
-                exchange_rate_symbol: "BTC".to_string(),
-                should_fetch_usd_price: true,
+                exchange_rate_symbol: Some("BTC".to_string()),
                 usd_price: None,
                 decimals: 8,
                 balance: None,
@@ -376,8 +372,7 @@ pub fn cketh_wheel_asset() -> (WheelAsset, Vec<u8>) {
             name: "ckETH".to_string(),
             asset_type: WheelAssetType::Token {
                 ledger_canister_id: Principal::from_text("ss2fx-dyaaa-aaaar-qacoq-cai").unwrap(),
-                exchange_rate_symbol: "ETH".to_string(),
-                should_fetch_usd_price: true,
+                exchange_rate_symbol: Some("ETH".to_string()),
                 usd_price: None,
                 decimals: 18,
                 balance: None,
@@ -400,8 +395,7 @@ pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
             name: "ckUSDC".to_string(),
             asset_type: WheelAssetType::Token {
                 ledger_canister_id: Principal::from_text("xevnm-gaaaa-aaaar-qafnq-cai").unwrap(),
-                exchange_rate_symbol: "USDC".to_string(),
-                should_fetch_usd_price: false,
+                exchange_rate_symbol: None,
                 usd_price: Some(WheelAssetTokenPrice::new(1.0)),
                 decimals: 6,
                 balance: None,

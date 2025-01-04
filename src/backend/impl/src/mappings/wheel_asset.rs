@@ -45,7 +45,6 @@ impl From<WheelAssetType> for backend_api::WheelAssetType {
             WheelAssetType::Token {
                 ledger_canister_id,
                 exchange_rate_symbol,
-                should_fetch_usd_price,
                 usd_price,
                 decimals,
                 balance,
@@ -53,7 +52,6 @@ impl From<WheelAssetType> for backend_api::WheelAssetType {
             } => backend_api::WheelAssetType::Token {
                 ledger_canister_id,
                 exchange_rate_symbol,
-                should_fetch_usd_price,
                 usd_price: usd_price.map(|el| el.into()),
                 decimals,
                 balance: balance.map(|el| el.into()),

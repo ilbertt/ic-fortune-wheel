@@ -79,7 +79,6 @@ type WheelAssetType = variant {
   token : record {
     ledger_canister_id : principal;
     exchange_rate_symbol : text;
-    should_fetch_usd_price : bool;
     usd_price : opt WheelAssetTokenPrice;
     decimals : nat8;
     balance : opt WheelAssetTokenBalance;

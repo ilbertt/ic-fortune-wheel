@@ -342,7 +342,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
     }
 
     /// Immediately (= after 0 seconds) starts a task to fetch the price of the given asset,
-    /// if the asset has a price that should be fetched.
+    /// if the asset has an exchange rate symbol.
     fn schedule_price_fetcher(&self, asset_id: WheelAssetId, asset_type: WheelAssetType) {
         if !asset_type.should_fetch_usd_price() {
             return;
@@ -372,7 +372,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             WheelAssetType::Token {
                 exchange_rate_symbol,
                 ..
-            } => exchange_rate_symbol,
+            } => exchange_rate_symbol.expect("asset should have an exchange rate symbol"),
             _ => {
                 // should never happen
                 println!("fetch_and_save_token_price: invalid asset type");
