@@ -111,7 +111,7 @@ impl WheelAssetType {
         }
     }
 
-    fn token_balance(&self) -> u128 {
+    fn token_balance(&self) -> f64 {
         match self {
             WheelAssetType::Token {
                 balance,
@@ -119,9 +119,9 @@ impl WheelAssetType {
                 ..
             } => balance
                 .as_ref()
-                .map(|el| (el.balance / 10u128.pow(ledger_config.decimals as u32)))
-                .unwrap_or(0),
-            _ => 0,
+                .map(|el| ((el.balance as f64) / 10f64.powi(ledger_config.decimals as i32)))
+                .unwrap_or(0f64),
+            _ => 0f64,
         }
     }
 
@@ -129,7 +129,7 @@ impl WheelAssetType {
         let balance = self.token_balance();
         match self {
             WheelAssetType::Token { usd_price, .. } => {
-                balance as f64 * usd_price.as_ref().map(|el| el.usd_price).unwrap_or(0f64)
+                balance * usd_price.as_ref().map(|el| el.usd_price).unwrap_or(0f64)
             }
             _ => 0f64,
         }
