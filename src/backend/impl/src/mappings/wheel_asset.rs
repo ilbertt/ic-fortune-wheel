@@ -1,6 +1,6 @@
 use crate::repositories::{
-    WheelAsset, WheelAssetId, WheelAssetState, WheelAssetTokenBalance, WheelAssetTokenPrice,
-    WheelAssetType,
+    WheelAsset, WheelAssetId, WheelAssetState, WheelAssetTokenBalance, WheelAssetTokenLedgerConfig,
+    WheelAssetTokenPrice, WheelAssetType,
 };
 
 impl From<WheelAssetState> for backend_api::WheelAssetState {
@@ -39,21 +39,28 @@ impl From<WheelAssetTokenBalance> for backend_api::WheelAssetTokenBalance {
     }
 }
 
+impl From<WheelAssetTokenLedgerConfig> for backend_api::WheelAssetTokenLedgerConfig {
+    fn from(value: WheelAssetTokenLedgerConfig) -> Self {
+        backend_api::WheelAssetTokenLedgerConfig {
+            ledger_canister_id: value.ledger_canister_id,
+            decimals: value.decimals,
+        }
+    }
+}
+
 impl From<WheelAssetType> for backend_api::WheelAssetType {
     fn from(asset_type: WheelAssetType) -> Self {
         match asset_type.clone() {
             WheelAssetType::Token {
-                ledger_canister_id,
+                ledger_config,
                 exchange_rate_symbol,
                 usd_price,
-                decimals,
                 balance,
                 prize_usd_amount,
             } => backend_api::WheelAssetType::Token {
-                ledger_canister_id,
+                ledger_config: ledger_config.into(),
                 exchange_rate_symbol,
                 usd_price: usd_price.map(|el| el.into()),
-                decimals,
                 balance: balance.map(|el| el.into()),
                 prize_usd_amount,
                 available_draws_count: asset_type.available_draws_count(),

@@ -29,7 +29,7 @@ export const wheelAssetBalance = (asset: WheelAssetToken): number => {
   }
   // we can reasonably assume the balance won't overflow the Number type
   const balanceNumber = Number(balance.balance);
-  return balanceNumber / 10 ** asset.asset_type.token.decimals;
+  return balanceNumber / 10 ** asset.asset_type.token.ledger_config.decimals;
 };
 
 export const wheelAssetTokenTotalUsdValue = (

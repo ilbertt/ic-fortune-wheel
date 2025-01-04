@@ -21,13 +21,18 @@ pub struct WheelAssetTokenBalance {
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct WheelAssetTokenLedgerConfig {
+    pub ledger_canister_id: Principal,
+    pub decimals: u8,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
 pub enum WheelAssetType {
     #[serde(rename = "token")]
     Token {
-        ledger_canister_id: Principal,
+        ledger_config: WheelAssetTokenLedgerConfig,
         exchange_rate_symbol: Option<String>,
         usd_price: Option<WheelAssetTokenPrice>,
-        decimals: u8,
         balance: Option<WheelAssetTokenBalance>,
         available_draws_count: u32,
         prize_usd_amount: f64,

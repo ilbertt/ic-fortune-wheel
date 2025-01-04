@@ -75,12 +75,16 @@ type WheelAssetTokenBalance = record {
   last_fetched_at: text;
 };
 
+type WheelAssetTokenLedgerConfig = record {
+  ledger_canister_id : principal;
+  decimals : nat8;
+};
+
 type WheelAssetType = variant {
   token : record {
-    ledger_canister_id : principal;
+    ledger_config : WheelAssetTokenLedgerConfig;
     exchange_rate_symbol : opt text;
     usd_price : opt WheelAssetTokenPrice;
-    decimals : nat8;
     balance : opt WheelAssetTokenBalance;
     prize_usd_amount : float64;
     available_draws_count : nat32;

@@ -464,9 +464,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
         );
 
         let ledger_canister_id = match asset_type {
-            WheelAssetType::Token {
-                ledger_canister_id, ..
-            } => ledger_canister_id,
+            WheelAssetType::Token { ledger_config, .. } => ledger_config.ledger_canister_id,
             _ => {
                 // should never happen
                 println!("fetch_and_save_token_balance: invalid asset type");

@@ -42,16 +42,20 @@ impl WheelAssetTokenBalance {
 }
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
+pub struct WheelAssetTokenLedgerConfig {
+    pub ledger_canister_id: Principal,
+    pub decimals: u8,
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub enum WheelAssetType {
     Token {
-        ledger_canister_id: Principal,
+        ledger_config: WheelAssetTokenLedgerConfig,
         /// The symbol used to fetch the exchange rate against USD.
         /// If not provided, the USD price will not be fetched.
         exchange_rate_symbol: Option<String>,
         /// The last fetched USD price, if any.
         usd_price: Option<WheelAssetTokenPrice>,
-        /// The decimals that the token uses.
-        decimals: u8,
         /// The last fetched token balance, if any.
         balance: Option<WheelAssetTokenBalance>,
         /// The amount of USD to be paid per prize.
@@ -74,10 +78,12 @@ impl From<&WheelAssetType> for u8 {
 impl WheelAssetType {
     pub fn empty_token() -> Self {
         WheelAssetType::Token {
-            ledger_canister_id: Principal::from_slice(&[0]),
+            ledger_config: WheelAssetTokenLedgerConfig {
+                ledger_canister_id: Principal::from_slice(&[0]),
+                decimals: 0,
+            },
             exchange_rate_symbol: None,
             usd_price: None,
-            decimals: 0,
             balance: None,
             prize_usd_amount: 0.0,
         }
@@ -105,21 +111,36 @@ impl WheelAssetType {
         }
     }
 
+    fn token_balance(&self) -> u128 {
+        match self {
+            WheelAssetType::Token {
+                balance,
+                ledger_config,
+                ..
+            } => balance
+                .as_ref()
+                .map(|el| (el.balance / 10u128.pow(ledger_config.decimals as u32)))
+                .unwrap_or(0),
+            _ => 0,
+        }
+    }
+
+    fn token_total_usd_amount(&self) -> f64 {
+        let balance = self.token_balance();
+        match self {
+            WheelAssetType::Token { usd_price, .. } => {
+                balance as f64 * usd_price.as_ref().map(|el| el.usd_price).unwrap_or(0f64)
+            }
+            _ => 0f64,
+        }
+    }
+
     pub fn available_draws_count(&self) -> u32 {
         if let WheelAssetType::Token {
-            balance,
-            decimals,
-            usd_price,
-            prize_usd_amount,
-            ..
+            prize_usd_amount, ..
         } = self
         {
-            let balance = balance
-                .as_ref()
-                .map(|el| (el.balance / 10u128.pow(*decimals as u32)))
-                .unwrap_or(0);
-            let total_usd_amount =
-                balance as f64 * usd_price.as_ref().map(|el| el.usd_price).unwrap_or(0f64);
+            let total_usd_amount = self.token_total_usd_amount();
 
             (total_usd_amount / prize_usd_amount).trunc() as u32
         } else {
@@ -325,10 +346,13 @@ pub fn icp_wheel_asset() -> (WheelAsset, Vec<u8>) {
         WheelAsset {
             name: "ICP".to_string(),
             asset_type: WheelAssetType::Token {
-                ledger_canister_id: Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap(),
+                ledger_config: WheelAssetTokenLedgerConfig {
+                    ledger_canister_id: Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai")
+                        .unwrap(),
+                    decimals: 8,
+                },
                 exchange_rate_symbol: Some("ICP".to_string()),
                 usd_price: None,
-                decimals: 8,
                 balance: None,
                 prize_usd_amount: 1.0,
             },
@@ -348,10 +372,13 @@ pub fn ckbtc_wheel_asset() -> (WheelAsset, Vec<u8>) {
         WheelAsset {
             name: "ckBTC".to_string(),
             asset_type: WheelAssetType::Token {
-                ledger_canister_id: Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai").unwrap(),
+                ledger_config: WheelAssetTokenLedgerConfig {
+                    ledger_canister_id: Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai")
+                        .unwrap(),
+                    decimals: 8,
+                },
                 exchange_rate_symbol: Some("BTC".to_string()),
                 usd_price: None,
-                decimals: 8,
                 balance: None,
                 prize_usd_amount: 1.0,
             },
@@ -371,10 +398,13 @@ pub fn cketh_wheel_asset() -> (WheelAsset, Vec<u8>) {
         WheelAsset {
             name: "ckETH".to_string(),
             asset_type: WheelAssetType::Token {
-                ledger_canister_id: Principal::from_text("ss2fx-dyaaa-aaaar-qacoq-cai").unwrap(),
+                ledger_config: WheelAssetTokenLedgerConfig {
+                    ledger_canister_id: Principal::from_text("ss2fx-dyaaa-aaaar-qacoq-cai")
+                        .unwrap(),
+                    decimals: 18,
+                },
                 exchange_rate_symbol: Some("ETH".to_string()),
                 usd_price: None,
-                decimals: 18,
                 balance: None,
                 prize_usd_amount: 1.0,
             },
@@ -394,10 +424,13 @@ pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
         WheelAsset {
             name: "ckUSDC".to_string(),
             asset_type: WheelAssetType::Token {
-                ledger_canister_id: Principal::from_text("xevnm-gaaaa-aaaar-qafnq-cai").unwrap(),
+                ledger_config: WheelAssetTokenLedgerConfig {
+                    ledger_canister_id: Principal::from_text("xevnm-gaaaa-aaaar-qafnq-cai")
+                        .unwrap(),
+                    decimals: 6,
+                },
                 exchange_rate_symbol: None,
                 usd_price: Some(WheelAssetTokenPrice::new(1.0)),
-                decimals: 6,
                 balance: None,
                 prize_usd_amount: 1.0,
             },
