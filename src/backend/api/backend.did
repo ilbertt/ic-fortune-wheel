@@ -78,7 +78,7 @@ type WheelAssetTokenBalance = record {
 type WheelAssetType = variant {
   token : record {
     ledger_canister_id : principal;
-    exchange_rate_symbol : text;
+    exchange_rate_symbol : opt text;
     usd_price : opt WheelAssetTokenPrice;
     decimals : nat8;
     balance : opt WheelAssetTokenBalance;
