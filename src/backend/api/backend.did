@@ -89,7 +89,9 @@ type WheelAssetType = variant {
     prize_usd_amount : float64;
     available_draws_count : nat32;
   };
-  gadget;
+  gadget : record {
+    article_type : opt text;
+  };
   jackpot;
 };
 
@@ -120,6 +122,29 @@ type SetDefaultWheelAssetsResponse = variant {
 
 type FetchTokensDataResponse = variant {
   ok;
+  err : Err;
+};
+
+type CreateWheelAssetTypeConfig = variant {
+  token : record {
+    ledger_config : WheelAssetTokenLedgerConfig;
+    exchange_rate_symbol : opt text;
+    prize_usd_amount : float64;
+  };
+  gadget : record {
+    article_type : opt text;
+  };
+  jackpot;
+};
+
+type CreateWheelAssetRequest = record {
+  name : text;
+  asset_type_config : CreateWheelAssetTypeConfig;
+  total_amount : nat32;
+};
+
+type CreateWheelAssetResponse = variant {
+  ok : WheelAsset;
   err : Err;
 };
 
@@ -204,6 +229,7 @@ service : {
   list_wheel_assets: (ListWheelAssetsRequest) -> (ListWheelAssetsResponse) query;
   set_default_wheel_assets: () -> (SetDefaultWheelAssetsResponse);
   fetch_tokens_data: () -> (FetchTokensDataResponse);
+  create_wheel_asset: (CreateWheelAssetRequest) -> (CreateWheelAssetResponse);
   update_wheel_asset: (UpdateWheelAssetRequest) -> (UpdateWheelAssetResponse);
   delete_wheel_asset: (DeleteWheelAssetRequest) -> (DeleteWheelAssetResponse);
   update_wheel_asset_image: (UpdateWheelAssetImageRequest) -> (UpdateWheelAssetImageResponse);

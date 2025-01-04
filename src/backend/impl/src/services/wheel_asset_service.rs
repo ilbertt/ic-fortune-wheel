@@ -1,9 +1,10 @@
 use std::{path::Path, time::Duration};
 
 use backend_api::{
-    ApiError, DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
-    UpdateWheelAssetImageConfig, UpdateWheelAssetImageRequest, UpdateWheelAssetRequest,
-    UpdateWheelAssetTypeConfig, WheelAssetImageConfig,
+    ApiError, CreateWheelAssetRequest, CreateWheelAssetResponse, DeleteWheelAssetRequest,
+    ListWheelAssetsRequest, ListWheelAssetsResponse, UpdateWheelAssetImageConfig,
+    UpdateWheelAssetImageRequest, UpdateWheelAssetRequest, UpdateWheelAssetTypeConfig,
+    WheelAssetImageConfig,
 };
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{println, spawn};
@@ -35,6 +36,11 @@ pub trait WheelAssetService {
     async fn set_default_wheel_assets(&self) -> Result<(), ApiError>;
 
     fn fetch_tokens_data(&self) -> Result<(), ApiError>;
+
+    async fn create_wheel_asset(
+        &self,
+        asset: CreateWheelAssetRequest,
+    ) -> Result<CreateWheelAssetResponse, ApiError>;
 
     fn update_wheel_asset(&self, request: UpdateWheelAssetRequest) -> Result<(), ApiError>;
 
@@ -137,6 +143,26 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
         Ok(())
     }
 
+    async fn create_wheel_asset(
+        &self,
+        request: CreateWheelAssetRequest,
+    ) -> Result<CreateWheelAssetResponse, ApiError> {
+        self.validate_create_wheel_asset_request(&request)?;
+
+        let wheel_asset = WheelAsset::new_enabled(
+            request.name,
+            request.asset_type_config.into(),
+            request.total_amount,
+        );
+
+        let id = self
+            .wheel_asset_repository
+            .create_wheel_asset(wheel_asset.clone())
+            .await?;
+
+        Ok(map_wheel_asset(id, wheel_asset))
+    }
+
     fn update_wheel_asset(&self, request: UpdateWheelAssetRequest) -> Result<(), ApiError> {
         self.validate_update_wheel_asset_request(&request)?;
 
@@ -176,7 +202,16 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
                         *existing_prize_usd_amount = new_prize_usd_amount;
                     }
                 }
-                (UpdateWheelAssetTypeConfig::Gadget, WheelAssetType::Gadget) => {}
+                (
+                    UpdateWheelAssetTypeConfig::Gadget {
+                        article_type: new_article_type,
+                    },
+                    WheelAssetType::Gadget {
+                        article_type: existing_article_type,
+                    },
+                ) => {
+                    *existing_article_type = new_article_type;
+                }
                 (UpdateWheelAssetTypeConfig::Jackpot, WheelAssetType::Jackpot) => {}
                 _ => {
                     return Err(ApiError::invalid_argument(
@@ -270,6 +305,21 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             .ok_or_else(|| ApiError::not_found(&format!("Wheel asset with id {} not found", id)))
     }
 
+    fn validate_create_wheel_asset_request(
+        &self,
+        request: &CreateWheelAssetRequest,
+    ) -> Result<(), ApiError> {
+        if request.name.is_empty() {
+            return Err(ApiError::invalid_argument("Name must not be empty"));
+        }
+        if request.name.chars().count() > WHEEL_ASSET_NAME_MAX_LENGTH {
+            return Err(ApiError::invalid_argument(&format!(
+                "Name must be at most {WHEEL_ASSET_NAME_MAX_LENGTH} characters"
+            )));
+        }
+        Ok(())
+    }
+
     fn validate_update_wheel_asset_request(
         &self,
         request: &UpdateWheelAssetRequest,
@@ -301,7 +351,8 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
                         }
                     }
                 }
-                UpdateWheelAssetTypeConfig::Gadget | UpdateWheelAssetTypeConfig::Jackpot => {}
+                UpdateWheelAssetTypeConfig::Gadget { .. } | UpdateWheelAssetTypeConfig::Jackpot => {
+                }
             }
         }
 

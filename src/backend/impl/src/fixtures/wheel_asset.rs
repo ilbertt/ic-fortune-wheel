@@ -28,7 +28,9 @@ pub fn wheel_asset_token() -> WheelAsset {
 pub fn wheel_asset_gadget() -> WheelAsset {
     WheelAsset {
         name: "Gadget1".to_string(),
-        asset_type: WheelAssetType::Gadget,
+        asset_type: WheelAssetType::Gadget {
+            article_type: Some("article_type1".to_string()),
+        },
         total_amount: 100,
         used_amount: 0,
         state: WheelAssetState::Enabled,

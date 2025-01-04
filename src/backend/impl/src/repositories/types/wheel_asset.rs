@@ -61,7 +61,9 @@ pub enum WheelAssetType {
         /// The amount of USD to be paid per prize.
         prize_usd_amount: f64,
     },
-    Gadget,
+    Gadget {
+        article_type: Option<String>,
+    },
     Jackpot,
 }
 
@@ -69,7 +71,7 @@ impl From<&WheelAssetType> for u8 {
     fn from(asset_type: &WheelAssetType) -> u8 {
         match asset_type {
             WheelAssetType::Token { .. } => 1,
-            WheelAssetType::Gadget => 2,
+            WheelAssetType::Gadget { .. } => 2,
             WheelAssetType::Jackpot => 3,
         }
     }
@@ -178,6 +180,19 @@ pub struct WheelAsset {
 }
 
 impl WheelAsset {
+    pub fn new_enabled(name: String, asset_type: WheelAssetType, total_amount: u32) -> Self {
+        Self {
+            name,
+            asset_type,
+            total_amount,
+            used_amount: 0,
+            state: WheelAssetState::Enabled,
+            wheel_image_path: None,
+            modal_image_path: None,
+            timestamps: TimestampFields::new(),
+        }
+    }
+
     pub fn use_one(&mut self) -> Result<(), ApiError> {
         if self.total_amount == 0 {
             return Err(ApiError::internal("Asset total amount is 0"));
@@ -556,5 +571,49 @@ mod tests {
     #[case::jackpot((wheel_asset_jackpot(), false))]
     fn wheel_asset_is_token(#[case] (wheel_asset, expected_is_token): (WheelAsset, bool)) {
         assert_eq!(wheel_asset.is_token(), expected_is_token);
+    }
+
+    #[rstest]
+    #[case((100_000_000, 8, 1.0, 1.0, 1))]
+    #[case((100_000_000, 8, 1.9, 1.0, 1))]
+    #[case((100_000_000, 8, 2.5, 1.0, 2))]
+    #[case((10_000_000, 8, 1.0, 1.0, 0))]
+    #[case((1_000_000_000, 8, 10.1, 10.0, 10))]
+    #[case((100_000_000, 8, 1.3, 0.5, 2))]
+    #[case((200_000_000, 6, 1.0, 1.0, 200))]
+    fn available_draws_count_token(
+        #[case] (
+            initial_balance,
+            initial_decimals,
+            initial_usd_price,
+            initial_prize_usd_amount,
+            expected_draws,
+        ): (u128, u8, f64, f64, u32),
+    ) {
+        let mut wheel_asset = wheel_asset_token();
+        wheel_asset.set_latest_balance(WheelAssetTokenBalance::new(initial_balance));
+        wheel_asset.set_latest_price(WheelAssetTokenPrice::new(initial_usd_price));
+        match &mut wheel_asset.asset_type {
+            WheelAssetType::Token {
+                ledger_config,
+                prize_usd_amount,
+                ..
+            } => {
+                ledger_config.decimals = initial_decimals;
+                *prize_usd_amount = initial_prize_usd_amount;
+            }
+            _ => unreachable!(),
+        };
+        assert_eq!(
+            wheel_asset.asset_type.available_draws_count(),
+            expected_draws
+        );
+    }
+
+    #[rstest]
+    #[case::gadget(wheel_asset_gadget())]
+    #[case::jackpot(wheel_asset_jackpot())]
+    fn available_draws_count_others(#[case] wheel_asset: WheelAsset) {
+        assert_eq!(wheel_asset.asset_type.available_draws_count(), 0);
     }
 }

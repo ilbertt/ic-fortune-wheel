@@ -1,5 +1,6 @@
 use backend_api::{
-    ApiError, ApiResult, DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
+    ApiError, ApiResult, CreateWheelAssetRequest, CreateWheelAssetResponse,
+    DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
     UpdateWheelAssetImageRequest, UpdateWheelAssetRequest,
 };
 use backend_macros::log_errors;
@@ -44,6 +45,19 @@ fn fetch_tokens_data() -> ApiResult<()> {
 
     WheelAssetController::default()
         .fetch_tokens_data(calling_principal)
+        .into()
+}
+
+#[update]
+#[log_errors]
+async fn create_wheel_asset(
+    request: CreateWheelAssetRequest,
+) -> ApiResult<CreateWheelAssetResponse> {
+    let calling_principal = caller();
+
+    WheelAssetController::default()
+        .create_wheel_asset(calling_principal, request)
+        .await
         .into()
 }
 
@@ -136,6 +150,17 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
 
     pub fn fetch_tokens_data_job(&self) -> Result<(), ApiError> {
         self.wheel_asset_service.fetch_tokens_data()
+    }
+
+    async fn create_wheel_asset(
+        &self,
+        calling_principal: Principal,
+        request: CreateWheelAssetRequest,
+    ) -> Result<CreateWheelAssetResponse, ApiError> {
+        self.access_control_service
+            .assert_principal_is_admin(&calling_principal)?;
+
+        self.wheel_asset_service.create_wheel_asset(request).await
     }
 
     fn update_wheel_asset(

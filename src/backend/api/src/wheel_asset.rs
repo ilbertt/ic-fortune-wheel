@@ -38,7 +38,7 @@ pub enum WheelAssetType {
         prize_usd_amount: f64,
     },
     #[serde(rename = "gadget")]
-    Gadget,
+    Gadget { article_type: Option<String> },
     #[serde(rename = "jackpot")]
     Jackpot,
 }
@@ -55,6 +55,27 @@ pub struct WheelAsset {
     pub state: WheelAssetState,
 }
 
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub enum CreateWheelAssetTypeConfig {
+    #[serde(rename = "token")]
+    Token {
+        ledger_config: WheelAssetTokenLedgerConfig,
+        exchange_rate_symbol: Option<String>,
+        prize_usd_amount: f64,
+    },
+    #[serde(rename = "gadget")]
+    Gadget { article_type: Option<String> },
+    #[serde(rename = "jackpot")]
+    Jackpot,
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct CreateWheelAssetRequest {
+    pub name: String,
+    pub asset_type_config: CreateWheelAssetTypeConfig,
+    pub total_amount: u32,
+}
+
 pub type CreateWheelAssetResponse = WheelAsset;
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
@@ -62,7 +83,7 @@ pub enum UpdateWheelAssetTypeConfig {
     #[serde(rename = "token")]
     Token { prize_usd_amount: Option<f64> },
     #[serde(rename = "gadget")]
-    Gadget,
+    Gadget { article_type: Option<String> },
     #[serde(rename = "jackpot")]
     Jackpot,
 }

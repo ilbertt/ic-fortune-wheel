@@ -48,6 +48,15 @@ impl From<WheelAssetTokenLedgerConfig> for backend_api::WheelAssetTokenLedgerCon
     }
 }
 
+impl From<backend_api::WheelAssetTokenLedgerConfig> for WheelAssetTokenLedgerConfig {
+    fn from(value: backend_api::WheelAssetTokenLedgerConfig) -> Self {
+        WheelAssetTokenLedgerConfig {
+            ledger_canister_id: value.ledger_canister_id,
+            decimals: value.decimals,
+        }
+    }
+}
+
 impl From<WheelAssetType> for backend_api::WheelAssetType {
     fn from(asset_type: WheelAssetType) -> Self {
         match asset_type.clone() {
@@ -65,8 +74,32 @@ impl From<WheelAssetType> for backend_api::WheelAssetType {
                 prize_usd_amount,
                 available_draws_count: asset_type.available_draws_count(),
             },
-            WheelAssetType::Gadget => backend_api::WheelAssetType::Gadget,
+            WheelAssetType::Gadget { article_type } => {
+                backend_api::WheelAssetType::Gadget { article_type }
+            }
             WheelAssetType::Jackpot => backend_api::WheelAssetType::Jackpot,
+        }
+    }
+}
+
+impl From<backend_api::CreateWheelAssetTypeConfig> for WheelAssetType {
+    fn from(value: backend_api::CreateWheelAssetTypeConfig) -> Self {
+        match value {
+            backend_api::CreateWheelAssetTypeConfig::Token {
+                ledger_config,
+                exchange_rate_symbol,
+                prize_usd_amount,
+            } => WheelAssetType::Token {
+                ledger_config: ledger_config.into(),
+                exchange_rate_symbol,
+                usd_price: None,
+                balance: None,
+                prize_usd_amount,
+            },
+            backend_api::CreateWheelAssetTypeConfig::Gadget { article_type } => {
+                WheelAssetType::Gadget { article_type }
+            }
+            backend_api::CreateWheelAssetTypeConfig::Jackpot => WheelAssetType::Jackpot,
         }
     }
 }
