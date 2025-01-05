@@ -48,7 +48,7 @@ import { useAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { createAssetTypeAtom } from './atoms';
+import { createAssetTypeAtom } from '../atoms';
 import { ChevronLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
@@ -122,11 +122,11 @@ const createAssetTokenFormSchema = z.object<
   wheel_image_file: z.instanceof(File).optional(),
 });
 
-type CreateAssetTokenFormProps = {
+type AssetTokenFormProps = {
   onComplete: () => Promise<void>;
 };
 
-export const CreateAssetTokenForm: React.FC<CreateAssetTokenFormProps> = ({
+export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
   onComplete,
 }) => {
   const { actor } = useAuth();

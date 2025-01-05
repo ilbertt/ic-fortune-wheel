@@ -13,7 +13,7 @@ import {
 import { capitalCase } from 'change-case';
 import { Coins, PlusCircle, Shirt, Sparkle } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { CreateAssetTokenForm } from './forms';
+import { AssetTokenForm } from './forms/token';
 import { useAtom } from 'jotai';
 import { createAssetTypeAtom } from './atoms';
 
@@ -77,7 +77,7 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
           </div>
         )}
         {assetType === 'token' && (
-          <CreateAssetTokenForm onComplete={handleOnComplete} />
+          <AssetTokenForm onComplete={handleOnComplete} />
         )}
       </DialogContent>
     </Dialog>
