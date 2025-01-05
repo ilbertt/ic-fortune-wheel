@@ -7,7 +7,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/routes';
 import { type ActorSubclass } from '@dfinity/agent';
 import { type _SERVICE } from '@/declarations/backend/backend.did';
-import { Principal } from '@dfinity/principal';
 
 const identityProvider =
   process.env.DFX_NETWORK === 'local'
@@ -19,7 +18,6 @@ type AuthContextType = Omit<
   'actor' | 'actors'
 > & {
   actor: ActorSubclass<_SERVICE>;
-  backendCanisterId: Principal;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -82,7 +80,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isAuthenticated: auth.isAuthenticated,
         login: auth.login,
         logout: auth.logout,
-        backendCanisterId: Principal.fromText(canisterId),
       }}
     >
       {children}

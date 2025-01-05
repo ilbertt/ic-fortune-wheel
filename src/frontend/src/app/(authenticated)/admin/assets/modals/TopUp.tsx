@@ -12,12 +12,10 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/auth-context';
+import { backendCanisterId } from '@/constants/api';
 import { Coins } from 'lucide-react';
 
 export const TopUpModal = () => {
-  const { backendCanisterId } = useAuth();
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
