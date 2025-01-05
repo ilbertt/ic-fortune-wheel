@@ -15,7 +15,8 @@ import { useCallback, useState } from 'react';
 import { useAtom } from 'jotai';
 import { wheelAssetToEdit } from '../atoms';
 import { AssetTokenForm } from './forms/token';
-import { isWheelAssetToken } from '@/lib/wheel-asset';
+import { isWheelAssetGadget, isWheelAssetToken } from '@/lib/wheel-asset';
+import { AssetGadgetForm } from './forms/gadget';
 
 type EditAssetModalProps = {
   asset: WheelAsset;
@@ -63,6 +64,9 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
         </DialogHeader>
         {selectedAsset && isWheelAssetToken(selectedAsset) && (
           <AssetTokenForm onComplete={handleOnComplete} />
+        )}
+        {selectedAsset && isWheelAssetGadget(selectedAsset) && (
+          <AssetGadgetForm onComplete={handleOnComplete} />
         )}
       </DialogContent>
     </Dialog>

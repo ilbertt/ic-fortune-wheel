@@ -3,11 +3,14 @@ import type {
   WheelAssetState,
   WheelAssetType,
 } from '@/declarations/backend/backend.did';
-import { enumKey } from '@/lib/utils';
+import { enumKey, fileFromUrl } from '@/lib/utils';
 import { backendBaseUrl } from '@/lib/api';
 
 export type WheelAssetToken = Omit<WheelAsset, 'asset_type'> & {
   asset_type: Extract<WheelAssetType, { token: unknown }>;
+};
+export type WheelAssetGadget = Omit<WheelAsset, 'asset_type'> & {
+  asset_type: Extract<WheelAssetType, { gadget: unknown }>;
 };
 
 export const isWheelAssetTypeToken = (
@@ -20,6 +23,12 @@ export const isWheelAssetToken = (
   asset: WheelAsset,
 ): asset is WheelAssetToken => {
   return isWheelAssetTypeToken(asset.asset_type);
+};
+
+export const isWheelAssetGadget = (
+  asset: WheelAsset,
+): asset is WheelAssetGadget => {
+  return 'gadget' in asset.asset_type;
 };
 
 export const wheelAssetBalance = (asset: WheelAssetToken): number => {
@@ -67,4 +76,24 @@ export const wheelAssetUrl = (
   }
 
   return `${backendBaseUrl}${imgPath}`;
+};
+
+export const existingWheelAssetImagesFiles = async (
+  wheelAsset: WheelAsset,
+): Promise<{
+  wheelImageFile: File | undefined;
+  modalImageFile: File | undefined;
+}> => {
+  const wheelImageUrl = wheelAssetUrl(wheelAsset.wheel_image_path);
+  const wheelImageFile = wheelImageUrl
+    ? (await fileFromUrl(wheelImageUrl)) || undefined
+    : undefined;
+  const modalImageUrl = wheelAssetUrl(wheelAsset.modal_image_path);
+  const modalImageFile = modalImageUrl
+    ? (await fileFromUrl(modalImageUrl)) || undefined
+    : undefined;
+  return {
+    wheelImageFile,
+    modalImageFile,
+  };
 };

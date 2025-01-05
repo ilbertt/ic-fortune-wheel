@@ -128,7 +128,7 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({
           if (isWheelAssetTypeToken(assetType)) {
             return renderUsdValue(assetType.token.prize_usd_amount);
           }
-          return '-';
+          return 'N/A';
         },
       }),
       columnHelper.display({

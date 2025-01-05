@@ -16,6 +16,7 @@ import { useCallback, useState } from 'react';
 import { AssetTokenForm } from './forms/token';
 import { useAtom } from 'jotai';
 import { createAssetTypeAtom } from '../atoms';
+import { AssetGadgetForm } from './forms/gadget';
 
 type CreateAssetModalProps = {
   onComplete: () => Promise<void>;
@@ -32,8 +33,18 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
     setOpen(false);
   }, [onComplete]);
 
+  const handleOnOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        setAssetType(null);
+      }
+      setOpen(open);
+    },
+    [setAssetType],
+  );
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOnOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <PlusCircle />
@@ -78,6 +89,9 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
         )}
         {assetType === 'token' && (
           <AssetTokenForm onComplete={handleOnComplete} />
+        )}
+        {assetType === 'gadget' && (
+          <AssetGadgetForm onComplete={handleOnComplete} />
         )}
       </DialogContent>
     </Dialog>

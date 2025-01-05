@@ -158,7 +158,9 @@ type UpdateWheelAssetTypeConfig = variant {
     prize_usd_amount : opt float64;
     ledger_config : opt UpdateWheelAssetTypeLedgerConfig;
   };
-  gadget;
+  gadget : record {
+    article_type : opt text;
+  };
   jackpot;
 };
 
