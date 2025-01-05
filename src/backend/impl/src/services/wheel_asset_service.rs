@@ -191,15 +191,27 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
             match (asset_type_config, &mut existing_asset.asset_type) {
                 (
                     UpdateWheelAssetTypeConfig::Token {
+                        exchange_rate_symbol: new_exchange_rate_symbol,
                         prize_usd_amount: new_prize_usd_amount,
+                        ledger_config: new_ledger_config,
                     },
                     WheelAssetType::Token {
                         prize_usd_amount: existing_prize_usd_amount,
+                        exchange_rate_symbol: existing_exchange_rate_symbol,
+                        ledger_config: existing_ledger_config,
                         ..
                     },
                 ) => {
                     if let Some(new_prize_usd_amount) = new_prize_usd_amount {
                         *existing_prize_usd_amount = new_prize_usd_amount;
+                    }
+                    if let Some(new_exchange_rate_symbol) = new_exchange_rate_symbol {
+                        *existing_exchange_rate_symbol = Some(new_exchange_rate_symbol);
+                    }
+                    if let Some(new_ledger_config) = new_ledger_config {
+                        if let Some(new_decimals) = new_ledger_config.decimals {
+                            existing_ledger_config.decimals = new_decimals;
+                        }
                     }
                 }
                 (
@@ -342,7 +354,9 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
 
         if let Some(asset_type_config) = &request.asset_type_config {
             match asset_type_config {
-                UpdateWheelAssetTypeConfig::Token { prize_usd_amount } => {
+                UpdateWheelAssetTypeConfig::Token {
+                    prize_usd_amount, ..
+                } => {
                     if let Some(prize_usd_amount) = prize_usd_amount {
                         if *prize_usd_amount <= 0.0 {
                             return Err(ApiError::invalid_argument(

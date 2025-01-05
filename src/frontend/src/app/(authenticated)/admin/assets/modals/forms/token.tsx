@@ -208,6 +208,12 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
             asset_type_config: candidOpt({
               token: {
                 prize_usd_amount: candidOpt(data.prize_usd_amount),
+                exchange_rate_symbol: candidOpt(
+                  data.exchange_rate_symbol || null,
+                ),
+                ledger_config: candidOpt({
+                  decimals: candidOpt(data.decimals),
+                }),
               },
             }),
           })
@@ -236,7 +242,8 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
         const toUpdate: UpdateWheelAssetImageConfig[] = [];
         if (
           data.wheel_image_file instanceof File &&
-          data.wheel_image_file.name !== existingWheelAsset?.wheel_image_path[0]
+          data.wheel_image_file.name !==
+            existingWheelAsset?.wheel_image_path[0]?.split('/').pop()
         ) {
           toUpdate.push({
             wheel: {
@@ -249,7 +256,8 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
         }
         if (
           data.modal_image_file instanceof File &&
-          data.modal_image_file.name !== existingWheelAsset?.modal_image_path[0]
+          data.modal_image_file.name !==
+            existingWheelAsset?.modal_image_path[0]?.split('/').pop()
         ) {
           toUpdate.push({
             modal: {
