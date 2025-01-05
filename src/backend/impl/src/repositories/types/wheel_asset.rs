@@ -24,6 +24,15 @@ impl WheelAssetTokenPrice {
             last_fetched_at: get_current_date_time(),
         }
     }
+
+    /// Used for tokens that do not need their price to be fetched.
+    /// Returns a price of **1 USD**, last fetched at the current time.
+    pub fn default_price() -> Self {
+        Self {
+            usd_price: 1.0,
+            last_fetched_at: get_current_date_time(),
+        }
+    }
 }
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
@@ -445,7 +454,7 @@ pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
                     decimals: 6,
                 },
                 exchange_rate_symbol: None,
-                usd_price: Some(WheelAssetTokenPrice::new(1.0)),
+                usd_price: Some(WheelAssetTokenPrice::default_price()),
                 balance: None,
                 prize_usd_amount: 1.0,
             },

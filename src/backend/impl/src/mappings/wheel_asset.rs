@@ -91,8 +91,11 @@ impl From<backend_api::CreateWheelAssetTypeConfig> for WheelAssetType {
                 prize_usd_amount,
             } => WheelAssetType::Token {
                 ledger_config: ledger_config.into(),
+                usd_price: match &exchange_rate_symbol {
+                    Some(_) => None,
+                    None => Some(WheelAssetTokenPrice::default_price()),
+                },
                 exchange_rate_symbol,
-                usd_price: None,
                 balance: None,
                 prize_usd_amount,
             },
