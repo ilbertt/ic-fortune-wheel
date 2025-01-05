@@ -163,8 +163,13 @@ export const fileFromBase64 = (
   return new File([blob], fileName, { type: mimeType });
 };
 
-export const fileFromUrl = async (url: string): Promise<File> => {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  return new File([blob], url.split('/').pop() || '', { type: blob.type });
+export const fileFromUrl = async (url: string): Promise<File | null> => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new File([blob], url.split('/').pop() || '', { type: blob.type });
+  } catch (e) {
+    console.error('Failed to fetch file', e);
+    return null;
+  }
 };

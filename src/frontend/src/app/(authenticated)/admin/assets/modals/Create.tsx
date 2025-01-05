@@ -15,7 +15,7 @@ import { Coins, PlusCircle, Shirt, Sparkle } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { AssetTokenForm } from './forms/token';
 import { useAtom } from 'jotai';
-import { createAssetTypeAtom } from './atoms';
+import { createAssetTypeAtom } from '../atoms';
 
 type CreateAssetModalProps = {
   onComplete: () => Promise<void>;

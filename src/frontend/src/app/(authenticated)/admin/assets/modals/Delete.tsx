@@ -13,32 +13,33 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
-import type { Err, WheelAsset } from '@/declarations/backend/backend.did';
+import type { Err } from '@/declarations/backend/backend.did';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { renderError } from '@/lib/utils';
 import { isWheelAssetToken } from '@/lib/wheel-asset';
+import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
+import { wheelAssetToEdit } from '../atoms';
 
 type DeleteAssetModalProps = {
-  asset: WheelAsset;
   onDeleteComplete: () => Promise<void>;
 };
 
 export const DeleteAssetModal: React.FC<DeleteAssetModalProps> = ({
-  asset,
   onDeleteComplete,
 }) => {
+  const asset = useAtomValue(wheelAssetToEdit);
   const { actor } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const canDelete = useMemo(() => !isWheelAssetToken(asset), [asset]);
+  const canDelete = useMemo(() => !isWheelAssetToken(asset!), [asset]);
 
   const onDelete = async () => {
     setIsDeleting(true);
     await actor
-      .delete_wheel_asset({ id: asset.id })
+      .delete_wheel_asset({ id: asset!.id })
       .then(extractOk)
       .then(onDeleteComplete)
       .then(() => {
@@ -63,17 +64,17 @@ export const DeleteAssetModal: React.FC<DeleteAssetModalProps> = ({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {asset.name}?</AlertDialogTitle>
+          <AlertDialogTitle>Delete {asset!.name}?</AlertDialogTitle>
           <AlertDialogDescription>
             {canDelete ? (
               <>
-                Are you sure you want to delete {asset.name}? This action cannot
-                be undone.
+                Are you sure you want to delete {asset!.name}? This action
+                cannot be undone.
               </>
             ) : (
               <>
-                The {asset.name} asset
-                {isWheelAssetToken(asset) ? ' is a token and' : ''} cannot be
+                The {asset!.name} asset
+                {isWheelAssetToken(asset!) ? ' is a token and' : ''} cannot be
                 deleted.
               </>
             )}

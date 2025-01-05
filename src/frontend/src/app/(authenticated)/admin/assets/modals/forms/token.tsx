@@ -44,16 +44,19 @@ import { Actor } from '@dfinity/agent';
 import { mapTokenMetadata } from '@dfinity/ledger-icrc';
 import { Principal } from '@dfinity/principal';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAtom } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { createAssetTypeAtom } from '../atoms';
+import { createAssetTypeAtom, wheelAssetToEdit } from '../../atoms';
 import { ChevronLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import Image from 'next/image';
 import { FileInput } from '@/components/file-input';
+import { wheelAssetUrl, type WheelAssetToken } from '@/lib/wheel-asset';
+import { getDefaultToken, isDefaultToken } from '@/lib/token';
+import { DeleteAssetModal } from '../Delete';
 
 const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
 const IMAGE_ACCEPT_MIME_TYPES = ['image/png', 'image/svg+xml'];
@@ -77,7 +80,7 @@ const BackButton = () => {
   );
 };
 
-type AvailableTokens = DefaultTokensKey & 'custom';
+type AvailableTokens = DefaultTokensKey | 'custom';
 
 type CreateAssetTokenFormSchemaType = Omit<
   CreateWheelAssetRequest,
@@ -100,9 +103,9 @@ const createAssetTokenFormSchema = z.object<
   ZodProperties<CreateAssetTokenFormSchemaType>
 >({
   name: z.string().min(1).max(100),
-  ledger_canister_id: z.string().transform((val, ctx) => {
+  ledger_canister_id: z.preprocess((val, ctx) => {
     try {
-      return Principal.fromText(val);
+      return Principal.from(val);
     } catch {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -113,8 +116,8 @@ const createAssetTokenFormSchema = z.object<
       // inferred return type.
       return z.NEVER;
     }
-  }),
-  decimals: z.number().min(0).max(20),
+  }, z.custom<Principal>()),
+  decimals: z.coerce.number().min(0).max(20),
   exchange_rate_symbol: z.string().optional(),
   prize_usd_amount: z.number().min(0).max(500),
   total_amount: z.coerce.number().min(0).max(1_000),
@@ -129,41 +132,112 @@ type AssetTokenFormProps = {
 export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
   onComplete,
 }) => {
+  const existingWheelAsset = useAtomValue(
+    wheelAssetToEdit,
+  ) as WheelAssetToken | null;
+  const isEdit = useMemo(
+    () => Boolean(existingWheelAsset),
+    [existingWheelAsset],
+  );
   const { actor } = useAuth();
   const form = useForm<z.infer<typeof createAssetTokenFormSchema>>({
     resolver: zodResolver(createAssetTokenFormSchema),
     mode: 'onChange',
+    defaultValues: existingWheelAsset
+      ? async () => {
+          const wheelImageUrl = wheelAssetUrl(
+            existingWheelAsset.wheel_image_path,
+          );
+          const wheelImageFile = wheelImageUrl
+            ? (await fileFromUrl(wheelImageUrl)) || undefined
+            : undefined;
+          const modalImageUrl = wheelAssetUrl(
+            existingWheelAsset.modal_image_path,
+          );
+          const modalImageFile = modalImageUrl
+            ? (await fileFromUrl(modalImageUrl)) || undefined
+            : undefined;
+          return {
+            name: existingWheelAsset.name,
+            total_amount: existingWheelAsset.total_amount,
+            decimals:
+              existingWheelAsset.asset_type.token.ledger_config.decimals,
+            exchange_rate_symbol:
+              existingWheelAsset.asset_type.token.exchange_rate_symbol[0],
+            prize_usd_amount:
+              existingWheelAsset.asset_type.token.prize_usd_amount,
+            ledger_canister_id:
+              existingWheelAsset.asset_type.token.ledger_config
+                .ledger_canister_id,
+            wheel_image_file: wheelImageFile,
+            modal_image_file: modalImageFile,
+          };
+        }
+      : undefined,
   });
-  const [selectedToken, setSelectedToken] = useState<AvailableTokens>();
+  const {
+    isValid: isFormValid,
+    isSubmitting: isFormSubmitting,
+    isDirty: isFormDirty,
+  } = form.formState;
+  const [selectedToken, setSelectedToken] = useState<
+    AvailableTokens | undefined
+  >(
+    existingWheelAsset
+      ? getDefaultToken(
+          existingWheelAsset.asset_type.token.ledger_config.ledger_canister_id,
+        )?.[0] || 'custom'
+      : undefined,
+  );
   const [isFetchingTokenMetadata, setIsFetchingTokenMetadata] = useState(false);
   const formLedgerCanisterId = useWatch({
     control: form.control,
     name: 'ledger_canister_id',
   });
-  const { isValid: isFormValid, isSubmitting: isFormSubmitting } =
-    form.formState;
   const { toast } = useToast();
 
   const onSubmit = async (data: z.infer<typeof createAssetTokenFormSchema>) => {
-    await actor
-      .create_wheel_asset({
-        name: data.name,
-        total_amount: data.total_amount,
-        asset_type_config: {
-          token: {
-            ledger_config: {
-              ledger_canister_id: data.ledger_canister_id,
-              decimals: data.decimals,
+    const prom = isEdit
+      ? actor
+          .update_wheel_asset({
+            id: existingWheelAsset!.id,
+            state: [],
+            used_amount: [],
+            name: candidOpt(data.name),
+            total_amount: candidOpt(data.total_amount),
+            asset_type_config: candidOpt({
+              token: {
+                prize_usd_amount: candidOpt(data.prize_usd_amount),
+              },
+            }),
+          })
+          .then(extractOk)
+      : actor
+          .create_wheel_asset({
+            name: data.name,
+            total_amount: data.total_amount,
+            asset_type_config: {
+              token: {
+                ledger_config: {
+                  ledger_canister_id: data.ledger_canister_id,
+                  decimals: data.decimals,
+                },
+                exchange_rate_symbol: candidOpt(
+                  data.exchange_rate_symbol || null,
+                ),
+                prize_usd_amount: data.prize_usd_amount,
+              },
             },
-            exchange_rate_symbol: candidOpt(data.exchange_rate_symbol || null),
-            prize_usd_amount: data.prize_usd_amount,
-          },
-        },
-      })
-      .then(extractOk)
+          })
+          .then(extractOk);
+
+    await prom
       .then(async res => {
         const toUpdate: UpdateWheelAssetImageConfig[] = [];
-        if (data.wheel_image_file instanceof File) {
+        if (
+          data.wheel_image_file instanceof File &&
+          data.wheel_image_file.name !== existingWheelAsset?.wheel_image_path[0]
+        ) {
           toUpdate.push({
             wheel: {
               content_type: data.wheel_image_file.type,
@@ -173,7 +247,10 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
             },
           });
         }
-        if (data.modal_image_file instanceof File) {
+        if (
+          data.modal_image_file instanceof File &&
+          data.modal_image_file.name !== existingWheelAsset?.modal_image_path[0]
+        ) {
           toUpdate.push({
             modal: {
               content_type: data.modal_image_file.type,
@@ -188,7 +265,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
           toUpdate.map(config =>
             actor
               .update_wheel_asset_image({
-                id: res.id,
+                id: res ? res.id : existingWheelAsset!.id,
                 image_config: config,
               })
               .then(extractOk),
@@ -198,7 +275,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
       .then(onComplete)
       .catch((e: Err) =>
         toast({
-          title: 'Error creating token asset',
+          title: `Error ${isEdit ? 'updating' : 'creating'} token asset`,
           description: renderError(e),
           variant: 'destructive',
         }),
@@ -230,8 +307,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
         const tokenData = DEFAULT_TOKENS[token as DefaultTokensKey];
         form.setValue(
           'ledger_canister_id',
-          // @ts-expect-error The form expects a principal
-          tokenData.ledger_config.ledger_canister_id.toText(),
+          tokenData.ledger_config.ledger_canister_id,
           validationSettings,
         );
         form.setValue('name', tokenData.name, validationSettings);
@@ -247,7 +323,8 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
         );
 
         if (tokenData.modalImageFileSrc) {
-          const imageFile = await fileFromUrl(tokenData.modalImageFileSrc);
+          const imageFile =
+            (await fileFromUrl(tokenData.modalImageFileSrc)) || undefined;
           form.setValue('wheel_image_file', imageFile, validationSettings);
         }
       }
@@ -256,17 +333,12 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
   );
 
   useEffect(() => {
-    if (formLedgerCanisterId) {
+    if (formLedgerCanisterId && !isEdit) {
       try {
         form.clearErrors('decimals');
         const ledgerCanisterId = Principal.from(formLedgerCanisterId);
-        const isDefaultToken = Object.values(DEFAULT_TOKENS).some(
-          token =>
-            token.ledger_config.ledger_canister_id.compareTo(
-              ledgerCanisterId,
-            ) === 'eq',
-        );
-        if (isDefaultToken) {
+        const isDefault = isDefaultToken(ledgerCanisterId);
+        if (isDefault) {
           return;
         }
         const ledgerActor = getLedgerActor(
@@ -309,7 +381,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
         // do nothing
       }
     }
-  }, [formLedgerCanisterId, actor, form]);
+  }, [formLedgerCanisterId, actor, form, isEdit]);
 
   return (
     <Form {...form}>
@@ -319,7 +391,11 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
           <div className="grid gap-x-2 gap-y-1 md:grid-cols-[180px_1fr]">
             <div className="space-y-2">
               <Label>Token</Label>
-              <Select value={selectedToken} onValueChange={onSelectToken}>
+              <Select
+                value={selectedToken}
+                onValueChange={onSelectToken}
+                disabled={isEdit}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Token" />
                 </SelectTrigger>
@@ -338,7 +414,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
               name="ledger_canister_id"
               render={({ field: { value, ...field } }) => (
                 <FormItem>
-                  <FormLabel>Ledger Canister ID</FormLabel>
+                  <FormLabel>Ledger Canister ID *</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Ledger Canister ID"
@@ -348,6 +424,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
                           : value || ''
                       }
                       {...field}
+                      disabled={isEdit}
                     />
                   </FormControl>
                   <FormMessage />
@@ -359,14 +436,14 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Name *</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={isFetchingTokenMetadata}
                       placeholder={
                         isFetchingTokenMetadata ? 'Fetching...' : 'Name'
                       }
                       {...field}
+                      disabled={isFetchingTokenMetadata}
                     />
                   </FormControl>
                   <FormMessage />
@@ -378,15 +455,15 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
               name="decimals"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Decimals</FormLabel>
+                  <FormLabel>Decimals *</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
-                      disabled={isFetchingTokenMetadata}
                       placeholder={
                         isFetchingTokenMetadata ? 'Fetching...' : 'Decimals'
                       }
                       {...field}
+                      disabled={isFetchingTokenMetadata}
                     />
                   </FormControl>
                   <FormMessage />
@@ -506,7 +583,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
               name="total_amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Prize Quantity</FormLabel>
+                  <FormLabel>Prize Quantity *</FormLabel>
                   <FormControl>
                     <div className="flex flex-row flex-wrap items-center justify-start gap-1.5 md:flex-nowrap">
                       <Input
@@ -527,7 +604,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
               name="prize_usd_amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Prize Value</FormLabel>
+                  <FormLabel>Prize Value *</FormLabel>
                   <FormControl>
                     <CurrencyInput
                       currency="$"
@@ -543,14 +620,18 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
           </div>
         </div>
         <DialogFooter className="sm:items-center sm:justify-between">
-          <BackButton />
+          {isEdit ? (
+            <DeleteAssetModal onDeleteComplete={onComplete} />
+          ) : (
+            <BackButton />
+          )}
           <Button
             type="submit"
             variant="secondary"
             loading={isFormSubmitting}
-            disabled={!isFormValid}
+            disabled={!isFormValid || !isFormDirty}
           >
-            Add Token
+            {isEdit ? 'Save Changes' : 'Add Token'}
           </Button>
         </DialogFooter>
       </form>
