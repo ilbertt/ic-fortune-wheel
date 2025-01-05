@@ -140,3 +140,31 @@ export const localFileToSrc = (
 
   return URL.createObjectURL(file);
 };
+
+export const fileFromBase64 = (
+  base64String: string,
+  fileName: string,
+): File => {
+  const mimeTypeMatch = base64String.match(/^data:(.*?);base64,/);
+  if (!mimeTypeMatch) {
+    throw new Error('Invalid base64 string');
+  }
+  const mimeType = mimeTypeMatch[1];
+
+  // Decode the base64 string
+  const base64Data = atob(base64String.split(',')[1]);
+  const bytes = new Uint8Array(base64Data.length);
+  for (let i = 0; i < base64Data.length; i++) {
+    bytes[i] = base64Data.charCodeAt(i);
+  }
+  // Create a Blob from the bytes
+  const blob = new Blob([bytes], { type: mimeType });
+
+  return new File([blob], fileName, { type: mimeType });
+};
+
+export const fileFromUrl = async (url: string): Promise<File> => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new File([blob], url.split('/').pop() || '', { type: blob.type });
+};

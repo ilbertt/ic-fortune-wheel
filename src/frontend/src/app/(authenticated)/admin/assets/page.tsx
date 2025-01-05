@@ -36,11 +36,12 @@ import {
   wheelAssetUrl,
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
-import { CircleDollarSign, PlusCircle, RefreshCcw, Send } from 'lucide-react';
+import { CircleDollarSign, RefreshCcw, Send } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { TopUpModal } from './modals/TopUp';
 import { AssetsTable } from './AssetsTable';
 import { Loader } from '@/components/loader';
+import { CreateAssetModal } from './modals/Create';
 
 const FETCH_ASSETS_INTERVAL = 30_000;
 
@@ -259,10 +260,7 @@ export default function Page() {
               <CardTitle>Settings</CardTitle>
               <CardDescription>Tokens + Gadget + Jackpot</CardDescription>
             </div>
-            <Button variant="outline">
-              <PlusCircle />
-              Add Asset
-            </Button>
+            <CreateAssetModal onComplete={fetchAssets} />
           </CardHeader>
           <CardContent>
             {fetchingAssets && <Loader />}
