@@ -59,6 +59,11 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      keyframes: {
+        rotate: {
+          to: { '--angle': '360deg' },
+        },
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

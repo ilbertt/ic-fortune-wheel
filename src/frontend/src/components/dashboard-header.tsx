@@ -281,7 +281,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {headerLinks}
         </div>
         <div className="flex flex-row items-center justify-end gap-6">
-          <Button variant="outline">
+          <Button variant="border-gradient">
             <ScanLine /> Scanner
           </Button>
           <UserNav headerLinks={headerLinks} />

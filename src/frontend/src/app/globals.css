@@ -10,7 +10,7 @@ body {
   :root {
     --infinite: 259 100% 36%; /* #3B00B9 */
     --dark-infinite: 259 100% 18%;
-    --indaco-blue: 228 83% 68%;
+    --indaco-blue: 228 83% 68%; /* #6A85F1 */
 
     --background: 240 10% 3.9%; /* zinc-950 */
     --foreground: 0 0% 98%; /* zinc-50 */
@@ -54,4 +54,10 @@ body {
   pre {
     @apply bg-indaco-blue/20 rounded-md px-2 py-1.5;
   }
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }

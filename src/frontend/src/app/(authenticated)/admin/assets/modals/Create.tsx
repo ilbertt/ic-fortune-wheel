@@ -46,7 +46,7 @@ export const CreateAssetModal: React.FC<CreateAssetModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={handleOnOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="border-gradient">
           <PlusCircle />
           Add Asset
         </Button>

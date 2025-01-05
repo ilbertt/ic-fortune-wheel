@@ -19,11 +19,13 @@ const buttonVariants = cva(
           'bg-secondary text-secondary-foreground shadow-sm hover:bg-dark-infinite opacity-80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
+        'border-gradient':
+          'relative bg-zinc-900 text-white hover:bg-background before:absolute before:inset-[-1px] before:rounded-md before:from-[#c572ef]/0 before:via-indaco-blue before:to-[#c572ef]/0 before:bg-[conic-gradient(from_var(--angle),_var(--tw-gradient-stops))] before:animate-[rotate_5s_linear_infinite] before:-z-[1] after:absolute after:inset-[1px] after:rounded-md after:bg-zinc-900 after:-z-[1]',
       },
       size: {
         default: 'h-9 px-4 py-2',
-        sm: 'h-8 rounded-md px-3 text-xs',
-        lg: 'h-10 rounded-md px-8',
+        sm: 'h-8 px-3 text-xs',
+        lg: 'h-10 px-8',
         icon: 'h-9 w-9',
       },
     },
