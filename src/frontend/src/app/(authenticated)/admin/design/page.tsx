@@ -16,10 +16,18 @@ import { SortableWheelPrizesList } from './SortableWheelPrizesList';
 import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
 import { Button } from '@/components/ui/button';
 import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { RefreshCw } from 'lucide-react';
 
 export default function Page() {
   const { fetchingAssets } = useWheelAssets();
-  const { wheelData, isDirty, savePrizes, reset } = useWheelPrizes();
+  const {
+    wheelData,
+    isDirty,
+    savePrizes,
+    resetChanges,
+    fetchPrizes,
+    fetching,
+  } = useWheelPrizes();
 
   return (
     <PageLayout>
@@ -27,7 +35,17 @@ export default function Page() {
       <PageContent>
         <Card className="col-span-full md:col-span-4">
           <CardHeader>
-            <CardTitle>Available Prizes ({wheelData.length})</CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              Available Prizes ({wheelData.length}){' '}
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={fetchPrizes}
+                loading={fetching}
+              >
+                <RefreshCw />
+              </Button>
+            </CardTitle>
             <CardDescription>
               You can change them in the{' '}
               <Link href="/admin/assets" className="text-indaco-blue underline">
@@ -43,7 +61,7 @@ export default function Page() {
             <CardFooter className="flex justify-end gap-2">
               <Button
                 variant="outline"
-                onClick={reset}
+                onClick={resetChanges}
                 disabled={fetchingAssets}
               >
                 Cancel

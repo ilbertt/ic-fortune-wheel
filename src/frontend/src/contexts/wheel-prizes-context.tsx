@@ -1,21 +1,38 @@
 'use client';
 
-import { type WheelAsset } from '@/declarations/backend/backend.did';
+import type { Err, WheelPrize } from '@/declarations/backend/backend.did';
 import {
   createContext,
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import { type WheelDataType } from 'react-custom-roulette';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
 import { wheelAssetUrl } from '@/lib/wheel-asset';
+import { useAuth } from '@/contexts/auth-context';
+import { extractOk } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { renderError } from '@/lib/utils';
 
-// TODO: get the type from the backend
-type WheelPrize = WheelAsset & {
-  backgroundColorHex: string;
+const mapPrizesToWheelData = (prizes: WheelPrize[]) => {
+  return prizes.map(item => {
+    const imageUri = wheelAssetUrl(item.wheel_image_path);
+
+    return {
+      option: item.name,
+      image: imageUri
+        ? {
+            uri: imageUri,
+            sizeMultiplier: 0.8,
+            offsetY: 180,
+          }
+        : undefined,
+      style: {
+        backgroundColor: item.wheel_ui_settings.background_color_hex,
+      },
+    };
+  });
 };
 
 type WheelPrizesContextType = {
@@ -24,7 +41,9 @@ type WheelPrizesContextType = {
   wheelData: WheelDataType[];
   isDirty: boolean;
   savePrizes: () => Promise<void>;
-  reset: () => void;
+  resetChanges: () => void;
+  fetchPrizes: () => Promise<void>;
+  fetching: boolean;
 };
 
 const WheelPrizesContext = createContext<WheelPrizesContextType>({
@@ -33,7 +52,9 @@ const WheelPrizesContext = createContext<WheelPrizesContextType>({
   wheelData: [],
   isDirty: false,
   savePrizes: () => Promise.reject(),
-  reset: () => {},
+  resetChanges: () => {},
+  fetchPrizes: () => Promise.reject(),
+  fetching: false,
 });
 
 export const WheelPrizesProvider = ({
@@ -41,83 +62,67 @@ export const WheelPrizesProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { enabledAssets, fetchAssets } = useWheelAssets();
+  const { actor } = useAuth();
   const [prizes, setPrizes] = useState<WheelPrize[]>([]);
-  const [isDirty, setIsDirty] = useState(false);
-  const wheelData = useMemo(
-    () =>
-      prizes.map(item => {
-        const imageUri = wheelAssetUrl(item.wheel_image_path);
+  const [fetching, setFetching] = useState(false);
+  const [dirtyPrizes, setDirtyPrizes] = useState<{
+    prizes: WheelPrize[];
+    isDirty: boolean;
+  }>({ prizes: [], isDirty: false });
+  const [wheelData, setWheelData] = useState<WheelDataType[]>([]);
+  const { toast } = useToast();
 
-        return {
-          option: item.name,
-          image: imageUri
-            ? {
-                uri: imageUri,
-                sizeMultiplier: 0.8,
-                offsetY: 180,
-              }
-            : undefined,
-          style: { backgroundColor: item.backgroundColorHex },
-        };
-      }),
-    [prizes],
-  );
+  const fetchPrizes = useCallback(async () => {
+    setFetching(true);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    return actor
+      ?.list_wheel_prizes()
+      .then(extractOk)
+      .then(newPrizes => {
+        setPrizes(newPrizes);
+        setDirtyPrizes({ prizes: newPrizes, isDirty: false });
+        setWheelData(mapPrizesToWheelData(newPrizes));
+      })
+      .catch((e: Err) => {
+        toast({
+          title: 'Error fetching assets',
+          description: renderError(e),
+          variant: 'destructive',
+        });
+      })
+      .finally(() => setFetching(false));
+  }, [actor, toast]);
 
-  const handleSetPrizes = useCallback((prizes: WheelPrize[]) => {
-    setPrizes(prizes);
-    setIsDirty(true);
+  const handleSetPrizes = useCallback((newPrizes: WheelPrize[]) => {
+    setDirtyPrizes({ prizes: newPrizes, isDirty: true });
+    setWheelData(mapPrizesToWheelData(newPrizes));
   }, []);
 
   const savePrizes = useCallback(async () => {
-    await fetchAssets();
-    setIsDirty(false);
-  }, [fetchAssets]);
+    await fetchPrizes();
+    setDirtyPrizes(prev => ({ ...prev, isDirty: false }));
+  }, [fetchPrizes]);
 
-  const reset = useCallback(() => {
-    setPrizes(
-      enabledAssets.map(asset => ({
-        ...asset,
-        backgroundColorHex: '#29ABE2',
-      })),
-    );
-    setIsDirty(false);
-  }, [enabledAssets]);
+  const resetChanges = useCallback(() => {
+    setDirtyPrizes({ prizes, isDirty: false });
+    setWheelData(mapPrizesToWheelData(prizes));
+  }, [prizes]);
 
-  // TODO: remove once the prizes are loaded from the backend
   useEffect(() => {
-    setPrizes(prev => {
-      if (prev.length === 0) {
-        return enabledAssets.map(asset => ({
-          ...asset,
-          backgroundColorHex: '#29ABE2',
-        }));
-      }
-      return prev.map(el => {
-        const asset = enabledAssets.find(a => a.id === el.id);
-        if (!asset) {
-          return {
-            ...el,
-            backgroundColorHex: '#29ABE2',
-          };
-        }
-        return {
-          ...asset,
-          backgroundColorHex: el.backgroundColorHex,
-        };
-      });
-    });
-  }, [enabledAssets]);
+    fetchPrizes();
+  }, [fetchPrizes]);
 
   return (
     <WheelPrizesContext.Provider
       value={{
-        prizes,
+        prizes: dirtyPrizes.prizes,
         setPrizes: handleSetPrizes,
-        isDirty,
+        isDirty: dirtyPrizes.isDirty,
         wheelData,
         savePrizes,
-        reset,
+        resetChanges,
+        fetchPrizes,
+        fetching,
       }}
     >
       {children}

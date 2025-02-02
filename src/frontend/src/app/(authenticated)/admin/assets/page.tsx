@@ -34,7 +34,7 @@ import {
   wheelAssetUrl,
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
-import { CircleDollarSign, RefreshCcw, Send } from 'lucide-react';
+import { CircleDollarSign, RefreshCw, Send } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { TopUpModal } from './modals/TopUp';
 import { AssetsTable } from './AssetsTable';
@@ -185,7 +185,7 @@ export default function Page() {
                     onClick={handleRefresh}
                     loading={refreshingTokens}
                   >
-                    <RefreshCcw />
+                    <RefreshCw />
                     Refresh
                   </Button>
                 </div>

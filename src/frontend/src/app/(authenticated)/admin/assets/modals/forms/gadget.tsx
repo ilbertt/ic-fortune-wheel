@@ -37,7 +37,7 @@ import {
 
 type CreateAssetGadgetFormSchemaType = Omit<
   CreateWheelAssetRequest,
-  'asset_type_config'
+  'asset_type_config' | 'wheel_ui_settings'
 > & {
   article_type: string | undefined;
   modal_image_file: File | undefined;
@@ -104,6 +104,7 @@ export const AssetGadgetForm: React.FC<AssetGadgetFormProps> = ({
                 article_type: candidOpt(data.article_type),
               },
             }),
+            wheel_ui_settings: [],
           })
           .then(extractOk)
       : actor
@@ -115,6 +116,7 @@ export const AssetGadgetForm: React.FC<AssetGadgetFormProps> = ({
                 article_type: candidOpt(data.article_type),
               },
             },
+            wheel_ui_settings: [],
           })
           .then(extractOk);
 

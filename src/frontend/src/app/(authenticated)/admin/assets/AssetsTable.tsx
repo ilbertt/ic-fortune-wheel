@@ -39,6 +39,7 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({ asset }) => {
         total_amount: [],
         used_amount: [],
         asset_type_config: [],
+        wheel_ui_settings: [],
       })
       .then(extractOk)
       .then(fetchAssets)

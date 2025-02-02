@@ -60,7 +60,7 @@ type AvailableTokens = DefaultTokensKey | 'custom';
 
 type CreateAssetTokenFormSchemaType = Omit<
   CreateWheelAssetRequest,
-  'asset_type_config'
+  'asset_type_config' | 'wheel_ui_settings'
 > &
   Omit<
     Extract<CreateWheelAssetTypeConfig, { token: unknown }>['token'],
@@ -177,6 +177,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
                 }),
               },
             }),
+            wheel_ui_settings: [],
           })
           .then(extractOk)
       : actor
@@ -195,6 +196,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
                 prize_usd_amount: data.prize_usd_amount,
               },
             },
+            wheel_ui_settings: [],
           })
           .then(extractOk);
 

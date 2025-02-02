@@ -12,15 +12,24 @@ export const SortableWheelPrizesList = () => {
       items={prizes}
       onReorder={setPrizes}
       renderItem={item => (
-        <div className="flex w-full items-center justify-between" key={item.id}>
+        <div
+          className="flex w-full items-center justify-between"
+          key={item.wheel_asset_id}
+        >
           {item.name}
           <ColorPicker
-            value={item.backgroundColorHex}
+            value={item.wheel_ui_settings.background_color_hex}
             onChange={color => {
               setPrizes(
                 prizes.map(prize =>
-                  prize.id === item.id
-                    ? { ...prize, backgroundColorHex: color }
+                  prize.wheel_asset_id === item.wheel_asset_id
+                    ? {
+                        ...prize,
+                        wheel_ui_settings: {
+                          ...prize.wheel_ui_settings,
+                          background_color_hex: color,
+                        },
+                      }
                     : prize,
                 ),
               );
@@ -29,7 +38,7 @@ export const SortableWheelPrizesList = () => {
           />
         </div>
       )}
-      keyExtractor={item => item.id}
+      keyExtractor={item => item.wheel_asset_id}
     />
   );
 };
