@@ -17,16 +17,14 @@ import { wheelAssetToEdit } from '../atoms';
 import { AssetTokenForm } from './forms/token';
 import { isWheelAssetGadget, isWheelAssetToken } from '@/lib/wheel-asset';
 import { AssetGadgetForm } from './forms/gadget';
+import { useWheelAssets } from '@/contexts/wheel-assets-context';
 
 type EditAssetModalProps = {
   asset: WheelAsset;
-  onEditComplete: () => Promise<void>;
 };
 
-export const EditAssetModal: React.FC<EditAssetModalProps> = ({
-  asset,
-  onEditComplete,
-}) => {
+export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset }) => {
+  const { fetchAssets } = useWheelAssets();
   const [open, setOpen] = useState(false);
   const [selectedAsset, setWheelAssetToEdit] = useAtom(wheelAssetToEdit);
 
@@ -43,9 +41,9 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({
   );
 
   const handleOnComplete = useCallback(async () => {
-    await onEditComplete();
+    await fetchAssets();
     handleOnOpenChange(false);
-  }, [onEditComplete, handleOnOpenChange]);
+  }, [fetchAssets, handleOnOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={handleOnOpenChange}>

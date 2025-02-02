@@ -14,17 +14,15 @@ import { MinusCircle, PlusCircle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { EditAssetModal } from './modals/Edit';
 import { Loader } from '@/components/loader';
+import { useWheelAssets } from '@/contexts/wheel-assets-context';
 
 type AssetStateToggleProps = {
   asset: WheelAsset;
-  onToggleEnabledComplete: () => Promise<void>;
 };
 
-const AssetStateToggle: React.FC<AssetStateToggleProps> = ({
-  asset,
-  onToggleEnabledComplete,
-}) => {
+const AssetStateToggle: React.FC<AssetStateToggleProps> = ({ asset }) => {
   const { actor } = useAuth();
+  const { fetchAssets } = useWheelAssets();
   const isDisabled = isWheelAssetDisabled(asset);
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +41,7 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({
         asset_type_config: [],
       })
       .then(extractOk)
-      .then(onToggleEnabledComplete)
+      .then(fetchAssets)
       .catch((e: Err) =>
         toast({
           title: 'Error toggling asset state',
@@ -52,7 +50,7 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({
         }),
       )
       .finally(() => setIsLoading(false));
-  }, [actor, isDisabled, onToggleEnabledComplete, toast, asset]);
+  }, [actor, isDisabled, fetchAssets, toast, asset]);
 
   return (
     <Button
@@ -76,13 +74,9 @@ const columnHelper = createColumnHelper<WheelAsset>();
 
 type AssetsTableProps = {
   data: WheelAsset[];
-  fetchAssets: () => Promise<void>;
 };
 
-export const AssetsTable: React.FC<AssetsTableProps> = ({
-  data,
-  fetchAssets,
-}) => {
+export const AssetsTable: React.FC<AssetsTableProps> = ({ data }) => {
   const columns = useMemo(() => {
     return [
       columnHelper.accessor('name', {
@@ -135,19 +129,13 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({
         id: '__actions',
         cell: ctx => (
           <div className="flex items-center justify-end gap-2">
-            <EditAssetModal
-              asset={ctx.row.original}
-              onEditComplete={fetchAssets}
-            />
-            <AssetStateToggle
-              asset={ctx.row.original}
-              onToggleEnabledComplete={fetchAssets}
-            />
+            <EditAssetModal asset={ctx.row.original} />
+            <AssetStateToggle asset={ctx.row.original} />
           </div>
         ),
       }),
     ];
-  }, [fetchAssets]);
+  }, []);
 
   return <DataTable columns={columns} data={data} />;
 };

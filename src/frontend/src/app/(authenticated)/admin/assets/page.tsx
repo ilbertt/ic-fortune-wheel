@@ -23,13 +23,11 @@ import {
 } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
-import type { Err, WheelAsset } from '@/declarations/backend/backend.did';
+import type { Err } from '@/declarations/backend/backend.did';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { renderError, renderUsdValue } from '@/lib/utils';
 import {
-  isWheelAssetDisabled,
-  isWheelAssetToken,
   wheelAssetBalance,
   wheelAssetsUsdValueSum,
   wheelAssetTokenTotalUsdValue,
@@ -37,13 +35,12 @@ import {
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
 import { CircleDollarSign, RefreshCcw, Send } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { TopUpModal } from './modals/TopUp';
 import { AssetsTable } from './AssetsTable';
 import { Loader } from '@/components/loader';
 import { CreateAssetModal } from './modals/Create';
-
-const FETCH_ASSETS_INTERVAL = 30_000;
+import { useWheelAssets } from '@/contexts/wheel-assets-context';
 
 type TokenRowProps = {
   token: WheelAssetToken;
@@ -80,12 +77,9 @@ const TokenRow: React.FC<TokenRowProps> = ({ token, refreshingTokens }) => {
   );
 };
 
-type EmptyAssetsProps = {
-  fetchAssets: () => Promise<void>;
-};
-
-const EmptyAssets: React.FC<EmptyAssetsProps> = ({ fetchAssets }) => {
+const EmptyAssets: React.FC = () => {
   const { actor } = useAuth();
+  const { fetchAssets } = useWheelAssets();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -128,55 +122,22 @@ const EmptyAssets: React.FC<EmptyAssetsProps> = ({ fetchAssets }) => {
 
 export default function Page() {
   const { actor } = useAuth();
-  const [fetchingAssets, setFetchingAssets] = useState(false);
+  const {
+    enabledAssets,
+    disabledAssets,
+    tokenAssets,
+    fetchingAssets,
+    fetchAssets,
+  } = useWheelAssets();
   const [refreshingTokens, setRefreshingTokens] = useState(false);
-  const [assets, setAssets] = useState<{
-    enabled: WheelAsset[];
-    disabled: WheelAsset[];
-  }>({ enabled: [], disabled: [] });
-  const [tokenAssets, setTokenAssets] = useState<WheelAssetToken[]>([]);
   const { toast } = useToast();
-
-  const fetchAssets = useCallback(async () => {
-    return actor
-      ?.list_wheel_assets({ state: [] })
-      .then(extractOk)
-      .then(res => {
-        const newAssets = res.reduce(
-          (acc, asset) => {
-            if (isWheelAssetDisabled(asset)) {
-              acc.disabled.push(asset);
-            } else {
-              acc.enabled.push(asset);
-            }
-            return acc;
-          },
-          { enabled: [] as WheelAsset[], disabled: [] as WheelAsset[] },
-        );
-        setAssets(newAssets);
-        const tokenAssetsArr = res
-          .filter(isWheelAssetToken)
-          .sort((a, b) =>
-            wheelAssetTokenTotalUsdValue(a) > wheelAssetTokenTotalUsdValue(b)
-              ? -1
-              : 1,
-          );
-        setTokenAssets(tokenAssetsArr);
-      })
-      .catch((e: Err) => {
-        toast({
-          title: 'Error fetching assets',
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      });
-  }, [actor, toast]);
 
   const handleRefresh = useCallback(() => {
     setRefreshingTokens(true);
     actor
       .fetch_tokens_data()
       .then(extractOk)
+      // wait for the backend to update the tokens
       .then(() => new Promise(resolve => setTimeout(resolve, 10_000)))
       .then(fetchAssets)
       .catch((e: Err) => {
@@ -188,14 +149,6 @@ export default function Page() {
       })
       .finally(() => setRefreshingTokens(false));
   }, [actor, toast, fetchAssets]);
-
-  useEffect(() => {
-    setFetchingAssets(true);
-    fetchAssets().finally(() => setFetchingAssets(false));
-
-    const intervalId = setInterval(fetchAssets, FETCH_ASSETS_INTERVAL);
-    return () => clearInterval(intervalId);
-  }, [fetchAssets]);
 
   return (
     <PageLayout>
@@ -260,32 +213,26 @@ export default function Page() {
               <CardTitle>Settings</CardTitle>
               <CardDescription>Tokens + Gadget + Jackpot</CardDescription>
             </div>
-            <CreateAssetModal onComplete={fetchAssets} />
+            <CreateAssetModal />
           </CardHeader>
           <CardContent>
             {fetchingAssets && <Loader />}
             {!fetchingAssets &&
-            assets.enabled.length === 0 &&
-            assets.disabled.length === 0 ? (
-              <EmptyAssets fetchAssets={fetchAssets} />
+            enabledAssets.length === 0 &&
+            disabledAssets.length === 0 ? (
+              <EmptyAssets />
             ) : (
               <div className="flex flex-col gap-4">
-                {assets.enabled.length > 0 && (
+                {enabledAssets.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <CardTitle className="text-sm">Enabled</CardTitle>
-                    <AssetsTable
-                      data={assets.enabled}
-                      fetchAssets={fetchAssets}
-                    />
+                    <AssetsTable data={enabledAssets} />
                   </div>
                 )}
-                {assets.disabled.length > 0 && (
+                {disabledAssets.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <CardTitle className="text-sm">Disabled</CardTitle>
-                    <AssetsTable
-                      data={assets.disabled}
-                      fetchAssets={fetchAssets}
-                    />
+                    <AssetsTable data={disabledAssets} />
                   </div>
                 )}
               </div>
