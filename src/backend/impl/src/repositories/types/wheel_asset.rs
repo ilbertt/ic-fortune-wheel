@@ -217,17 +217,6 @@ impl WheelAsset {
         }
     }
 
-    pub fn use_one(&mut self) -> Result<(), ApiError> {
-        if self.total_amount == 0 {
-            return Err(ApiError::internal("Asset total amount is 0"));
-        }
-        if self.used_amount >= self.total_amount {
-            return Err(ApiError::internal("Asset out of stock"));
-        }
-        self.used_amount += 1;
-        Ok(())
-    }
-
     pub fn set_latest_price(&mut self, input_usd_price: WheelAssetTokenPrice) {
         self.asset_type.set_latest_price(input_usd_price);
     }
@@ -516,34 +505,6 @@ mod tests {
         let deserialized_wheel_asset = WheelAsset::from_bytes(serialized_wheel_asset);
 
         assert_eq!(wheel_asset, deserialized_wheel_asset);
-    }
-
-    #[rstest]
-    #[case::token(fixtures::wheel_asset_token())]
-    #[case::gadget(fixtures::wheel_asset_gadget())]
-    #[case::jackpot(fixtures::wheel_asset_jackpot())]
-    fn use_one(#[case] mut wheel_asset: WheelAsset) {
-        const TOTAL_AMOUNT: u32 = 2;
-        wheel_asset.total_amount = TOTAL_AMOUNT;
-        wheel_asset.used_amount = 0;
-
-        wheel_asset.use_one().unwrap();
-        assert_eq!(wheel_asset.total_amount, TOTAL_AMOUNT);
-        assert_eq!(wheel_asset.used_amount, 1);
-
-        wheel_asset.use_one().unwrap();
-        assert_eq!(wheel_asset.total_amount, TOTAL_AMOUNT);
-        assert_eq!(wheel_asset.used_amount, 2);
-
-        let err = wheel_asset.use_one().unwrap_err();
-        assert_eq!(wheel_asset.total_amount, TOTAL_AMOUNT);
-        assert_eq!(wheel_asset.used_amount, 2);
-        assert_eq!(err.message(), "Asset out of stock");
-
-        wheel_asset.total_amount = 0;
-        let err = wheel_asset.use_one().unwrap_err();
-        assert_eq!(wheel_asset.total_amount, 0);
-        assert_eq!(err.message(), "Asset total amount is 0");
     }
 
     #[rstest]
