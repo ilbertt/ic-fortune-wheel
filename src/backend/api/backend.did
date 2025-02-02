@@ -222,9 +222,9 @@ type WheelPrize = record {
   wheel_image_path : opt text;
   modal_image_path : opt text;
   wheel_ui_settings : WheelAssetUiSettings;
-}
+};
 
-type ListWheelAssetsResponse = variant {
+type ListWheelPrizesResponse = variant {
   ok : vec WheelPrize;
   err : Err;
 };
