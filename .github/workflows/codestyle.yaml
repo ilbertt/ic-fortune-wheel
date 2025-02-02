@@ -1,0 +1,24 @@
+name: Codestyle
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  check_codestyle:
+    name: Codestyle checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS
+        uses: ./.github/actions/setup-node
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Check linting
+        run: pnpm lint
