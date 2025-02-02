@@ -3,14 +3,14 @@ use super::{
     WHEEL_ASSET_TYPE_INDEX_MEMORY_ID, WHEEL_PRIZE_INDEX_MEMORY_ID,
 };
 
-use ic_stable_structures::{BTreeMap, Vec};
+use ic_stable_structures::BTreeMap;
 
 use crate::repositories::{WheelAsset, WheelAssetId, WheelAssetStateKey, WheelAssetTypeKey};
 
 pub type WheelAssetMemory = BTreeMap<WheelAssetId, WheelAsset, Memory>;
 pub type WheelAssetStateIndexMemory = BTreeMap<WheelAssetStateKey, WheelAssetId, Memory>;
 pub type WheelAssetTypeIndexMemory = BTreeMap<WheelAssetTypeKey, WheelAssetId, Memory>;
-pub type WheelPrizeOrderMemory = Vec<WheelAssetId, Memory>;
+pub type WheelPrizeOrderMemory = BTreeMap<u32, WheelAssetId, Memory>;
 
 pub fn init_wheel_assets() -> WheelAssetMemory {
     WheelAssetMemory::init(get_wheel_assets_memory())
@@ -25,7 +25,7 @@ pub fn init_wheel_asset_type_index() -> WheelAssetTypeIndexMemory {
 }
 
 pub fn init_wheel_prize_index() -> WheelPrizeOrderMemory {
-    WheelPrizeOrderMemory::init(get_wheel_prize_index_memory()).expect("Failed to init prize index")
+    WheelPrizeOrderMemory::init(get_wheel_prize_index_memory())
 }
 
 fn get_wheel_assets_memory() -> Memory {

@@ -239,6 +239,10 @@ impl WheelAsset {
     pub fn is_token(&self) -> bool {
         matches!(self.asset_type, WheelAssetType::Token { .. })
     }
+
+    pub fn is_enabled(&self) -> bool {
+        self.state == WheelAssetState::Enabled
+    }
 }
 
 impl Timestamped for WheelAsset {
