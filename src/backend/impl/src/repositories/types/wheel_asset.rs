@@ -177,6 +177,11 @@ impl From<WheelAssetState> for u8 {
 }
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
+pub struct WheelAssetUiSettings {
+    pub background_color_hex: String,
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub struct WheelAsset {
     pub name: String,
     pub asset_type: WheelAssetType,
@@ -185,11 +190,17 @@ pub struct WheelAsset {
     pub state: WheelAssetState,
     pub wheel_image_path: Option<HttpAssetPath>,
     pub modal_image_path: Option<HttpAssetPath>,
+    pub wheel_ui_settings: WheelAssetUiSettings,
     pub timestamps: TimestampFields,
 }
 
 impl WheelAsset {
-    pub fn new_enabled(name: String, asset_type: WheelAssetType, total_amount: u32) -> Self {
+    pub fn new_enabled(
+        name: String,
+        asset_type: WheelAssetType,
+        total_amount: u32,
+        wheel_ui_settings: Option<WheelAssetUiSettings>,
+    ) -> Self {
         Self {
             name,
             asset_type,
@@ -198,6 +209,10 @@ impl WheelAsset {
             state: WheelAssetState::Enabled,
             wheel_image_path: None,
             modal_image_path: None,
+            wheel_ui_settings: wheel_ui_settings.unwrap_or_else(|| WheelAssetUiSettings {
+                // default to light blue
+                background_color_hex: "#29ABE2".to_string(),
+            }),
             timestamps: TimestampFields::new(),
         }
     }
@@ -385,6 +400,9 @@ pub fn icp_wheel_asset() -> (WheelAsset, Vec<u8>) {
             state: WheelAssetState::Enabled,
             wheel_image_path: None,
             modal_image_path: None,
+            wheel_ui_settings: WheelAssetUiSettings {
+                background_color_hex: "#29ABE2".to_string(),
+            },
             timestamps: TimestampFields::new(),
         },
         include_bytes!("../../static/images/tokens/icp.png").to_vec(),
@@ -411,6 +429,9 @@ pub fn ckbtc_wheel_asset() -> (WheelAsset, Vec<u8>) {
             state: WheelAssetState::Enabled,
             wheel_image_path: None,
             modal_image_path: None,
+            wheel_ui_settings: WheelAssetUiSettings {
+                background_color_hex: "#F15A24".to_string(),
+            },
             timestamps: TimestampFields::new(),
         },
         include_bytes!("../../static/images/tokens/ckbtc.png").to_vec(),
@@ -437,6 +458,9 @@ pub fn cketh_wheel_asset() -> (WheelAsset, Vec<u8>) {
             state: WheelAssetState::Enabled,
             wheel_image_path: None,
             modal_image_path: None,
+            wheel_ui_settings: WheelAssetUiSettings {
+                background_color_hex: "#ED1E79".to_string(),
+            },
             timestamps: TimestampFields::new(),
         },
         include_bytes!("../../static/images/tokens/cketh.png").to_vec(),
@@ -463,6 +487,9 @@ pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
             state: WheelAssetState::Enabled,
             wheel_image_path: None,
             modal_image_path: None,
+            wheel_ui_settings: WheelAssetUiSettings {
+                background_color_hex: "#522785".to_string(),
+            },
             timestamps: TimestampFields::new(),
         },
         include_bytes!("../../static/images/tokens/ckusdc.png").to_vec(),

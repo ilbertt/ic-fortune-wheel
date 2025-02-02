@@ -3,10 +3,11 @@ use std::cell::RefCell;
 use backend_api::ApiError;
 
 use super::{
-    init_wheel_asset_state_index, init_wheel_asset_type_index, init_wheel_assets, Timestamped,
-    WheelAsset, WheelAssetId, WheelAssetMemory, WheelAssetState as WheelAssetStateEnum,
-    WheelAssetStateIndexMemory, WheelAssetStateKey, WheelAssetStateRange, WheelAssetType,
-    WheelAssetTypeIndexMemory, WheelAssetTypeKey, WheelAssetTypeRange,
+    init_wheel_asset_state_index, init_wheel_asset_type_index, init_wheel_assets,
+    init_wheel_prize_index, Timestamped, WheelAsset, WheelAssetId, WheelAssetMemory,
+    WheelAssetState as WheelAssetStateEnum, WheelAssetStateIndexMemory, WheelAssetStateKey,
+    WheelAssetStateRange, WheelAssetType, WheelAssetTypeIndexMemory, WheelAssetTypeKey,
+    WheelAssetTypeRange, WheelPrizeOrderMemory,
 };
 
 #[cfg_attr(test, mockall::automock)]
@@ -30,6 +31,10 @@ pub trait WheelAssetRepository {
     ) -> Result<Vec<(WheelAssetId, WheelAsset)>, ApiError>;
 
     fn list_wheel_assets(&self) -> Vec<(WheelAssetId, WheelAsset)>;
+
+    fn get_wheel_prizes_order(&self) -> Vec<WheelAssetId>;
+
+    fn update_wheel_prizes_order(&self, order: Vec<WheelAssetId>) -> Result<(), ApiError>;
 }
 
 pub struct WheelAssetRepositoryImpl {}
@@ -120,6 +125,19 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
     fn list_wheel_assets(&self) -> Vec<(WheelAssetId, WheelAsset)> {
         STATE.with_borrow(|s| s.wheel_assets.iter().collect())
     }
+
+    fn get_wheel_prizes_order(&self) -> Vec<WheelAssetId> {
+        STATE.with_borrow(|s| s.wheel_prize_index.iter().collect())
+    }
+
+    fn update_wheel_prizes_order(&self, order: Vec<WheelAssetId>) -> Result<(), ApiError> {
+        STATE.with_borrow_mut(|s| {
+            for (i, id) in order.iter().enumerate() {
+                s.wheel_prize_index.set(i as u64, id);
+            }
+            Ok(())
+        })
+    }
 }
 
 impl WheelAssetRepositoryImpl {
@@ -132,6 +150,7 @@ struct WheelAssetState {
     wheel_assets: WheelAssetMemory,
     wheel_asset_state_index: WheelAssetStateIndexMemory,
     wheel_asset_type_index: WheelAssetTypeIndexMemory,
+    wheel_prize_index: WheelPrizeOrderMemory,
 }
 
 impl Default for WheelAssetState {
@@ -140,6 +159,7 @@ impl Default for WheelAssetState {
             wheel_assets: init_wheel_assets(),
             wheel_asset_state_index: init_wheel_asset_state_index(),
             wheel_asset_type_index: init_wheel_asset_type_index(),
+            wheel_prize_index: init_wheel_prize_index(),
         }
     }
 }

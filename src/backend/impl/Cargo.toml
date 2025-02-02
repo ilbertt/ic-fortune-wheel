@@ -29,6 +29,8 @@ rand_chacha = { version = "0.3", default-features = false }
 
 chrono = { version = "0.4", default-features = false, features = ["std"] }
 uuid = "1.11"
+regex = "1.11"
+lazy_static = "1.5"
 
 [dev-dependencies]
 candid_parser.workspace = true

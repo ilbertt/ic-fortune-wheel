@@ -2,22 +2,25 @@ use std::{path::Path, time::Duration};
 
 use backend_api::{
     ApiError, CreateWheelAssetRequest, CreateWheelAssetResponse, DeleteWheelAssetRequest,
-    ListWheelAssetsRequest, ListWheelAssetsResponse, UpdateWheelAssetImageConfig,
-    UpdateWheelAssetImageRequest, UpdateWheelAssetRequest, UpdateWheelAssetTypeConfig,
-    WheelAssetImageConfig,
+    ListWheelAssetsRequest, ListWheelAssetsResponse, ListWheelPrizesResponse,
+    UpdateWheelAssetImageConfig, UpdateWheelAssetImageRequest, UpdateWheelAssetRequest,
+    UpdateWheelAssetTypeConfig, UpdateWheelPrizesOrderRequest, WheelAssetImageConfig,
+    WheelAssetUiSettings,
 };
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{println, spawn};
 use ic_cdk_timers::set_timer;
 use ic_xrc_types::{Asset, AssetClass, GetExchangeRateRequest};
 use icrc_ledger_types::icrc1::account::Account;
+use lazy_static::lazy_static;
+use regex::Regex;
 
 use crate::{
-    mappings::map_wheel_asset,
+    mappings::{map_wheel_asset, map_wheel_prize},
     repositories::{
         ckbtc_wheel_asset, cketh_wheel_asset, ckusdc_wheel_asset, icp_wheel_asset, HttpAsset,
         HttpAssetRepository, HttpAssetRepositoryImpl, WheelAsset, WheelAssetId,
-        WheelAssetRepository, WheelAssetRepositoryImpl, WheelAssetTokenBalance,
+        WheelAssetRepository, WheelAssetRepositoryImpl, WheelAssetState, WheelAssetTokenBalance,
         WheelAssetTokenPrice, WheelAssetType,
     },
 };
@@ -25,6 +28,10 @@ use crate::{
 const WHEEL_ASSET_NAME_MAX_LENGTH: usize = 100;
 const WHEEL_ASSET_IMAGES_HTTP_PATH: &str = "/images/wheel";
 const WHEEL_ASSET_IMAGES_ALLOWED_CONTENT_TYPES: [&str; 2] = ["image/png", "image/svg+xml"];
+lazy_static! {
+    static ref WHEEL_ASSET_UI_SETTING_BACKGROUND_COLOR_HEX_REGEX: Regex =
+        Regex::new(r"^#(?:[0-9a-fA-F]{3}){1,2}$").unwrap();
+}
 
 #[cfg_attr(test, mockall::automock)]
 pub trait WheelAssetService {
@@ -49,6 +56,13 @@ pub trait WheelAssetService {
     async fn update_wheel_asset_image(
         &self,
         request: UpdateWheelAssetImageRequest,
+    ) -> Result<(), ApiError>;
+
+    fn list_wheel_prizes(&self) -> Result<ListWheelPrizesResponse, ApiError>;
+
+    fn update_wheel_prizes_order(
+        &self,
+        request: UpdateWheelPrizesOrderRequest,
     ) -> Result<(), ApiError>;
 }
 
@@ -153,6 +167,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
             request.name,
             request.asset_type_config.into(),
             request.total_amount,
+            request.wheel_ui_settings.map(Into::into),
         );
 
         let id = self
@@ -233,6 +248,10 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
             }
         }
 
+        if let Some(wheel_ui_settings) = request.wheel_ui_settings {
+            existing_asset.wheel_ui_settings = wheel_ui_settings.into();
+        }
+
         self.wheel_asset_repository
             .update_wheel_asset(asset_id, existing_asset)
     }
@@ -301,6 +320,58 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
         self.wheel_asset_repository
             .update_wheel_asset(asset_id, existing_asset)
     }
+
+    fn list_wheel_prizes(&self) -> Result<ListWheelPrizesResponse, ApiError> {
+        let prizes = self
+            .wheel_asset_repository
+            .get_wheel_prizes_order()
+            .iter()
+            .map(|id| {
+                // SAFETY: wheel asset with this id should always exists
+                let wheel_asset = self.wheel_asset_repository.get_wheel_asset(id).unwrap();
+                map_wheel_prize(*id, wheel_asset)
+            })
+            .collect();
+
+        Ok(prizes)
+    }
+
+    fn update_wheel_prizes_order(
+        &self,
+        request: UpdateWheelPrizesOrderRequest,
+    ) -> Result<(), ApiError> {
+        // check that the provided wheel asset IDs match all the existing enabled assets
+        // and create a vector of `WheelAssetId`s
+        let ordered_ids = {
+            let enabled_wheel_assets = self
+                .wheel_asset_repository
+                .list_wheel_assets_by_state(WheelAssetState::Enabled)?;
+
+            if request.wheel_asset_ids.len() != enabled_wheel_assets.len() {
+                return Err(ApiError::invalid_argument(
+                    "The provided wheel asset IDs do not match the existing enabled assets",
+                ));
+            }
+            let mut ordered_ids = Vec::new();
+            for id in &request.wheel_asset_ids {
+                let id = WheelAssetId::try_from(id.as_str())?;
+                if !enabled_wheel_assets
+                    .iter()
+                    .any(|(asset_id, _)| *asset_id == id)
+                {
+                    return Err(ApiError::invalid_argument(&format!(
+                        "Wheel asset with ID {} does not exist",
+                        id
+                    )));
+                }
+                ordered_ids.push(id);
+            }
+            ordered_ids
+        };
+
+        self.wheel_asset_repository
+            .update_wheel_prizes_order(ordered_ids)
+    }
 }
 
 impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H> {
@@ -328,6 +399,9 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             return Err(ApiError::invalid_argument(&format!(
                 "Name must be at most {WHEEL_ASSET_NAME_MAX_LENGTH} characters"
             )));
+        }
+        if let Some(wheel_ui_settings) = &request.wheel_ui_settings {
+            self.validate_wheel_ui_settings(wheel_ui_settings)?;
         }
         Ok(())
     }
@@ -370,6 +444,22 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             }
         }
 
+        if let Some(wheel_ui_settings) = &request.wheel_ui_settings {
+            self.validate_wheel_ui_settings(wheel_ui_settings)?;
+        }
+
+        Ok(())
+    }
+
+    fn validate_wheel_ui_settings(
+        &self,
+        wheel_ui_settings: &WheelAssetUiSettings,
+    ) -> Result<(), ApiError> {
+        if !WHEEL_ASSET_UI_SETTING_BACKGROUND_COLOR_HEX_REGEX
+            .is_match(&wheel_ui_settings.background_color_hex)
+        {
+            return Err(ApiError::invalid_argument("Invalid background color hex"));
+        }
         Ok(())
     }
 

@@ -95,6 +95,10 @@ type WheelAssetType = variant {
   jackpot;
 };
 
+type WheelAssetUiSettings = record {
+  background_color_hex : text;
+};
+
 type WheelAsset = record {
   id : text;
   name : text;
@@ -104,6 +108,7 @@ type WheelAsset = record {
   wheel_image_path : opt text;
   modal_image_path : opt text;
   state : WheelAssetState;
+  wheel_ui_settings : WheelAssetUiSettings;
 };
 
 type ListWheelAssetsRequest = record {
@@ -141,6 +146,7 @@ type CreateWheelAssetRequest = record {
   name : text;
   asset_type_config : CreateWheelAssetTypeConfig;
   total_amount : nat32;
+  wheel_ui_settings : opt WheelAssetUiSettings;
 };
 
 type CreateWheelAssetResponse = variant {
@@ -171,6 +177,7 @@ type UpdateWheelAssetRequest = record {
   used_amount : opt nat32;
   state : opt WheelAssetState;
   asset_type_config : opt UpdateWheelAssetTypeConfig;
+  wheel_ui_settings : opt WheelAssetUiSettings;
 };
 
 type UpdateWheelAssetResponse = variant {
@@ -208,6 +215,29 @@ type UpdateWheelAssetImageResponse = variant {
   err : Err;
 };
 
+// A subset of WheelAsset that can be publicly exposed
+type WheelPrize = record {
+  wheel_asset_id : text;
+  name : text;
+  wheel_image_path : opt text;
+  modal_image_path : opt text;
+  wheel_ui_settings : WheelAssetUiSettings;
+}
+
+type ListWheelAssetsResponse = variant {
+  ok : vec WheelPrize;
+  err : Err;
+};
+
+type UpdateWheelPrizesOrderRequest = record {
+  wheel_asset_ids : vec text;
+};
+
+type UpdateWheelPrizesOrderResponse = variant {
+  ok;
+  err : Err;
+};
+
 // HTTP
 type HeaderField = record { text; text };
 
@@ -241,6 +271,8 @@ service : {
   update_wheel_asset: (UpdateWheelAssetRequest) -> (UpdateWheelAssetResponse);
   delete_wheel_asset: (DeleteWheelAssetRequest) -> (DeleteWheelAssetResponse);
   update_wheel_asset_image: (UpdateWheelAssetImageRequest) -> (UpdateWheelAssetImageResponse);
+  list_wheel_prizes: () -> (ListWheelPrizesResponse) query;
+  update_wheel_prizes_order: (UpdateWheelPrizesOrderRequest) -> (UpdateWheelPrizesOrderResponse);
 
   // HTTP
   http_request : (request : HttpRequest) -> (HttpResponse) query;

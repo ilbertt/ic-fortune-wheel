@@ -44,6 +44,11 @@ pub enum WheelAssetType {
 }
 
 #[derive(Debug, CandidType, Deserialize, Clone)]
+pub struct WheelAssetUiSettings {
+    pub background_color_hex: String,
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone)]
 pub struct WheelAsset {
     pub id: String,
     pub name: String,
@@ -53,6 +58,7 @@ pub struct WheelAsset {
     pub wheel_image_path: Option<String>,
     pub modal_image_path: Option<String>,
     pub state: WheelAssetState,
+    pub wheel_ui_settings: WheelAssetUiSettings,
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
@@ -74,6 +80,7 @@ pub struct CreateWheelAssetRequest {
     pub name: String,
     pub asset_type_config: CreateWheelAssetTypeConfig,
     pub total_amount: u32,
+    pub wheel_ui_settings: Option<WheelAssetUiSettings>,
 }
 
 pub type CreateWheelAssetResponse = WheelAsset;
@@ -105,6 +112,7 @@ pub struct UpdateWheelAssetRequest {
     pub used_amount: Option<u32>,
     pub state: Option<WheelAssetState>,
     pub asset_type_config: Option<UpdateWheelAssetTypeConfig>,
+    pub wheel_ui_settings: Option<WheelAssetUiSettings>,
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
@@ -137,4 +145,21 @@ pub enum UpdateWheelAssetImageConfig {
 pub struct UpdateWheelAssetImageRequest {
     pub id: String,
     pub image_config: UpdateWheelAssetImageConfig,
+}
+
+/// A subset of WheelAsset that can be publicly exposed
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct WheelPrize {
+    pub wheel_asset_id: String,
+    pub name: String,
+    pub wheel_image_path: Option<String>,
+    pub modal_image_path: Option<String>,
+    pub wheel_ui_settings: WheelAssetUiSettings,
+}
+
+pub type ListWheelPrizesResponse = Vec<WheelPrize>;
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
+pub struct UpdateWheelPrizesOrderRequest {
+    pub wheel_asset_ids: Vec<String>,
 }

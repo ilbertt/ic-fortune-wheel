@@ -1,6 +1,6 @@
 use crate::repositories::{
     WheelAsset, WheelAssetId, WheelAssetState, WheelAssetTokenBalance, WheelAssetTokenLedgerConfig,
-    WheelAssetTokenPrice, WheelAssetType,
+    WheelAssetTokenPrice, WheelAssetType, WheelAssetUiSettings,
 };
 
 impl From<WheelAssetState> for backend_api::WheelAssetState {
@@ -107,6 +107,22 @@ impl From<backend_api::CreateWheelAssetTypeConfig> for WheelAssetType {
     }
 }
 
+impl From<WheelAssetUiSettings> for backend_api::WheelAssetUiSettings {
+    fn from(value: WheelAssetUiSettings) -> Self {
+        Self {
+            background_color_hex: value.background_color_hex,
+        }
+    }
+}
+
+impl From<backend_api::WheelAssetUiSettings> for WheelAssetUiSettings {
+    fn from(value: backend_api::WheelAssetUiSettings) -> Self {
+        Self {
+            background_color_hex: value.background_color_hex,
+        }
+    }
+}
+
 pub fn map_wheel_asset(
     wheel_asset_id: WheelAssetId,
     wheel_asset: WheelAsset,
@@ -120,5 +136,19 @@ pub fn map_wheel_asset(
         state: wheel_asset.state.into(),
         wheel_image_path: wheel_asset.wheel_image_path.map(|el| el.to_string()),
         modal_image_path: wheel_asset.modal_image_path.map(|el| el.to_string()),
+        wheel_ui_settings: wheel_asset.wheel_ui_settings.into(),
+    }
+}
+
+pub fn map_wheel_prize(
+    wheel_asset_id: WheelAssetId,
+    wheel_asset: WheelAsset,
+) -> backend_api::WheelPrize {
+    backend_api::WheelPrize {
+        wheel_asset_id: wheel_asset_id.to_string(),
+        name: wheel_asset.name,
+        wheel_image_path: wheel_asset.wheel_image_path.map(|el| el.to_string()),
+        modal_image_path: wheel_asset.modal_image_path.map(|el| el.to_string()),
+        wheel_ui_settings: wheel_asset.wheel_ui_settings.into(),
     }
 }

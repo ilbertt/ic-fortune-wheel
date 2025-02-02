@@ -1,7 +1,8 @@
 use backend_api::{
     ApiError, ApiResult, CreateWheelAssetRequest, CreateWheelAssetResponse,
     DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
-    UpdateWheelAssetImageRequest, UpdateWheelAssetRequest,
+    ListWheelPrizesResponse, UpdateWheelAssetImageRequest, UpdateWheelAssetRequest,
+    UpdateWheelPrizesOrderRequest,
 };
 use backend_macros::log_errors;
 use candid::Principal;
@@ -89,6 +90,22 @@ async fn update_wheel_asset_image(request: UpdateWheelAssetImageRequest) -> ApiR
     WheelAssetController::default()
         .update_wheel_asset_image(calling_principal, request)
         .await
+        .into()
+}
+
+#[query]
+#[log_errors]
+fn list_wheel_prizes() -> ApiResult<ListWheelPrizesResponse> {
+    WheelAssetController::default().list_wheel_prizes().into()
+}
+
+#[update]
+#[log_errors]
+fn update_wheel_prizes_order(request: UpdateWheelPrizesOrderRequest) -> ApiResult<()> {
+    let calling_principal = caller();
+
+    WheelAssetController::default()
+        .update_wheel_prizes_order(calling_principal, request)
         .into()
 }
 
@@ -198,5 +215,22 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         self.wheel_asset_service
             .update_wheel_asset_image(request)
             .await
+    }
+
+    fn list_wheel_prizes(&self) -> Result<ListWheelPrizesResponse, ApiError> {
+        self.wheel_asset_service.list_wheel_prizes()
+    }
+
+    fn update_wheel_prizes_order(
+        &self,
+        calling_principal: Principal,
+        request: UpdateWheelPrizesOrderRequest,
+    ) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_not_anonymous(&calling_principal)?;
+        self.access_control_service
+            .assert_principal_is_user_or_admin(&calling_principal)?;
+
+        self.wheel_asset_service.update_wheel_prizes_order(request)
     }
 }

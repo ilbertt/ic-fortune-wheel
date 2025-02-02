@@ -16,4 +16,5 @@ pub(super) const USER_PROFILE_PRINCIPAL_INDEX_MEMORY_ID: MemoryId = MemoryId::ne
 pub(super) const WHEEL_ASSETS_MEMORY_ID: MemoryId = MemoryId::new(2);
 pub(super) const WHEEL_ASSET_STATE_INDEX_MEMORY_ID: MemoryId = MemoryId::new(3);
 pub(super) const WHEEL_ASSET_TYPE_INDEX_MEMORY_ID: MemoryId = MemoryId::new(4);
-pub(super) const HTTP_ASSETS_MEMORY_ID: MemoryId = MemoryId::new(5);
+pub(super) const WHEEL_PRIZE_INDEX_MEMORY_ID: MemoryId = MemoryId::new(5);
+pub(super) const HTTP_ASSETS_MEMORY_ID: MemoryId = MemoryId::new(6);
