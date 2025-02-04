@@ -16,6 +16,8 @@ import { SortableWheelPrizesList } from './SortableWheelPrizesList';
 import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { useAtom } from 'jotai';
+import { wheelAtom } from './atoms';
 
 export default function Page() {
   const {
@@ -26,12 +28,13 @@ export default function Page() {
     fetchPrizes,
     fetching,
   } = useWheelPrizes();
+  const [wheel, setWheel] = useAtom(wheelAtom);
 
   return (
     <PageLayout>
       <PageHeader title="Design" />
       <PageContent>
-        <Card className="col-span-full md:col-span-4">
+        <Card className="col-span-full md:col-span-6">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Available Prizes ({wheelData.length}){' '}
@@ -70,7 +73,7 @@ export default function Page() {
             </CardFooter>
           )}
         </Card>
-        <Card className="col-span-full md:col-span-8">
+        <Card className="col-span-full md:col-span-6">
           <CardHeader className="flex flex-col justify-between md:flex-row md:items-start">
             <div className="flex flex-col space-y-1.5">
               <CardTitle>Fortune Wheel Preview</CardTitle>
@@ -91,17 +94,22 @@ export default function Page() {
           <CardContent>
             <div className="flex justify-center">
               {wheelData.length > 0 && (
+                // <div className="size-[400px]">
                 <Wheel
-                  mustStartSpinning={false}
-                  prizeNumber={0}
+                  mustStartSpinning={wheel.extractPrizeIndex !== null}
+                  onStopSpinning={() => setWheel({ extractPrizeIndex: null })}
+                  prizeNumber={wheel.extractPrizeIndex ?? -1}
                   startingOptionIndex={0}
                   data={wheelData}
                   outerBorderWidth={0}
                   pointerProps={{
                     src: Pointer.src,
-                    style: { transform: 'translate(-22%, 20%) rotate(250deg)' },
+                    style: {
+                      transform: 'translate(-22%, 20%) rotate(250deg)',
+                    },
                   }}
                 />
+                // </div>
               )}
             </div>
           </CardContent>
