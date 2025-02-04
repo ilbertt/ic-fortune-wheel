@@ -74,7 +74,6 @@ export const WheelPrizesProvider = ({
 
   const fetchPrizes = useCallback(async () => {
     setFetching(true);
-    await new Promise(resolve => setTimeout(resolve, 5000));
     return actor
       ?.list_wheel_prizes()
       .then(extractOk)
