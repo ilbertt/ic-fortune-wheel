@@ -4,13 +4,14 @@ import { Button } from '@/components/ui/button';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { SortableList } from '@/components/ui/sortable-list';
 import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
-import { useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { Play } from 'lucide-react';
 import { wheelAtom } from './atoms';
+import { cn } from '@/lib/utils';
 
 export const SortableWheelPrizesList = () => {
   const { prizes, setPrizes } = useWheelPrizes();
-  const setWheel = useSetAtom(wheelAtom);
+  const [wheel, setWheel] = useAtom(wheelAtom);
 
   return (
     <SortableList
@@ -18,7 +19,7 @@ export const SortableWheelPrizesList = () => {
       onReorder={setPrizes}
       renderItem={(item, index) => (
         <div
-          className="flex w-full flex-row items-center justify-between gap-2"
+          className="flex min-h-8 w-full flex-row items-center justify-between gap-2"
           key={item.wheel_asset_id}
         >
           {item.name}
@@ -42,14 +43,22 @@ export const SortableWheelPrizesList = () => {
               }}
               className="size-6"
             />
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setWheel({ extractPrizeIndex: index })}
-            >
-              <Play />
-              Simulate
-            </Button>
+            {(wheel.extractPrizeIndex === null ||
+              wheel.extractPrizeIndex === index) && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setWheel({ extractPrizeIndex: index })}
+                className={cn('disabled:opacity-100', {
+                  'text-indaco-blue animate-pulse':
+                    wheel.extractPrizeIndex === index,
+                })}
+                disabled={wheel.extractPrizeIndex === index}
+              >
+                <Play />
+                {wheel.extractPrizeIndex === index ? 'Spinning...' : 'Simulate'}
+              </Button>
+            )}
           </div>
         </div>
       )}
