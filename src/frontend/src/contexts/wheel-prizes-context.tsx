@@ -74,7 +74,7 @@ export const WheelPrizesProvider = ({
 
   const fetchPrizes = useCallback(async () => {
     setFetching(true);
-    return actor
+    actor
       ?.list_wheel_prizes()
       .then(extractOk)
       .then(newPrizes => {
@@ -98,9 +98,58 @@ export const WheelPrizesProvider = ({
   }, []);
 
   const savePrizes = useCallback(async () => {
-    await fetchPrizes();
-    setDirtyPrizes(prev => ({ ...prev, isDirty: false }));
-  }, [fetchPrizes]);
+    if (!dirtyPrizes.isDirty) {
+      return;
+    }
+
+    const promises = [];
+
+    // if the order has changed, update it
+    if (
+      !dirtyPrizes.prizes.every((item, index) => index === prizes.indexOf(item))
+    ) {
+      promises.push(
+        actor.update_wheel_prizes_order({
+          wheel_asset_ids: dirtyPrizes.prizes.map(item => item.wheel_asset_id),
+        }),
+      );
+    }
+
+    // for each dirty prize, update the asset if its settings have changed
+    for (const dirtyPrize of dirtyPrizes.prizes) {
+      const existingPrize = prizes.find(
+        item => item.wheel_asset_id === dirtyPrize.wheel_asset_id,
+      )!;
+      if (
+        dirtyPrize.wheel_ui_settings.background_color_hex !==
+        existingPrize.wheel_ui_settings.background_color_hex
+      ) {
+        promises.push(
+          actor.update_wheel_asset({
+            id: dirtyPrize.wheel_asset_id,
+            wheel_ui_settings: [dirtyPrize.wheel_ui_settings],
+            asset_type_config: [],
+            name: [],
+            total_amount: [],
+            used_amount: [],
+            state: [],
+          }),
+        );
+      }
+    }
+
+    setFetching(true);
+    Promise.all(promises.map(p => p.then(extractOk)))
+      .then(fetchPrizes)
+      .catch((e: Err) => {
+        toast({
+          title: 'Error saving prizes',
+          description: renderError(e),
+          variant: 'destructive',
+        });
+      })
+      .finally(() => setFetching(false));
+  }, [actor, dirtyPrizes, fetchPrizes, toast, prizes]);
 
   const resetChanges = useCallback(() => {
     setDirtyPrizes({ prizes, isDirty: false });

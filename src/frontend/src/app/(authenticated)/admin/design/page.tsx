@@ -15,11 +15,9 @@ import Pointer from '@/assets/wheel/pointer.png';
 import { SortableWheelPrizesList } from './SortableWheelPrizesList';
 import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
 import { Button } from '@/components/ui/button';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
 import { RefreshCw } from 'lucide-react';
 
 export default function Page() {
-  const { fetchingAssets } = useWheelAssets();
   const {
     wheelData,
     isDirty,
@@ -62,11 +60,11 @@ export default function Page() {
               <Button
                 variant="outline"
                 onClick={resetChanges}
-                disabled={fetchingAssets}
+                disabled={fetching}
               >
                 Cancel
               </Button>
-              <Button onClick={savePrizes} loading={fetchingAssets}>
+              <Button onClick={savePrizes} loading={fetching}>
                 Save
               </Button>
             </CardFooter>
