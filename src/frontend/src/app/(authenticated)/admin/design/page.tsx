@@ -34,7 +34,7 @@ export default function Page() {
     <PageLayout>
       <PageHeader title="Design" />
       <PageContent>
-        <Card className="col-span-full md:col-span-6">
+        <Card className="col-span-full md:col-span-5">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Available Prizes ({wheelData.length}){' '}
@@ -73,7 +73,7 @@ export default function Page() {
             </CardFooter>
           )}
         </Card>
-        <Card className="col-span-full md:col-span-6">
+        <Card className="col-span-full md:col-span-7">
           <CardHeader className="flex flex-col justify-between md:flex-row md:items-start">
             <div className="flex flex-col space-y-1.5">
               <CardTitle>Fortune Wheel Preview</CardTitle>
