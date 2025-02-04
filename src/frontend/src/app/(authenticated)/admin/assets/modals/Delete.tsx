@@ -45,13 +45,15 @@ export const DeleteAssetModal: React.FC<DeleteAssetModalProps> = ({
       .then(() => {
         setOpen(false);
       })
-      .catch((e: Err) =>
+      .catch((e: Err) => {
+        const title = 'Error deleting asset';
+        console.error(title, e);
         toast({
-          title: 'Error deleting asset',
+          title,
           description: renderError(e),
           variant: 'destructive',
-        }),
-      )
+        });
+      })
       .finally(() => {
         setIsDeleting(false);
       });

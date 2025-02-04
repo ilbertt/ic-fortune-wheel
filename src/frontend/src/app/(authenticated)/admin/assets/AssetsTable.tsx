@@ -43,13 +43,17 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({ asset }) => {
       })
       .then(extractOk)
       .then(fetchAssets)
-      .catch((e: Err) =>
+      .catch((e: Err) => {
+        const title = isDisabled
+          ? 'Error enabling asset'
+          : 'Error disabling asset';
+        console.error(title, e);
         toast({
-          title: 'Error toggling asset state',
+          title,
           description: renderError(e),
           variant: 'destructive',
-        }),
-      )
+        });
+      })
       .finally(() => setIsLoading(false));
   }, [actor, isDisabled, fetchAssets, toast, asset]);
 

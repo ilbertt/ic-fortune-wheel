@@ -78,8 +78,10 @@ export const WheelAssetsProvider = ({
         setTokenAssets(tokenAssetsArr);
       })
       .catch((e: Err) => {
+        const title = 'Error fetching assets';
+        console.error(title, e);
         toast({
-          title: 'Error fetching assets',
+          title,
           description: renderError(e),
           variant: 'destructive',
         });

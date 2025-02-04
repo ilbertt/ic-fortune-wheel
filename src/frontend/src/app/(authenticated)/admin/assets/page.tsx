@@ -141,8 +141,10 @@ export default function Page() {
       .then(() => new Promise(resolve => setTimeout(resolve, 10_000)))
       .then(fetchAssets)
       .catch((e: Err) => {
+        const title = 'Error refreshing tokens';
+        console.error(title, e);
         toast({
-          title: 'Error refreshing tokens',
+          title,
           description: renderError(e),
           variant: 'destructive',
         });

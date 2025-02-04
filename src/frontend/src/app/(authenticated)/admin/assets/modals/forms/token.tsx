@@ -210,13 +210,15 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
         ),
       )
       .then(onComplete)
-      .catch((e: Err) =>
+      .catch((e: Err) => {
+        const title = `Error ${isEdit ? 'updating' : 'creating'} token asset`;
+        console.error(title, e);
         toast({
-          title: `Error ${isEdit ? 'updating' : 'creating'} token asset`,
+          title,
           description: renderError(e),
           variant: 'destructive',
-        }),
-      );
+        });
+      });
   };
 
   const onSelectToken = useCallback(

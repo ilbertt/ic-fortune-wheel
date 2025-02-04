@@ -83,8 +83,10 @@ export const WheelPrizesProvider = ({
         setWheelData(mapPrizesToWheelData(newPrizes));
       })
       .catch((e: Err) => {
+        const title = 'Error fetching prizes';
+        console.error(title, e);
         toast({
-          title: 'Error fetching assets',
+          title,
           description: renderError(e),
           variant: 'destructive',
         });
@@ -142,8 +144,10 @@ export const WheelPrizesProvider = ({
     Promise.all(promises.map(p => p.then(extractOk)))
       .then(fetchPrizes)
       .catch((e: Err) => {
+        const title = 'Error saving prizes';
+        console.error(title, e);
         toast({
-          title: 'Error saving prizes',
+          title,
           description: renderError(e),
           variant: 'destructive',
         });

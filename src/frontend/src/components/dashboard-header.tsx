@@ -56,6 +56,8 @@ import { useToast } from '@/hooks/use-toast';
 import { PrincipalDisplay } from '@/components/principal-display';
 import { UserIdDisplay } from './user-id-display';
 import { Loader } from '@/components/loader';
+import { extractOk } from '@/lib/api';
+import { type Err } from '@/declarations/backend/backend.did';
 
 type HeaderLinkProps = {
   title: string;
@@ -107,17 +109,19 @@ const EditUserDialog = () => {
       .update_my_user_profile({
         username: [data.username],
       })
-      .then(async res => {
-        if ('ok' in res) {
-          await fetchUser();
-          setOpen(false);
-        } else {
-          toast({
-            title: 'Error updating user',
-            description: renderError(res.err),
-            variant: 'destructive',
-          });
-        }
+      .then(extractOk)
+      .then(async () => {
+        await fetchUser();
+        setOpen(false);
+      })
+      .catch((e: Err) => {
+        const title = 'Error updating user';
+        console.error(title, e);
+        toast({
+          title,
+          description: renderError(e),
+          variant: 'destructive',
+        });
       });
   };
 

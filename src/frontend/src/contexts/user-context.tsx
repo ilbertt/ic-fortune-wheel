@@ -11,6 +11,7 @@ import {
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { enumKey, renderError } from '@/lib/utils';
+import { extractOk } from '@/lib/api';
 
 type UserContextType = {
   user: UserProfile | null;
@@ -35,21 +36,24 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   const fetchUser = useCallback(async () => {
-    await actor?.get_my_user_profile().then(res => {
-      if ('ok' in res) {
-        setUser(res.ok);
-      } else {
+    await actor
+      ?.get_my_user_profile()
+      .then(extractOk)
+      .then(setUser)
+      .catch((e: Err) => {
+        const title = 'Error fetching user';
+        console.error(title, e);
         toast({
-          title: 'Error fetching user',
-          description: renderError(res.err),
+          title,
+          description: renderError(e),
           variant: 'destructive',
         });
-      }
-    });
+      });
   }, [actor, toast]);
 
   useEffect(() => {
     const showErrorToast = (resErr: Err, title: string) => {
+      console.error(title, resErr);
       toast({
         title,
         description: renderError(resErr),

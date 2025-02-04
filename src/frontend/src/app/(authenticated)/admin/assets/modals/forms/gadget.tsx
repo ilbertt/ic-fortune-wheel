@@ -130,13 +130,15 @@ export const AssetGadgetForm: React.FC<AssetGadgetFormProps> = ({
         ),
       )
       .then(onComplete)
-      .catch((e: Err) =>
+      .catch((e: Err) => {
+        const title = `Error ${isEdit ? 'updating' : 'creating'} gadget asset`;
+        console.error(title, e);
         toast({
-          title: `Error ${isEdit ? 'updating' : 'creating'} gadget asset`,
+          title,
           description: renderError(e),
           variant: 'destructive',
-        }),
-      );
+        });
+      });
   };
 
   return (

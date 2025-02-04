@@ -76,8 +76,10 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
         .then(extractOk)
         .catch((e: Err) => {
           setRole(oldRole);
+          const title = 'Error updating role';
+          console.error(title, e);
           toast({
-            title: 'Error updating role',
+            title,
             description: renderError(e),
             variant: 'destructive',
           });
@@ -94,8 +96,10 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
       .then(extractOk)
       .then(onDelete)
       .catch((e: Err) => {
+        const title = 'Error deleting user';
+        console.error(title, e);
         toast({
-          title: 'Error deleting user',
+          title,
           description: renderError(e),
           variant: 'destructive',
         });
@@ -183,13 +187,15 @@ export default function Page() {
       ?.list_users()
       .then(extractOk)
       .then(setTeamMembers)
-      .catch((e: Err) =>
+      .catch((e: Err) => {
+        const title = 'Error fetching team members';
+        console.error(title, e);
         toast({
-          title: 'Error fetching team members',
+          title,
           description: renderError(e),
           variant: 'destructive',
-        }),
-      );
+        });
+      });
   }, [actor, toast]);
 
   useEffect(() => {
