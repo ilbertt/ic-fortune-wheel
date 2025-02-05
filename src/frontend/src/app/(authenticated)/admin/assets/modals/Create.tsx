@@ -40,7 +40,7 @@ export const CreateAssetModal: React.FC = () => {
   );
 
   return (
-    <Dialog open={open} onOpenChange={handleOnOpenChange}>
+    <Dialog open={open} onOpenChange={handleOnOpenChange} modal>
       <DialogTrigger asChild>
         <Button variant="border-gradient">
           <PlusCircle />

@@ -126,7 +126,7 @@ const EditUserDialog = () => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} modal>
       <DialogTrigger asChild>
         <Button size="icon" variant="ghost" className="text-indaco-blue size-6">
           <PenLine />
