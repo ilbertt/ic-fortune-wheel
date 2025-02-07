@@ -214,8 +214,10 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         </div>
         <div className="flex flex-row items-center justify-end gap-6">
           {!isCurrentUserUnassigned && (
-            <Button variant="border-gradient">
-              <ScanLine /> Scanner
+            <Button variant="border-gradient" asChild>
+              <Link href={ROUTES.dashboard.scanner}>
+                <ScanLine /> Scanner
+              </Link>
             </Button>
           )}
           <UserNav headerLinks={headerLinks} />

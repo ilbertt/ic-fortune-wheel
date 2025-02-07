@@ -12,6 +12,7 @@ export const ROUTES = {
     assets: '/admin/assets',
     team: '/admin/team',
     design: '/admin/design',
+    scanner: '/admin/scanner',
   },
   login: '/login',
   fortuneWheel: '/fw',
