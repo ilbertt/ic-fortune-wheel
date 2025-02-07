@@ -1,6 +1,6 @@
 'use client';
 
-import { cn, enumKey } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import {
   LayoutDashboard,
@@ -34,8 +34,7 @@ import { useUser } from '@/contexts/user-context';
 import { UserIdDisplay } from '@/components/user-id-display';
 import { Loader } from '@/components/loader';
 import { EditUserDialog } from '@/components/edit-user-dialog';
-import { Badge } from '@/components/ui/badge';
-import { capitalCase } from 'change-case';
+import { UserRoleBadge } from '@/components/user-role-badge';
 
 type HeaderLinkProps = {
   title: string;
@@ -116,7 +115,7 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
                 </div>
                 <p className="text-xs font-light">User ID</p>
                 <UserIdDisplay userId={user.id} />
-                <Badge>{capitalCase(enumKey(user.role))}</Badge>
+                <UserRoleBadge userRole={user.role} />
                 {/*
                   TODO: decide if we want to display the principal
                   <p className="text-xs font-light">Principal</p>

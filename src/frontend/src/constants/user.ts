@@ -6,7 +6,7 @@ import type {
 
 export const USER_ROLES: Record<ExtractKeysFromCandidEnum<UserRole>, string> = {
   admin: 'Admin',
-  user: 'User',
+  scanner: 'Scanner',
   unassigned: 'Unassigned',
 };
 
