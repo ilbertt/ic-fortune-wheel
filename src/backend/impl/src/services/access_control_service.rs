@@ -74,7 +74,7 @@ impl<T: UserProfileRepository> AccessControlService for AccessControlServiceImpl
 
         if !profile.is_user() && !profile.is_admin() {
             return Err(ApiError::permission_denied(&format!(
-                "Principal {} must be a reviewer or admin to call this endpoint",
+                "Principal {} must be an admin or a user to call this endpoint",
                 calling_principal.to_text()
             )));
         }
