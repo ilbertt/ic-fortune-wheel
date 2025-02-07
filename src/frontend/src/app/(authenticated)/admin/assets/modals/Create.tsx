@@ -40,14 +40,14 @@ export const CreateAssetModal: React.FC = () => {
   );
 
   return (
-    <Dialog open={open} onOpenChange={handleOnOpenChange} modal>
+    <Dialog open={open} onOpenChange={handleOnOpenChange}>
       <DialogTrigger asChild>
         <Button variant="border-gradient">
           <PlusCircle />
           Add Asset
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent disableClickOutside={Boolean(assetType)}>
         <DialogHeader>
           <DialogTitle>
             {assetType ? `Add a new ${capitalCase(assetType)}` : 'Create Asset'}

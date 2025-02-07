@@ -46,14 +46,14 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset }) => {
   }, [fetchAssets, handleOnOpenChange]);
 
   return (
-    <Dialog open={open} onOpenChange={handleOnOpenChange} modal>
+    <Dialog open={open} onOpenChange={handleOnOpenChange}>
       <DialogTrigger asChild>
         <Button variant="ghost" className="text-indaco-blue">
           <Settings2 className="stroke-current" />
           Edit
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent disableClickOutside>
         <DialogHeader>
           <DialogTitle>Edit {asset.name}</DialogTitle>
           <DialogDescription>
