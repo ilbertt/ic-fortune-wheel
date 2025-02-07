@@ -40,7 +40,7 @@ export default function Page() {
       />
       <FortuneWheelContainer className="app-background h-screen w-screen">
         <FortuneWheel>
-          <FortuneWheelLogo className="p-8 xl:w-48" />
+          <FortuneWheelLogo className="p-8 lg:w-44 xl:w-48" />
           <FortuneWheelModal />
         </FortuneWheel>
       </FortuneWheelContainer>
