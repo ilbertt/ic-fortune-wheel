@@ -8,7 +8,7 @@ pub type UserId = Uuid;
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq)]
 pub enum UserRole {
     Admin,
-    User,
+    Scanner,
     Unassigned,
 }
 
@@ -43,8 +43,8 @@ impl UserProfile {
         matches!(self.role, UserRole::Admin)
     }
 
-    pub fn is_user(&self) -> bool {
-        matches!(self.role, UserRole::User)
+    pub fn is_scanner(&self) -> bool {
+        matches!(self.role, UserRole::Scanner)
     }
 }
 

@@ -9,7 +9,7 @@ pub fn user_profile() -> UserProfile {
     UserProfile {
         username: "ZurichExplorer2023".to_string(),
         timestamps: TimestampFields::new(),
-        role: UserRole::User,
+        role: UserRole::Scanner,
         principal: principal(),
     }
 }

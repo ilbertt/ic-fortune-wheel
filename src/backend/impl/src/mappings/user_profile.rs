@@ -4,7 +4,7 @@ impl From<UserRole> for backend_api::UserRole {
     fn from(value: UserRole) -> Self {
         match value {
             UserRole::Admin => backend_api::UserRole::Admin,
-            UserRole::User => backend_api::UserRole::User,
+            UserRole::Scanner => backend_api::UserRole::Scanner,
             UserRole::Unassigned => backend_api::UserRole::Unassigned,
         }
     }
@@ -14,7 +14,7 @@ impl From<backend_api::UserRole> for UserRole {
     fn from(value: backend_api::UserRole) -> Self {
         match value {
             backend_api::UserRole::Admin => UserRole::Admin,
-            backend_api::UserRole::User => UserRole::User,
+            backend_api::UserRole::Scanner => UserRole::Scanner,
             backend_api::UserRole::Unassigned => UserRole::Unassigned,
         }
     }

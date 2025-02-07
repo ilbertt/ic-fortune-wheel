@@ -145,7 +145,7 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
                 .assert_principal_not_anonymous(&calling_principal)?;
 
             self.access_control_service
-                .assert_principal_is_user_or_admin(&calling_principal)?;
+                .assert_principal_is_admin_or_scanner(&calling_principal)?;
         }
 
         self.wheel_asset_service.list_wheel_assets(request)
@@ -229,7 +229,7 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         self.access_control_service
             .assert_principal_not_anonymous(&calling_principal)?;
         self.access_control_service
-            .assert_principal_is_user_or_admin(&calling_principal)?;
+            .assert_principal_is_admin_or_scanner(&calling_principal)?;
 
         self.wheel_asset_service.update_wheel_prizes_order(request)
     }

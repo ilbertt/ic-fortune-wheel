@@ -1,6 +1,6 @@
 'use client';
 
-import { cn, renderError } from '@/lib/utils';
+import { cn, enumKey } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import {
   LayoutDashboard,
@@ -27,37 +27,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/auth-context';
-import { useCallback, useState } from 'react';
+import { Children, useCallback } from 'react';
 import { GithubIcon } from '@/components/icons';
 import { GITHUB_REPO_URL } from '@/constants';
 import { useUser } from '@/contexts/user-context';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { useToast } from '@/hooks/use-toast';
-import { PrincipalDisplay } from '@/components/principal-display';
-import { UserIdDisplay } from './user-id-display';
+import { UserIdDisplay } from '@/components/user-id-display';
 import { Loader } from '@/components/loader';
-import { extractOk } from '@/lib/api';
-import { type Err } from '@/declarations/backend/backend.did';
+import { EditUserDialog } from '@/components/edit-user-dialog';
+import { Badge } from '@/components/ui/badge';
+import { capitalCase } from 'change-case';
 
 type HeaderLinkProps = {
   title: string;
@@ -82,93 +60,6 @@ const HeaderLink: React.FC<HeaderLinkProps> = ({ title, href, icon: Icon }) => {
       <Icon />
       <span>{title}</span>
     </Link>
-  );
-};
-
-const editUserFormSchema = z.object({
-  username: z.string().min(1),
-});
-
-const EditUserDialog = () => {
-  const { actor } = useAuth();
-  const { user, fetchUser } = useUser();
-  const form = useForm<z.infer<typeof editUserFormSchema>>({
-    resolver: zodResolver(editUserFormSchema),
-    mode: 'onChange',
-    defaultValues: {
-      username: user?.username || '',
-    },
-  });
-  const { isValid: isFormValid, isSubmitting: isFormSubmitting } =
-    form.formState;
-  const { toast } = useToast();
-  const [open, setOpen] = useState(false);
-
-  const onSubmit = async (data: z.infer<typeof editUserFormSchema>) => {
-    await actor
-      .update_my_user_profile({
-        username: [data.username],
-      })
-      .then(extractOk)
-      .then(async () => {
-        await fetchUser();
-        setOpen(false);
-      })
-      .catch((e: Err) => {
-        const title = 'Error updating user';
-        console.error(title, e);
-        toast({
-          title,
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      });
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" className="text-indaco-blue size-6">
-          <PenLine />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]" disableClickOutside>
-        <DialogHeader>
-          <DialogTitle>Edit profile</DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid gap-4 py-4">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Your Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                type="submit"
-                loading={isFormSubmitting}
-                disabled={!isFormValid}
-              >
-                Save changes
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
   );
 };
 
@@ -211,19 +102,37 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
               <div className="flex flex-col space-y-1">
                 <div className="flex items-center gap-1 text-sm font-semibold">
                   {user.username}
-                  <EditUserDialog />
+                  <EditUserDialog
+                    triggerButton={
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-indaco-blue size-6"
+                      >
+                        <PenLine />
+                      </Button>
+                    }
+                  />
                 </div>
                 <p className="text-xs font-light">User ID</p>
                 <UserIdDisplay userId={user.id} />
-                <p className="text-xs font-light">Principal</p>
-                <PrincipalDisplay principal={user.principal_id} />
+                <Badge>{capitalCase(enumKey(user.role))}</Badge>
+                {/*
+                  TODO: decide if we want to display the principal
+                  <p className="text-xs font-light">Principal</p>
+                  <PrincipalDisplay principal={user.principal_id} />
+                */}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
           </>
         )}
-        {headerLinks}
-        <DropdownMenuSeparator />
+        {Children.count(headerLinks) > 0 && (
+          <>
+            {headerLinks}
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem className="[&>img]:size-4" asChild>
           <Link href={GITHUB_REPO_URL} target="_blank">
             <GithubIcon />
@@ -246,30 +155,50 @@ type DashboardHeaderProps = {
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   className,
 }) => {
-  const { isCurrentUserAdmin } = useUser();
+  const { isCurrentUserAdmin, isCurrentUserUnassigned } = useUser();
 
-  const headerLinks = (
-    <>
-      <HeaderLink
-        title="Dashboard"
-        href={ROUTES.dashboard.ROOT}
-        icon={LayoutDashboard}
-      />
-      <HeaderLink
-        title="Assets"
-        href={ROUTES.dashboard.assets}
-        icon={WalletMinimal}
-      />
-      {isCurrentUserAdmin && (
-        <HeaderLink title="Team" href={ROUTES.dashboard.team} icon={Users} />
-      )}
-      <HeaderLink
-        title="Design"
-        href={ROUTES.dashboard.design}
-        icon={Settings2}
-      />
-    </>
-  );
+  const headerLinks = [
+    ...(!isCurrentUserUnassigned
+      ? [
+          <HeaderLink
+            key="dashboard-header-link-dashboard"
+            title="Dashboard"
+            href={ROUTES.dashboard.ROOT}
+            icon={LayoutDashboard}
+          />,
+        ]
+      : []),
+    ...(isCurrentUserAdmin
+      ? [
+          <HeaderLink
+            key="dashboard-header-link-assets"
+            title="Assets"
+            href={ROUTES.dashboard.assets}
+            icon={WalletMinimal}
+          />,
+        ]
+      : []),
+    ...(isCurrentUserAdmin
+      ? [
+          <HeaderLink
+            key="dashboard-header-link-team"
+            title="Team"
+            href={ROUTES.dashboard.team}
+            icon={Users}
+          />,
+        ]
+      : []),
+    ...(!isCurrentUserUnassigned
+      ? [
+          <HeaderLink
+            key="dashboard-header-link-design"
+            title="Design"
+            href={ROUTES.dashboard.design}
+            icon={Settings2}
+          />,
+        ]
+      : []),
+  ];
 
   return (
     // we need to wrap divs in order to obtain the proper background color
@@ -285,9 +214,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {headerLinks}
         </div>
         <div className="flex flex-row items-center justify-end gap-6">
-          <Button variant="border-gradient">
-            <ScanLine /> Scanner
-          </Button>
+          {!isCurrentUserUnassigned && (
+            <Button variant="border-gradient">
+              <ScanLine /> Scanner
+            </Button>
+          )}
           <UserNav headerLinks={headerLinks} />
         </div>
       </div>

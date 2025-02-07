@@ -5,7 +5,7 @@ type Err = record {
 
 type UserRole = variant {
   admin;
-  user;
+  scanner;
   unassigned;
 };
 

@@ -4,8 +4,8 @@ use candid::{CandidType, Deserialize, Principal};
 pub enum UserRole {
     #[serde(rename = "admin")]
     Admin,
-    #[serde(rename = "user")]
-    User,
+    #[serde(rename = "scanner")]
+    Scanner,
     #[serde(rename = "unassigned")]
     Unassigned,
 }

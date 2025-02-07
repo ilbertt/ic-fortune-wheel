@@ -9,7 +9,7 @@ pub trait AccessControlService {
 
     fn assert_principal_is_admin(&self, calling_principal: &Principal) -> Result<(), ApiError>;
 
-    fn assert_principal_is_user_or_admin(
+    fn assert_principal_is_admin_or_scanner(
         &self,
         calling_principal: &Principal,
     ) -> Result<(), ApiError>;
@@ -58,7 +58,7 @@ impl<T: UserProfileRepository> AccessControlService for AccessControlServiceImpl
         Ok(())
     }
 
-    fn assert_principal_is_user_or_admin(
+    fn assert_principal_is_admin_or_scanner(
         &self,
         calling_principal: &Principal,
     ) -> Result<(), ApiError> {
@@ -72,7 +72,7 @@ impl<T: UserProfileRepository> AccessControlService for AccessControlServiceImpl
                 ))
             })?;
 
-        if !profile.is_user() && !profile.is_admin() {
+        if !profile.is_scanner() && !profile.is_admin() {
             return Err(ApiError::permission_denied(&format!(
                 "Principal {} must be an admin or a user to call this endpoint",
                 calling_principal.to_text()

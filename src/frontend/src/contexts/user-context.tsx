@@ -17,12 +17,16 @@ type UserContextType = {
   user: UserProfile | null;
   fetchUser: () => Promise<void>;
   isCurrentUserAdmin: boolean;
+  isCurrentUserScanner: boolean;
+  isCurrentUserUnassigned: boolean;
 };
 
 const UserContext = createContext<UserContextType>({
   user: null,
   fetchUser: () => Promise.reject(),
   isCurrentUserAdmin: false,
+  isCurrentUserScanner: false,
+  isCurrentUserUnassigned: false,
 });
 
 type UserProviderProps = {
@@ -86,12 +90,21 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     });
   }, [actor, toast, isCreatingUser]);
 
+  if (!user) {
+    // TODO: show a loading state
+    return null;
+  }
+
   return (
     <UserContext.Provider
       value={{
         user,
         fetchUser,
         isCurrentUserAdmin: user ? enumKey(user.role) === 'admin' : false,
+        isCurrentUserScanner: user ? enumKey(user.role) === 'scanner' : false,
+        isCurrentUserUnassigned: user
+          ? enumKey(user.role) === 'unassigned'
+          : false,
       }}
     >
       {children}

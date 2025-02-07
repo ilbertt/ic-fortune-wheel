@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { renderError } from '@/lib/utils';
+import { useUser } from '@/contexts/user-context';
 
 type WheelContextType = {
   enabledAssets: WheelAsset[];
@@ -43,6 +44,7 @@ export const WheelAssetsProvider = ({
   children,
 }: WheelAssetsProviderProps) => {
   const { actor } = useAuth();
+  const { isCurrentUserAdmin } = useUser();
   const [fetchingAssets, setFetchingAssets] = useState(false);
   const [assets, setAssets] = useState<{
     enabled: WheelAsset[];
@@ -52,6 +54,9 @@ export const WheelAssetsProvider = ({
   const { toast } = useToast();
 
   const fetchAssets = useCallback(async () => {
+    if (!isCurrentUserAdmin) {
+      return;
+    }
     return actor
       ?.list_wheel_assets({ state: [] })
       .then(extractOk)
@@ -86,15 +91,18 @@ export const WheelAssetsProvider = ({
           variant: 'destructive',
         });
       });
-  }, [actor, toast]);
+  }, [actor, toast, isCurrentUserAdmin]);
 
   useEffect(() => {
+    if (!isCurrentUserAdmin) {
+      return;
+    }
     setFetchingAssets(true);
     fetchAssets().finally(() => setFetchingAssets(false));
 
     const intervalId = setInterval(fetchAssets, refreshIntervalMs);
     return () => clearInterval(intervalId);
-  }, [fetchAssets, refreshIntervalMs]);
+  }, [fetchAssets, refreshIntervalMs, isCurrentUserAdmin]);
 
   return (
     <WheelAssetsContext.Provider
