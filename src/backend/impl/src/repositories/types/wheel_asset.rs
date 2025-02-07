@@ -232,6 +232,15 @@ impl WheelAsset {
     pub fn is_enabled(&self) -> bool {
         self.state == WheelAssetState::Enabled
     }
+
+    pub fn prize_usd_amount(&self) -> Option<f64> {
+        match self.asset_type {
+            WheelAssetType::Token {
+                prize_usd_amount, ..
+            } => Some(prize_usd_amount),
+            _ => None,
+        }
+    }
 }
 
 impl Timestamped for WheelAsset {

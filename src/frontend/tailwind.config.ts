@@ -64,6 +64,10 @@ export default {
           to: { '--angle': '360deg' },
         },
       },
+      backgroundImage: {
+        'ic-gradient':
+          'linear-gradient(to right, #6a85f1, #8282f3, #997ef4, #b078f3, #c572ef)',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

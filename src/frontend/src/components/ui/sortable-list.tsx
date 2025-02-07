@@ -33,7 +33,7 @@ function SortableItem<T>({
         whileTap={{ scale: 0.98 }}
       >
         <GripIcon
-          className="text-muted-foreground mr-2 shrink-0 cursor-grab"
+          className="text-muted-foreground mr-1 shrink-0 cursor-grab"
           onPointerDown={e => controls.start(e)}
         />
         {children}

@@ -6,6 +6,8 @@ import { SortableList } from '@/components/ui/sortable-list';
 import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
 import { Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { wheelAssetUrl } from '@/lib/wheel-asset';
 
 export const SortableWheelPrizesList = () => {
   const { prizes, setPrizes, currentPrize, spinPrizeByIndex } =
@@ -20,7 +22,18 @@ export const SortableWheelPrizesList = () => {
           className="flex min-h-8 w-full flex-row items-center justify-between gap-2"
           key={item.wheel_asset_id}
         >
-          {item.name}
+          <div className="flex flex-row items-center justify-start gap-2">
+            {item.wheel_image_path[0] && (
+              <Image
+                className="aspect-square max-h-6 max-w-6 object-contain"
+                src={wheelAssetUrl(item.wheel_image_path)!}
+                alt={item.name}
+                width={50}
+                height={50}
+              />
+            )}
+            {item.name}
+          </div>
           <div className="flex flex-col items-center gap-2 md:flex-row-reverse">
             <ColorPicker
               value={item.wheel_ui_settings.background_color_hex}

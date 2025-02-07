@@ -91,9 +91,9 @@ export default function Page() {
             </div>
           </CardHeader>
           <CardContent>
-            <FortuneWheelContainer>
-              <FortuneWheel className="size-[450px]">
-                <FortuneWheelLogo />
+            <FortuneWheelContainer className="py-4 md:py-8">
+              <FortuneWheel className="size-[250px] lg:size-[350px] xl:size-[450px]">
+                <FortuneWheelLogo className="max-w-36 lg:w-1/5 lg:p-4 xl:p-8" />
                 <FortuneWheelModal />
               </FortuneWheel>
             </FortuneWheelContainer>

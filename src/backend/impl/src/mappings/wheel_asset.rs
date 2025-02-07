@@ -144,11 +144,29 @@ pub fn map_wheel_prize(
     wheel_asset_id: WheelAssetId,
     wheel_asset: WheelAsset,
 ) -> backend_api::WheelPrize {
+    let is_token = wheel_asset.is_token();
+    let wheel_image_path = wheel_asset
+        .wheel_image_path
+        .clone()
+        .map(|el| el.to_string());
+    let modal_image_path = wheel_asset
+        .modal_image_path
+        .clone()
+        .map(|el| el.to_string())
+        .or_else(|| {
+            // if the wheel asset is a token, use the token image as the modal image
+            if is_token {
+                wheel_image_path.clone()
+            } else {
+                None
+            }
+        });
     backend_api::WheelPrize {
         wheel_asset_id: wheel_asset_id.to_string(),
-        name: wheel_asset.name,
-        wheel_image_path: wheel_asset.wheel_image_path.map(|el| el.to_string()),
-        modal_image_path: wheel_asset.modal_image_path.map(|el| el.to_string()),
-        wheel_ui_settings: wheel_asset.wheel_ui_settings.into(),
+        name: wheel_asset.clone().name,
+        wheel_image_path,
+        modal_image_path,
+        wheel_ui_settings: wheel_asset.wheel_ui_settings.clone().into(),
+        prize_usd_amount: wheel_asset.prize_usd_amount(),
     }
 }

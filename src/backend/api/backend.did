@@ -222,6 +222,7 @@ type WheelPrize = record {
   wheel_image_path : opt text;
   modal_image_path : opt text;
   wheel_ui_settings : WheelAssetUiSettings;
+  prize_usd_amount : opt float64;
 };
 
 type ListWheelPrizesResponse = variant {

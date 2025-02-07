@@ -61,3 +61,57 @@ body {
   initial-value: 0deg;
   inherits: false;
 }
+
+.prize-name-animation {
+  animation: prizeNameScaleFadeIn 0.7s ease-in forwards;
+  animation-delay: 0.8s;
+  opacity: 0;
+}
+
+@keyframes prizeNameScaleFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-image-animation {
+  animation:
+    rotateScaleIn 0.7s ease-in forwards,
+    bounceRotate 2s infinite ease-in-out 1s;
+}
+
+@keyframes rotateScaleIn {
+  from {
+    opacity: 0;
+    transform: rotate(0deg) scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes bounceRotate {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+.app-background {
+  @apply from-dark-infinite to-dark-infinite/25;
+  background-image: radial-gradient(
+    ellipse at bottom,
+    var(--tw-gradient-stops)
+  );
+}

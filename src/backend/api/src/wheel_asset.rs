@@ -155,6 +155,7 @@ pub struct WheelPrize {
     pub wheel_image_path: Option<String>,
     pub modal_image_path: Option<String>,
     pub wheel_ui_settings: WheelAssetUiSettings,
+    pub prize_usd_amount: Option<f64>,
 }
 
 pub type ListWheelPrizesResponse = Vec<WheelPrize>;
