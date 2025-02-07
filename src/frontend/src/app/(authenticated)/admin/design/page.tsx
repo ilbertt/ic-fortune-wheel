@@ -10,14 +10,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Link from 'next/link';
-import { Wheel } from 'react-custom-roulette';
-import Pointer from '@/assets/wheel/pointer.png';
 import { SortableWheelPrizesList } from './SortableWheelPrizesList';
 import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
-import { useAtom } from 'jotai';
-import { wheelAtom } from './atoms';
+import FortuneWheel from '@/components/wheel/wheel';
+import { FortuneWheelContainer } from '@/components/wheel/container';
+import { FortuneWheelLogo } from '@/components/wheel/logo';
+import { FortuneWheelModal } from '@/components/wheel/modal';
 
 export default function Page() {
   const {
@@ -28,7 +28,6 @@ export default function Page() {
     fetchPrizes,
     fetching,
   } = useWheelPrizes();
-  const [wheel, setWheel] = useAtom(wheelAtom);
 
   return (
     <PageLayout>
@@ -92,26 +91,12 @@ export default function Page() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-center">
-              {wheelData.length > 0 && (
-                // <div className="size-[400px]">
-                <Wheel
-                  mustStartSpinning={wheel.extractPrizeIndex !== null}
-                  onStopSpinning={() => setWheel({ extractPrizeIndex: null })}
-                  prizeNumber={wheel.extractPrizeIndex ?? -1}
-                  startingOptionIndex={0}
-                  data={wheelData}
-                  outerBorderWidth={0}
-                  pointerProps={{
-                    src: Pointer.src,
-                    style: {
-                      transform: 'translate(-22%, 20%) rotate(250deg)',
-                    },
-                  }}
-                />
-                // </div>
-              )}
-            </div>
+            <FortuneWheelContainer>
+              <FortuneWheel className="size-[450px]">
+                <FortuneWheelLogo />
+                <FortuneWheelModal />
+              </FortuneWheel>
+            </FortuneWheelContainer>
           </CardContent>
         </Card>
       </PageContent>

@@ -68,8 +68,14 @@ export const isWheelAssetDisabled = (
 };
 
 export const wheelAssetUrl = (
-  imagePath: WheelAsset['wheel_image_path'] | WheelAsset['modal_image_path'],
+  imagePath:
+    | WheelAsset['wheel_image_path']
+    | WheelAsset['modal_image_path']
+    | undefined,
 ): string | undefined => {
+  if (!imagePath) {
+    return undefined;
+  }
   const imgPath = imagePath[0];
   if (!imgPath) {
     return undefined;

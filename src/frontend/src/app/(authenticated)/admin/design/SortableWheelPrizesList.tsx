@@ -4,14 +4,12 @@ import { Button } from '@/components/ui/button';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { SortableList } from '@/components/ui/sortable-list';
 import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
-import { useAtom } from 'jotai';
 import { Play } from 'lucide-react';
-import { wheelAtom } from './atoms';
 import { cn } from '@/lib/utils';
 
 export const SortableWheelPrizesList = () => {
-  const { prizes, setPrizes } = useWheelPrizes();
-  const [wheel, setWheel] = useAtom(wheelAtom);
+  const { prizes, setPrizes, currentPrize, spinPrizeByIndex } =
+    useWheelPrizes();
 
   return (
     <SortableList
@@ -43,20 +41,19 @@ export const SortableWheelPrizesList = () => {
               }}
               className="size-6"
             />
-            {(wheel.extractPrizeIndex === null ||
-              wheel.extractPrizeIndex === index) && (
+            {(currentPrize === null || currentPrize.index === index) && (
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => setWheel({ extractPrizeIndex: index })}
+                onClick={() => spinPrizeByIndex(index)}
                 className={cn('disabled:opacity-100', {
                   'text-indaco-blue animate-pulse':
-                    wheel.extractPrizeIndex === index,
+                    currentPrize?.index === index,
                 })}
-                disabled={wheel.extractPrizeIndex === index}
+                disabled={currentPrize?.index === index}
               >
                 <Play />
-                {wheel.extractPrizeIndex === index ? 'Spinning...' : 'Simulate'}
+                {currentPrize?.index === index ? 'Spinning...' : 'Simulate'}
               </Button>
             )}
           </div>

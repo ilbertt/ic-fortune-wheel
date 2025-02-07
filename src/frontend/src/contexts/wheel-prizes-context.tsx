@@ -15,7 +15,7 @@ import { extractOk } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { renderError } from '@/lib/utils';
 
-const mapPrizesToWheelData = (prizes: WheelPrize[]) => {
+const mapPrizesToWheelData = (prizes: WheelPrize[]): WheelDataType[] => {
   return prizes.map(item => {
     const imageUri = wheelAssetUrl(item.wheel_image_path);
 
@@ -44,6 +44,15 @@ type WheelPrizesContextType = {
   resetChanges: () => void;
   fetchPrizes: () => Promise<void>;
   fetching: boolean;
+  spinPrizeByIndex: (index: number) => void;
+  spinPrizeById: (id: string) => void;
+  stopSpinning: () => void;
+  currentPrize: {
+    prize: WheelPrize;
+    index: number;
+  } | null;
+  resetCurrentPrize: () => void;
+  isModalOpen: boolean;
 };
 
 const WheelPrizesContext = createContext<WheelPrizesContextType>({
@@ -55,6 +64,12 @@ const WheelPrizesContext = createContext<WheelPrizesContextType>({
   resetChanges: () => {},
   fetchPrizes: () => Promise.reject(),
   fetching: false,
+  spinPrizeByIndex: () => {},
+  spinPrizeById: () => {},
+  stopSpinning: () => {},
+  currentPrize: null,
+  resetCurrentPrize: () => {},
+  isModalOpen: false,
 });
 
 export const WheelPrizesProvider = ({
@@ -71,6 +86,9 @@ export const WheelPrizesProvider = ({
   }>({ prizes: [], isDirty: false });
   const [wheelData, setWheelData] = useState<WheelDataType[]>([]);
   const { toast } = useToast();
+  const [currentPrize, setCurrentPrize] =
+    useState<WheelPrizesContextType['currentPrize']>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchPrizes = useCallback(async () => {
     setFetching(true);
@@ -160,6 +178,35 @@ export const WheelPrizesProvider = ({
     setWheelData(mapPrizesToWheelData(prizes));
   }, [prizes]);
 
+  const spinPrizeByIndex = useCallback(
+    (index: number) => {
+      const prize = prizes[index];
+      if (prize) {
+        setCurrentPrize({ prize, index });
+      }
+    },
+    [prizes],
+  );
+
+  const spinPrizeById = useCallback(
+    (id: string) => {
+      const prizeIndex = prizes.findIndex(prize => prize.wheel_asset_id === id);
+      if (prizeIndex > -1) {
+        setCurrentPrize({ prize: prizes[prizeIndex], index: prizeIndex });
+      }
+    },
+    [prizes],
+  );
+
+  const stopSpinning = useCallback(() => {
+    setIsModalOpen(true);
+  }, []);
+
+  const resetCurrentPrize = useCallback(() => {
+    setIsModalOpen(false);
+    setCurrentPrize(null);
+  }, []);
+
   useEffect(() => {
     fetchPrizes();
   }, [fetchPrizes]);
@@ -175,6 +222,12 @@ export const WheelPrizesProvider = ({
         resetChanges,
         fetchPrizes,
         fetching,
+        spinPrizeByIndex,
+        spinPrizeById,
+        stopSpinning,
+        currentPrize,
+        resetCurrentPrize,
+        isModalOpen,
       }}
     >
       {children}
