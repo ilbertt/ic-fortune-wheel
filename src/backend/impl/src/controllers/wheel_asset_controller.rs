@@ -96,6 +96,7 @@ async fn update_wheel_asset_image(request: UpdateWheelAssetImageRequest) -> ApiR
 #[query]
 #[log_errors]
 fn list_wheel_prizes() -> ApiResult<ListWheelPrizesResponse> {
+    // anyone can call this endpoint
     WheelAssetController::default().list_wheel_prizes().into()
 }
 

@@ -149,9 +149,9 @@ mod tests {
     #[rstest]
     #[case::root("/")]
     #[case::dir("/test")]
-    #[case::dir_with_uuid("/test/de2e65d0-9998-4c34-9493-f1994cb8bca4")]
+    #[case::dir_with_uuid("/test/0194e5e6-044b-7e5b-b841-c479037e38e0")]
     #[case::dir_with_subdir("/test/dir")]
-    #[case::dir_with_subdir_with_uuid("/test/dir/854c8435-af97-4eb1-b1ae-94146e2e6da8")]
+    #[case::dir_with_subdir_with_uuid("/test/dir/0194e5e6-689f-7b94-985d-f8570034c626")]
     fn http_asset_path_storable_impl(#[case] path_str: &str) {
         let path = HttpAssetPath(PathBuf::from(path_str));
         let serialized_path = path.to_bytes();

@@ -239,6 +239,33 @@ type UpdateWheelPrizesOrderResponse = variant {
   err : Err;
 };
 
+type WheelPrizeExtractionState = variant {
+  extracting;
+  extracted;
+  failed;
+};
+
+type WheelPrizeExtraction = record {
+  id : text;
+  wheel_asset_id : text;
+  extracted_by_user_id : text;
+  state : WheelPrizeExtractionState;
+};
+
+type GetWheelPrizeExtractionRequest = record {
+  wheel_prize_extraction_id : text;
+};
+
+type GetWheelPrizeExtractionResponse = variant {
+  ok : WheelPrizeExtraction;
+  err : Err;
+};
+
+type GetLastWheelPrizeExtractionResponse = variant {
+  ok : opt WheelPrizeExtraction;
+  err : Err;
+};
+
 // HTTP
 type HeaderField = record { text; text };
 
@@ -274,6 +301,9 @@ service : {
   update_wheel_asset_image: (UpdateWheelAssetImageRequest) -> (UpdateWheelAssetImageResponse);
   list_wheel_prizes: () -> (ListWheelPrizesResponse) query;
   update_wheel_prizes_order: (UpdateWheelPrizesOrderRequest) -> (UpdateWheelPrizesOrderResponse);
+
+  get_wheel_prize_extraction: (GetWheelPrizeExtractionRequest) -> (GetWheelPrizeExtractionResponse) query;
+  get_last_wheel_prize_extraction: () -> (GetLastWheelPrizeExtractionResponse) query;
 
   // HTTP
   http_request : (request : HttpRequest) -> (HttpResponse) query;
