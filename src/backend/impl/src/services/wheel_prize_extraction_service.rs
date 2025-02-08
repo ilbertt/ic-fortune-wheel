@@ -143,12 +143,12 @@ impl<A: WheelAssetRepository, P: WheelPrizeExtractionRepository, U: UserProfileR
             .collect::<Vec<_>>();
 
         let (extracted_wheel_asset_id, mut extracted_wheel_asset) = {
-            let mut rng = chacha20_rng().await?;
-            let random_index = rng.sample(Uniform::new(0, available_wheel_assets_ids.len() - 1));
+            let random_index = random_index(available_wheel_assets_ids.len()).await?;
 
             available_wheel_assets_ids
                 .get(random_index)
                 .cloned()
+                // SAFETY: the random index is in the range `[0, len)`, so it is always < `len`
                 .unwrap()
         };
 
@@ -210,4 +210,10 @@ impl<A: WheelAssetRepository, P: WheelPrizeExtractionRepository, U: UserProfileR
 
         Ok(())
     }
+}
+
+/// Extracts a random `usize` in the range `[0, max)`.
+async fn random_index(max: usize) -> Result<usize, ApiError> {
+    let mut rng = chacha20_rng().await?;
+    Ok(rng.sample(Uniform::new(0, max)))
 }
