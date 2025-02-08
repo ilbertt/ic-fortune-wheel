@@ -13,7 +13,7 @@ const UUID_BYTES_SIZE: usize = 16;
 const UUID_RNG_SIZE: usize = 10;
 
 #[derive(Debug, Clone, Copy, Default, Ord, PartialOrd, PartialEq, Eq)]
-/// A UUID v7, see https://www.ietf.org/archive/id/draft-peabody-dispatch-new-uuid-format-04.html#name-uuid-version-7
+/// A UUID v7, see https://www.ietf.org/rfc/rfc9562.html#name-uuid-version-7
 pub struct Uuid(UuidImpl);
 
 impl Uuid {
