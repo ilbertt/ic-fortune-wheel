@@ -9,15 +9,15 @@ pub fn principal() -> Principal {
 
 #[fixture]
 pub fn uuid() -> Uuid {
-    Uuid::from_random_bytes([0; 16])
+    Uuid::from_random_bytes([0; 10])
 }
 
 #[fixture]
 pub fn uuid_a() -> Uuid {
-    Uuid::try_from("1149d10b-cf9b-4e4c-9d3f-30d5ecc4928d").unwrap()
+    Uuid::try_from("0194e545-73b6-7cdc-9310-09fc095155d0").unwrap()
 }
 
 #[fixture]
 pub fn uuid_b() -> Uuid {
-    Uuid::try_from("fd83c44f-0892-4d3c-a619-10674346d338").unwrap()
+    Uuid::try_from("0194e547-afdb-7585-b899-f9e2bb3552e3").unwrap()
 }

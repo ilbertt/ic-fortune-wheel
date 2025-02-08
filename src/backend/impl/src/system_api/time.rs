@@ -1,5 +1,29 @@
 use backend_api::ApiError;
 
+pub fn get_unix_timestamp_millis() -> u64 {
+    #[cfg(target_family = "wasm")]
+    let ts = {
+        static NS_PER_MS: u64 = 1_000_000;
+
+        let timestamp_ns = ic_cdk::api::time();
+        timestamp_ns / NS_PER_MS
+    };
+
+    #[cfg(not(target_family = "wasm"))]
+    let ts = {
+        use std::time::SystemTime;
+
+        SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_millis()
+            .try_into()
+            .unwrap()
+    };
+
+    ts
+}
+
 pub fn get_date_time() -> Result<chrono::DateTime<chrono::Utc>, ApiError> {
     #[cfg(target_family = "wasm")]
     let date_time = {

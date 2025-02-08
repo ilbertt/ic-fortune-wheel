@@ -7,20 +7,23 @@ use ic_stable_structures::{storable::Bound, Storable};
 use std::{borrow::Cow, fmt::Display};
 use uuid::{Builder, Uuid as UuidImpl};
 
-use crate::system_api::with_random_bytes;
+use crate::system_api::{get_unix_timestamp_millis, with_random_bytes};
 
-const UUID_SIZE: usize = 16;
+const UUID_BYTES_SIZE: usize = 16;
+const UUID_RNG_SIZE: usize = 10;
 
 #[derive(Debug, Clone, Copy, Default, Ord, PartialOrd, PartialEq, Eq)]
+/// A UUID v7, see https://www.ietf.org/archive/id/draft-peabody-dispatch-new-uuid-format-04.html#name-uuid-version-7
 pub struct Uuid(UuidImpl);
 
 impl Uuid {
     pub async fn new() -> Result<Self, ApiError> {
-        with_random_bytes(|bytes: [u8; UUID_SIZE]| Self::from_random_bytes(bytes)).await
+        with_random_bytes(|bytes: [u8; UUID_RNG_SIZE]| Self::from_random_bytes(bytes)).await
     }
 
-    pub fn from_random_bytes(bytes: [u8; UUID_SIZE]) -> Self {
-        Self(Builder::from_random_bytes(bytes).into_uuid())
+    pub fn from_random_bytes(bytes: [u8; UUID_RNG_SIZE]) -> Self {
+        let timestamp_millis = get_unix_timestamp_millis();
+        Self(Builder::from_unix_timestamp_millis(timestamp_millis, &bytes).into_uuid())
     }
 
     pub fn max() -> Self {
@@ -84,7 +87,7 @@ impl Storable for Uuid {
     }
 
     const BOUND: Bound = Bound::Bounded {
-        max_size: UUID_SIZE as u32,
+        max_size: UUID_BYTES_SIZE as u32,
         is_fixed_size: true,
     };
 }
