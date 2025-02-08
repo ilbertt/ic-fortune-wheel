@@ -10,13 +10,16 @@ thread_local! {
     static RNG: RefCell<Option<ChaCha20Rng>> = const { RefCell::new(None) };
 }
 
+pub async fn chacha20_rng() -> Result<ChaCha20Rng, ApiError> {
+    let seed = get_seed().await?;
+    Ok(ChaCha20Rng::from_seed(seed))
+}
+
 async fn with_rng<T>(cb: impl FnOnce(&mut ChaCha20Rng) -> T) -> Result<T, ApiError> {
     let is_init = RNG.with_borrow(|rng| rng.is_some());
 
     if !is_init {
-        let seed = get_seed().await?;
-
-        let rng = ChaCha20Rng::from_seed(seed);
+        let rng = chacha20_rng().await?;
         RNG.with(|option_rng| {
             option_rng.borrow_mut().get_or_insert(rng);
         });

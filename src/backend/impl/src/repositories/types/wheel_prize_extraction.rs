@@ -1,7 +1,7 @@
 use std::{borrow::Cow, ops::RangeBounds};
 
 use backend_api::ApiError;
-use candid::{CandidType, Decode, Deserialize, Encode};
+use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use ic_stable_structures::{
     storable::{Blob, Bound},
     Storable,
@@ -30,6 +30,7 @@ impl From<&WheelPrizeExtractionState> for u8 {
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub struct WheelPrizeExtraction {
+    pub extracted_for_principal: Principal,
     pub wheel_asset_id: WheelAssetId,
     pub state: WheelPrizeExtractionState,
     pub extracted_by_user_id: UserId,

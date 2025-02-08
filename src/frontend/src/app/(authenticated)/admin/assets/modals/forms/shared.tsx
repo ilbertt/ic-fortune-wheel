@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { createAssetTypeAtom } from '../../atoms';
+import { formAssetTypeAtom } from '../../atoms';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import {
@@ -34,7 +34,7 @@ import { extractOk } from '@/lib/api';
 import { capitalCase } from 'change-case';
 
 const BackButton = () => {
-  const [assetType, setAssetType] = useAtom(createAssetTypeAtom);
+  const [assetType, setAssetType] = useAtom(formAssetTypeAtom);
 
   if (!assetType) {
     return null;
@@ -195,7 +195,7 @@ export const upsertImages = async <
 };
 
 export const PrizeFormFields = () => {
-  const assetType = useAtomValue(createAssetTypeAtom);
+  const assetType = useAtomValue(formAssetTypeAtom);
   const form = useFormContext<{
     total_amount: number;
     prize_usd_amount?: number;
@@ -259,7 +259,7 @@ export const FormFooter: React.FC<FormFooterProps> = ({
   isEdit,
   onComplete,
 }) => {
-  const assetType = useAtomValue(createAssetTypeAtom)!;
+  const assetType = useAtomValue(formAssetTypeAtom)!;
   const form = useFormContext();
   const {
     isValid: isFormValid,

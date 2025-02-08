@@ -105,6 +105,7 @@ type WheelAsset = record {
   asset_type : WheelAssetType;
   total_amount : nat32;
   used_amount : nat32;
+  available_amount : nat32;
   wheel_image_path : opt text;
   modal_image_path : opt text;
   state : WheelAssetState;
@@ -266,6 +267,20 @@ type GetLastWheelPrizeExtractionResponse = variant {
   err : Err;
 };
 
+type ListWheelPrizeExtractionsResponse = variant {
+  ok : vec WheelPrizeExtraction;
+  err : Err;
+};
+
+type CreateWheelPrizeExtractionRequest = record {
+  extract_for_principal : principal;
+};
+
+type CreateWheelPrizeExtractionResponse = variant {
+  ok;
+  err : Err;
+};
+
 // HTTP
 type HeaderField = record { text; text };
 
@@ -304,6 +319,8 @@ service : {
 
   get_wheel_prize_extraction: (GetWheelPrizeExtractionRequest) -> (GetWheelPrizeExtractionResponse) query;
   get_last_wheel_prize_extraction: () -> (GetLastWheelPrizeExtractionResponse) query;
+  list_wheel_prize_extractions: () -> (ListWheelPrizeExtractionsResponse) query;
+  create_wheel_prize_extraction: (CreateWheelPrizeExtractionRequest) -> (CreateWheelPrizeExtractionResponse);
 
   // HTTP
   http_request : (request : HttpRequest) -> (HttpResponse) query;

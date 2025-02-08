@@ -22,3 +22,4 @@ pub(super) const WHEEL_PRIZE_EXTRACTIONS_MEMORY_ID: MemoryId = MemoryId::new(7);
 pub(super) const WHEEL_PRIZE_EXTRACTION_STATE_INDEX_MEMORY_ID: MemoryId = MemoryId::new(8);
 pub(super) const WHEEL_PRIZE_EXTRACTION_ASSET_ID_INDEX_MEMORY_ID: MemoryId = MemoryId::new(8);
 pub(super) const WHEEL_PRIZE_EXTRACTION_USER_ID_INDEX_MEMORY_ID: MemoryId = MemoryId::new(9);
+pub(super) const WHEEL_PRIZE_EXTRACTION_PRINCIPAL_INDEX_MEMORY_ID: MemoryId = MemoryId::new(10);

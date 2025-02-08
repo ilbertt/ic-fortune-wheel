@@ -3,9 +3,18 @@ import type {
   WheelAssetType,
 } from '@/declarations/backend/backend.did';
 import type { ExtractKeysFromCandidEnum } from '@/lib/types/utils';
-import { atom } from 'jotai';
+import { enumKey } from '@/lib/utils';
+import { atom, type SetStateAction } from 'jotai';
 
-export const createAssetTypeAtom =
+export const formAssetTypeAtom =
   atom<ExtractKeysFromCandidEnum<WheelAssetType> | null>(null);
 
-export const wheelAssetToEdit = atom<WheelAsset | null>(null);
+export const wheelAssetToEdit = atom<
+  WheelAsset | null,
+  [SetStateAction<WheelAsset | null>],
+  void
+>(null, (get, set, update) => {
+  const newAsset =
+    typeof update === 'function' ? update(get(wheelAssetToEdit)) : update;
+  set(formAssetTypeAtom, newAsset ? enumKey(newAsset.asset_type) : null);
+});

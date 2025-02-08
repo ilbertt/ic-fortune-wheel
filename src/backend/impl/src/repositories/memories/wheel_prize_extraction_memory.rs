@@ -1,3 +1,4 @@
+use candid::Principal;
 use ic_stable_structures::BTreeMap;
 
 use crate::repositories::{
@@ -7,7 +8,8 @@ use crate::repositories::{
 
 use super::{
     memory_manager::MEMORY_MANAGER, Memory, WHEEL_PRIZE_EXTRACTIONS_MEMORY_ID,
-    WHEEL_PRIZE_EXTRACTION_ASSET_ID_INDEX_MEMORY_ID, WHEEL_PRIZE_EXTRACTION_STATE_INDEX_MEMORY_ID,
+    WHEEL_PRIZE_EXTRACTION_ASSET_ID_INDEX_MEMORY_ID,
+    WHEEL_PRIZE_EXTRACTION_PRINCIPAL_INDEX_MEMORY_ID, WHEEL_PRIZE_EXTRACTION_STATE_INDEX_MEMORY_ID,
     WHEEL_PRIZE_EXTRACTION_USER_ID_INDEX_MEMORY_ID,
 };
 
@@ -19,6 +21,8 @@ pub type WheelPrizeExtractionAssetIdIndexMemory =
     BTreeMap<WheelPrizeExtractionAssetIdKey, WheelPrizeExtractionId, Memory>;
 pub type WheelPrizeExtractionUserIdIndexMemory =
     BTreeMap<WheelPrizeExtractionUserIdKey, WheelPrizeExtractionId, Memory>;
+pub type WheelPrizeExtractionPrincipalIndexMemory =
+    BTreeMap<Principal, WheelPrizeExtractionId, Memory>;
 
 pub fn init_wheel_prize_extractions() -> WheelPrizeExtractionMemory {
     WheelPrizeExtractionMemory::init(get_wheel_prize_extractions_memory())
@@ -34,6 +38,12 @@ pub fn init_wheel_prize_extraction_asset_id_index() -> WheelPrizeExtractionAsset
 
 pub fn init_wheel_prize_extraction_user_id_index() -> WheelPrizeExtractionUserIdIndexMemory {
     WheelPrizeExtractionUserIdIndexMemory::init(get_wheel_prize_extraction_user_id_index_memory())
+}
+
+pub fn init_wheel_prize_extraction_principal_index() -> WheelPrizeExtractionPrincipalIndexMemory {
+    WheelPrizeExtractionPrincipalIndexMemory::init(
+        get_wheel_prize_extraction_principal_index_memory(),
+    )
 }
 
 fn get_wheel_prize_extractions_memory() -> Memory {
@@ -55,5 +65,12 @@ fn get_wheel_prize_extraction_user_id_index_memory() -> Memory {
     MEMORY_MANAGER.with(|m| {
         m.borrow()
             .get(WHEEL_PRIZE_EXTRACTION_USER_ID_INDEX_MEMORY_ID)
+    })
+}
+
+fn get_wheel_prize_extraction_principal_index_memory() -> Memory {
+    MEMORY_MANAGER.with(|m| {
+        m.borrow()
+            .get(WHEEL_PRIZE_EXTRACTION_PRINCIPAL_INDEX_MEMORY_ID)
     })
 }

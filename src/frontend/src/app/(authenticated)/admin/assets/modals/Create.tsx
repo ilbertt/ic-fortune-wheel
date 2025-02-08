@@ -15,14 +15,14 @@ import { Coins, PlusCircle, Shirt, Sparkle } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { AssetTokenForm } from './forms/token';
 import { useAtom } from 'jotai';
-import { createAssetTypeAtom } from '../atoms';
+import { formAssetTypeAtom } from '../atoms';
 import { AssetGadgetForm } from './forms/gadget';
 import { useWheelAssets } from '@/contexts/wheel-assets-context';
 
 export const CreateAssetModal: React.FC = () => {
   const { fetchAssets } = useWheelAssets();
   const [open, setOpen] = useState(false);
-  const [assetType, setAssetType] = useAtom(createAssetTypeAtom);
+  const [assetType, setAssetType] = useAtom(formAssetTypeAtom);
 
   const handleOnComplete = useCallback(async () => {
     await fetchAssets();

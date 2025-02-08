@@ -28,6 +28,7 @@ pub fn map_wheel_prize_extraction(
 ) -> backend_api::WheelPrizeExtraction {
     backend_api::WheelPrizeExtraction {
         id: wheel_prize_extraction_id.to_string(),
+        extracted_for_principal: wheel_prize_extraction.extracted_for_principal,
         wheel_asset_id: wheel_prize_extraction.wheel_asset_id.to_string(),
         extracted_by_user_id: wheel_prize_extraction.extracted_by_user_id.to_string(),
         state: wheel_prize_extraction.state.into(),

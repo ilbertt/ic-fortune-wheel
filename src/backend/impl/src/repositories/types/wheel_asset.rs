@@ -112,7 +112,7 @@ impl WheelAssetType {
                 exchange_rate_symbol,
                 ..
             } => exchange_rate_symbol.is_some(),
-            _ => false,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => false,
         }
     }
 
@@ -132,30 +132,32 @@ impl WheelAssetType {
                 .as_ref()
                 .map(|el| ((el.balance as f64) / 10f64.powi(ledger_config.decimals as i32)))
                 .unwrap_or(0f64),
-            _ => 0f64,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => 0f64,
         }
     }
 
-    fn token_total_usd_amount(&self) -> f64 {
+    fn token_total_usd_amount(&self) -> Option<f64> {
         let balance = self.token_balance();
         match self {
             WheelAssetType::Token { usd_price, .. } => {
-                balance * usd_price.as_ref().map(|el| el.usd_price).unwrap_or(0f64)
+                usd_price.as_ref().map(|el| balance * el.usd_price)
             }
-            _ => 0f64,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
         }
     }
 
-    pub fn available_draws_count(&self) -> u32 {
-        if let WheelAssetType::Token {
-            prize_usd_amount, ..
-        } = self
-        {
-            let total_usd_amount = self.token_total_usd_amount();
+    pub fn available_token_draws_count(&self) -> Option<u32> {
+        match self {
+            WheelAssetType::Token {
+                prize_usd_amount, ..
+            } => self.token_total_usd_amount().map(|total_usd_amount| {
+                if &total_usd_amount < prize_usd_amount {
+                    return 0;
+                }
 
-            (total_usd_amount / prize_usd_amount).trunc() as u32
-        } else {
-            0
+                (total_usd_amount / prize_usd_amount).trunc() as u32
+            }),
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
         }
     }
 }
@@ -238,8 +240,27 @@ impl WheelAsset {
             WheelAssetType::Token {
                 prize_usd_amount, ..
             } => Some(prize_usd_amount),
-            _ => None,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
         }
+    }
+
+    pub fn available_quantity(&self) -> u32 {
+        let available_qty = self.total_amount.saturating_sub(self.used_amount);
+        match self.asset_type {
+            WheelAssetType::Token { .. } => {
+                let token_qty = self.asset_type.available_token_draws_count().unwrap_or(0);
+                std::cmp::min(token_qty, available_qty)
+            }
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => available_qty,
+        }
+    }
+
+    pub fn use_one(&mut self) -> Result<(), ApiError> {
+        if self.available_quantity() == 0 {
+            return Err(ApiError::internal("Asset available quantity is 0"));
+        }
+        self.used_amount += 1;
+        Ok(())
     }
 }
 
@@ -591,7 +612,7 @@ mod tests {
     #[case((1_000_000_000, 8, 10.1, 10.0, 10))]
     #[case((100_000_000, 8, 1.3, 0.5, 2))]
     #[case((200_000_000, 6, 1.0, 1.0, 200))]
-    fn available_draws_count_token(
+    fn available_token_draws_count(
         #[case] (
             initial_balance,
             initial_decimals,
@@ -615,7 +636,10 @@ mod tests {
             _ => unreachable!(),
         };
         assert_eq!(
-            wheel_asset.asset_type.available_draws_count(),
+            wheel_asset
+                .asset_type
+                .available_token_draws_count()
+                .unwrap(),
             expected_draws
         );
     }
@@ -623,7 +647,149 @@ mod tests {
     #[rstest]
     #[case::gadget(wheel_asset_gadget())]
     #[case::jackpot(wheel_asset_jackpot())]
-    fn available_draws_count_others(#[case] wheel_asset: WheelAsset) {
-        assert_eq!(wheel_asset.asset_type.available_draws_count(), 0);
+    fn available_token_draws_count_others(#[case] wheel_asset: WheelAsset) {
+        assert_eq!(wheel_asset.asset_type.available_token_draws_count(), None);
+    }
+
+    #[rstest]
+    #[case((1, 10, 0, 1))]
+    #[case((100, 0, 0, 0))]
+    #[case((1, 10, 8, 1))]
+    #[case((10, 5, 0, 5))]
+    #[case((10, 20, 11, 9))]
+    #[case((10, 20, 9, 10))]
+    fn available_quantity_token(
+        #[case] (avail_token_draws, total_amount, used_amount, expected_quantity): (
+            u128,
+            u32,
+            u32,
+            u32,
+        ),
+    ) {
+        const DECIMALS: u8 = 8;
+        const PRICE_USD_AMOUNT: f64 = 1.0;
+        const PRIZE_USD_AMOUNT: f64 = PRICE_USD_AMOUNT;
+        let balance = avail_token_draws * 10u128.pow(DECIMALS as u32);
+
+        let mut wheel_asset = wheel_asset_token();
+        wheel_asset.total_amount = total_amount;
+        wheel_asset.used_amount = used_amount;
+        wheel_asset.set_latest_balance(WheelAssetTokenBalance::new(balance));
+        wheel_asset.set_latest_price(WheelAssetTokenPrice::new(PRICE_USD_AMOUNT));
+        match &mut wheel_asset.asset_type {
+            WheelAssetType::Token {
+                ledger_config,
+                prize_usd_amount,
+                ..
+            } => {
+                ledger_config.decimals = DECIMALS;
+                *prize_usd_amount = PRIZE_USD_AMOUNT;
+
+                // just to check if our parameters are correct
+                assert_eq!(
+                    wheel_asset.asset_type.token_total_usd_amount().unwrap(),
+                    avail_token_draws as f64 * PRICE_USD_AMOUNT
+                );
+            }
+            _ => unreachable!(),
+        };
+
+        assert_eq!(wheel_asset.available_quantity(), expected_quantity);
+    }
+
+    #[rstest]
+    #[case::gadget((wheel_asset_gadget(), 100, 0, 100))]
+    #[case::gadget((wheel_asset_gadget(), 100, 101, 0))]
+    #[case::gadget((wheel_asset_gadget(), 100, 80, 20))]
+    #[case::jackpot((wheel_asset_jackpot(), 100, 0, 100))]
+    #[case::jackpot((wheel_asset_jackpot(), 100, 101, 0))]
+    #[case::jackpot((wheel_asset_jackpot(), 100, 80, 20))]
+    fn available_quantity_others(
+        #[case] (mut wheel_asset, total_amount, used_amount, expected_quantity): (
+            WheelAsset,
+            u32,
+            u32,
+            u32,
+        ),
+    ) {
+        wheel_asset.total_amount = total_amount;
+        wheel_asset.used_amount = used_amount;
+        assert_eq!(wheel_asset.available_quantity(), expected_quantity);
+    }
+
+    #[rstest]
+    #[case((1, 10, 0, 1))]
+    #[case((100, 0, 0, 0))]
+    #[case((1, 10, 8, 1))]
+    #[case((10, 5, 0, 5))]
+    #[case((10, 20, 11, 9))]
+    #[case((10, 20, 9, 10))]
+    fn use_one_token(
+        #[case] (avail_token_draws, total_amount, used_amount, expected_quantity): (
+            u128,
+            u32,
+            u32,
+            u32,
+        ),
+    ) {
+        const DECIMALS: u8 = 8;
+        const PRICE_USD_AMOUNT: f64 = 1.0;
+        const PRIZE_USD_AMOUNT: f64 = PRICE_USD_AMOUNT;
+        let balance = avail_token_draws * 10u128.pow(DECIMALS as u32);
+
+        let mut wheel_asset = wheel_asset_token();
+        wheel_asset.total_amount = total_amount;
+        wheel_asset.used_amount = used_amount;
+        wheel_asset.set_latest_balance(WheelAssetTokenBalance::new(balance));
+        wheel_asset.set_latest_price(WheelAssetTokenPrice::new(PRICE_USD_AMOUNT));
+        match &mut wheel_asset.asset_type {
+            WheelAssetType::Token {
+                ledger_config,
+                prize_usd_amount,
+                ..
+            } => {
+                ledger_config.decimals = DECIMALS;
+                *prize_usd_amount = PRIZE_USD_AMOUNT;
+
+                // just to check if our parameters are correct
+                assert_eq!(
+                    wheel_asset.asset_type.token_total_usd_amount().unwrap(),
+                    avail_token_draws as f64 * PRICE_USD_AMOUNT
+                );
+            }
+            _ => unreachable!(),
+        };
+
+        if expected_quantity > 0 {
+            wheel_asset.use_one().unwrap();
+            assert_eq!(wheel_asset.used_amount, used_amount + 1);
+        } else {
+            let err = wheel_asset.use_one().unwrap_err();
+            assert_eq!(wheel_asset.used_amount, used_amount);
+            assert_eq!(err.message(), "Asset available quantity is 0");
+        }
+    }
+
+    #[rstest]
+    #[case::gadget(fixtures::wheel_asset_gadget())]
+    #[case::jackpot(fixtures::wheel_asset_jackpot())]
+    fn use_one_others(#[case] mut wheel_asset: WheelAsset) {
+        const TOTAL_AMOUNT: u32 = 2;
+        wheel_asset.total_amount = TOTAL_AMOUNT;
+        wheel_asset.used_amount = 0;
+        wheel_asset.use_one().unwrap();
+        assert_eq!(wheel_asset.total_amount, TOTAL_AMOUNT);
+        assert_eq!(wheel_asset.used_amount, 1);
+        wheel_asset.use_one().unwrap();
+        assert_eq!(wheel_asset.total_amount, TOTAL_AMOUNT);
+        assert_eq!(wheel_asset.used_amount, 2);
+        let err = wheel_asset.use_one().unwrap_err();
+        assert_eq!(wheel_asset.total_amount, TOTAL_AMOUNT);
+        assert_eq!(wheel_asset.used_amount, 2);
+        assert_eq!(err.message(), "Asset available quantity is 0");
+        wheel_asset.total_amount = 0;
+        let err = wheel_asset.use_one().unwrap_err();
+        assert_eq!(wheel_asset.total_amount, 0);
+        assert_eq!(err.message(), "Asset available quantity is 0");
     }
 }

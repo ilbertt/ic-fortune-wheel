@@ -1,11 +1,11 @@
 use std::{path::Path, time::Duration};
 
 use backend_api::{
-    ApiError, CreateWheelAssetRequest, CreateWheelAssetResponse, DeleteWheelAssetRequest,
-    ListWheelAssetsRequest, ListWheelAssetsResponse, ListWheelPrizesResponse,
-    UpdateWheelAssetImageConfig, UpdateWheelAssetImageRequest, UpdateWheelAssetRequest,
-    UpdateWheelAssetTypeConfig, UpdateWheelPrizesOrderRequest, WheelAssetImageConfig,
-    WheelAssetUiSettings,
+    ApiError, CreateWheelAssetRequest, CreateWheelAssetResponse, CreateWheelAssetTypeConfig,
+    DeleteWheelAssetRequest, ListWheelAssetsRequest, ListWheelAssetsResponse,
+    ListWheelPrizesResponse, UpdateWheelAssetImageConfig, UpdateWheelAssetImageRequest,
+    UpdateWheelAssetRequest, UpdateWheelAssetTypeConfig, UpdateWheelPrizesOrderRequest,
+    WheelAssetImageConfig, WheelAssetUiSettings,
 };
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{println, spawn};
@@ -28,6 +28,10 @@ use crate::{
 const WHEEL_ASSET_NAME_MAX_LENGTH: usize = 100;
 const WHEEL_ASSET_IMAGES_HTTP_PATH: &str = "/images/wheel";
 const WHEEL_ASSET_IMAGES_ALLOWED_CONTENT_TYPES: [&str; 2] = ["image/png", "image/svg+xml"];
+/// The minimum amount (in USD) for a wheel token asset prize
+pub const MINIMUM_WHEEL_ASSET_TOKEN_PRIZE_USD_AMOUNT: f64 = 0.5;
+/// The maximum amount (in USD) for a wheel token asset prize
+pub const MAXIMUM_WHEEL_ASSET_TOKEN_PRIZE_USD_AMOUNT: f64 = 500.0;
 lazy_static! {
     static ref WHEEL_ASSET_UI_SETTING_BACKGROUND_COLOR_HEX_REGEX: Regex =
         Regex::new(r"^#(?:[0-9a-fA-F]{3}){1,2}$").unwrap();
@@ -400,9 +404,18 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
                 "Name must be at most {WHEEL_ASSET_NAME_MAX_LENGTH} characters"
             )));
         }
+
         if let Some(wheel_ui_settings) = &request.wheel_ui_settings {
             self.validate_wheel_ui_settings(wheel_ui_settings)?;
         }
+
+        match &request.asset_type_config {
+            CreateWheelAssetTypeConfig::Token {
+                prize_usd_amount, ..
+            } => self.validate_wheel_asset_token_prize_usd_amount(prize_usd_amount)?,
+            CreateWheelAssetTypeConfig::Gadget { .. } | CreateWheelAssetTypeConfig::Jackpot => {}
+        }
+
         Ok(())
     }
 
@@ -432,11 +445,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
                     prize_usd_amount, ..
                 } => {
                     if let Some(prize_usd_amount) = prize_usd_amount {
-                        if *prize_usd_amount <= 0.0 {
-                            return Err(ApiError::invalid_argument(
-                                "Prize USD amount must be greater than 0",
-                            ));
-                        }
+                        self.validate_wheel_asset_token_prize_usd_amount(prize_usd_amount)?;
                     }
                 }
                 UpdateWheelAssetTypeConfig::Gadget { .. } | UpdateWheelAssetTypeConfig::Jackpot => {
@@ -493,6 +502,20 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             )));
         }
 
+        Ok(())
+    }
+
+    fn validate_wheel_asset_token_prize_usd_amount(&self, amount: &f64) -> Result<(), ApiError> {
+        if amount < &MINIMUM_WHEEL_ASSET_TOKEN_PRIZE_USD_AMOUNT {
+            return Err(ApiError::invalid_argument(&format!(
+                "Prize USD amount must be greater than {MINIMUM_WHEEL_ASSET_TOKEN_PRIZE_USD_AMOUNT}"
+            )));
+        }
+        if amount > &MAXIMUM_WHEEL_ASSET_TOKEN_PRIZE_USD_AMOUNT {
+            return Err(ApiError::invalid_argument(&format!(
+                "Prize USD amount must be less than {MAXIMUM_WHEEL_ASSET_TOKEN_PRIZE_USD_AMOUNT}"
+            )));
+        }
         Ok(())
     }
 

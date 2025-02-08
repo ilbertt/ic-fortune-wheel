@@ -1,10 +1,11 @@
 use backend_api::{
-    ApiError, ApiResult, GetLastWheelPrizeExtractionResponse, GetWheelPrizeExtractionRequest,
-    GetWheelPrizeExtractionResponse,
+    ApiError, ApiResult, CreateWheelPrizeExtractionRequest, GetLastWheelPrizeExtractionResponse,
+    GetWheelPrizeExtractionRequest, GetWheelPrizeExtractionResponse,
+    ListWheelPrizeExtractionsResponse,
 };
 use backend_macros::log_errors;
 use candid::Principal;
-use ic_cdk::{caller, query};
+use ic_cdk::{caller, query, update};
 
 use crate::{
     repositories::{
@@ -37,6 +38,29 @@ fn get_last_wheel_prize_extraction() -> ApiResult<GetLastWheelPrizeExtractionRes
         .into()
 }
 
+#[query]
+#[log_errors]
+fn list_wheel_prize_extractions() -> ApiResult<ListWheelPrizeExtractionsResponse> {
+    let calling_principal = caller();
+
+    WheelPrizeExtractionController::default()
+        .list_wheel_prize_extractions(&calling_principal)
+        .into()
+}
+
+#[update]
+#[log_errors]
+async fn create_wheel_prize_extraction(
+    request: CreateWheelPrizeExtractionRequest,
+) -> ApiResult<()> {
+    let calling_principal = caller();
+
+    WheelPrizeExtractionController::default()
+        .create_wheel_prize_extraction(&calling_principal, request)
+        .await
+        .into()
+}
+
 pub struct WheelPrizeExtractionController<A: AccessControlService, W: WheelPrizeExtractionService> {
     access_control_service: A,
     wheel_prize_extraction_service: W,
@@ -48,6 +72,7 @@ impl Default
         WheelPrizeExtractionServiceImpl<
             WheelAssetRepositoryImpl,
             WheelPrizeExtractionRepositoryImpl,
+            UserProfileRepositoryImpl,
         >,
     >
 {
@@ -60,7 +85,7 @@ impl Default
 }
 
 impl<A: AccessControlService, W: WheelPrizeExtractionService> WheelPrizeExtractionController<A, W> {
-    pub fn get_wheel_prize_extraction(
+    fn get_wheel_prize_extraction(
         &self,
         calling_principal: &Principal,
         request: GetWheelPrizeExtractionRequest,
@@ -72,10 +97,34 @@ impl<A: AccessControlService, W: WheelPrizeExtractionService> WheelPrizeExtracti
             .get_wheel_prize_extraction(request)
     }
 
-    pub fn get_last_wheel_prize_extraction(
+    fn get_last_wheel_prize_extraction(
         &self,
     ) -> Result<GetLastWheelPrizeExtractionResponse, ApiError> {
         self.wheel_prize_extraction_service
             .get_last_wheel_prize_extraction()
+    }
+
+    fn list_wheel_prize_extractions(
+        &self,
+        calling_principal: &Principal,
+    ) -> Result<ListWheelPrizeExtractionsResponse, ApiError> {
+        self.access_control_service
+            .assert_principal_is_admin_or_scanner(calling_principal)?;
+
+        self.wheel_prize_extraction_service
+            .list_wheel_prize_extractions()
+    }
+
+    async fn create_wheel_prize_extraction(
+        &self,
+        calling_principal: &Principal,
+        request: CreateWheelPrizeExtractionRequest,
+    ) -> Result<(), ApiError> {
+        self.access_control_service
+            .assert_principal_is_admin_or_scanner(calling_principal)?;
+
+        self.wheel_prize_extraction_service
+            .create_wheel_prize_extraction(calling_principal, request)
+            .await
     }
 }

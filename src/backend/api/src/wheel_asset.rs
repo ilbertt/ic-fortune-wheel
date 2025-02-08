@@ -55,6 +55,7 @@ pub struct WheelAsset {
     pub asset_type: WheelAssetType,
     pub total_amount: u32,
     pub used_amount: u32,
+    pub available_amount: u32,
     pub wheel_image_path: Option<String>,
     pub modal_image_path: Option<String>,
     pub state: WheelAssetState,

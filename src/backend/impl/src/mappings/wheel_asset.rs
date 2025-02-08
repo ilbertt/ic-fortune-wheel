@@ -72,7 +72,7 @@ impl From<WheelAssetType> for backend_api::WheelAssetType {
                 usd_price: usd_price.map(|el| el.into()),
                 balance: balance.map(|el| el.into()),
                 prize_usd_amount,
-                available_draws_count: asset_type.available_draws_count(),
+                available_draws_count: asset_type.available_token_draws_count().unwrap_or(0),
             },
             WheelAssetType::Gadget { article_type } => {
                 backend_api::WheelAssetType::Gadget { article_type }
@@ -127,12 +127,14 @@ pub fn map_wheel_asset(
     wheel_asset_id: WheelAssetId,
     wheel_asset: WheelAsset,
 ) -> backend_api::WheelAsset {
+    let available_amount = wheel_asset.available_quantity();
     backend_api::WheelAsset {
         id: wheel_asset_id.to_string(),
         name: wheel_asset.name,
         asset_type: wheel_asset.asset_type.into(),
         total_amount: wheel_asset.total_amount,
         used_amount: wheel_asset.used_amount,
+        available_amount,
         state: wheel_asset.state.into(),
         wheel_image_path: wheel_asset.wheel_image_path.map(|el| el.to_string()),
         modal_image_path: wheel_asset.modal_image_path.map(|el| el.to_string()),

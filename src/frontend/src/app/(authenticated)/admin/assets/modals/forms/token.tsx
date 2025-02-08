@@ -95,7 +95,7 @@ const createAssetTokenFormSchema = z.object<
   }, z.custom<Principal>()),
   decimals: z.coerce.number().min(0).max(20),
   exchange_rate_symbol: z.string().optional(),
-  prize_usd_amount: z.number().min(0).max(500),
+  prize_usd_amount: z.number().min(0.5).max(500),
   total_amount: z.coerce.number().min(0).max(1_000),
   modal_image_file: z.instanceof(File).optional(),
   wheel_image_file: z.instanceof(File).optional(),

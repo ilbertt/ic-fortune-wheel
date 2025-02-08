@@ -1,12 +1,15 @@
 use std::cell::RefCell;
 
 use backend_api::ApiError;
+use candid::Principal;
 
 use super::{
-    init_wheel_prize_extraction_asset_id_index, init_wheel_prize_extraction_state_index,
-    init_wheel_prize_extraction_user_id_index, init_wheel_prize_extractions, WheelPrizeExtraction,
-    WheelPrizeExtractionAssetIdIndexMemory, WheelPrizeExtractionAssetIdKey, WheelPrizeExtractionId,
-    WheelPrizeExtractionMemory, WheelPrizeExtractionState as WheelPrizeExtractionStateEnum,
+    init_wheel_prize_extraction_asset_id_index, init_wheel_prize_extraction_principal_index,
+    init_wheel_prize_extraction_state_index, init_wheel_prize_extraction_user_id_index,
+    init_wheel_prize_extractions, WheelPrizeExtraction, WheelPrizeExtractionAssetIdIndexMemory,
+    WheelPrizeExtractionAssetIdKey, WheelPrizeExtractionId, WheelPrizeExtractionMemory,
+    WheelPrizeExtractionPrincipalIndexMemory,
+    WheelPrizeExtractionState as WheelPrizeExtractionStateEnum,
     WheelPrizeExtractionStateIndexMemory, WheelPrizeExtractionStateKey,
     WheelPrizeExtractionStateRange, WheelPrizeExtractionUserIdIndexMemory,
     WheelPrizeExtractionUserIdKey,
@@ -24,6 +27,13 @@ pub trait WheelPrizeExtractionRepository {
         &self,
         state: Option<&'a WheelPrizeExtractionStateEnum>,
     ) -> Option<(WheelPrizeExtractionId, WheelPrizeExtraction)>;
+
+    fn get_wheel_prize_extraction_by_principal(
+        &self,
+        principal: &Principal,
+    ) -> Option<WheelPrizeExtraction>;
+
+    fn list_wheel_prize_extractions(&self) -> Vec<(WheelPrizeExtractionId, WheelPrizeExtraction)>;
 
     async fn create_wheel_prize_extraction(
         &self,
@@ -58,11 +68,27 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
                 s.wheel_prize_extraction_state_index
                     .range(state_range)
                     .last()
-                    // SAFETY: wheel prize extraction with this id should always exists
+                    // SAFETY: wheel prize extraction with this id should always exist
                     .map(|(_, id)| (id, s.wheel_prize_extractions.get(&id).unwrap()))
             }
             None => s.wheel_prize_extractions.last_key_value(),
         })
+    }
+
+    fn get_wheel_prize_extraction_by_principal(
+        &self,
+        principal: &Principal,
+    ) -> Option<WheelPrizeExtraction> {
+        STATE.with_borrow(|s| {
+            s.wheel_prize_extraction_principal_index
+                .get(principal)
+                // SAFETY: wheel prize extraction with this id should always exist
+                .map(|id| s.wheel_prize_extractions.get(&id).unwrap())
+        })
+    }
+
+    fn list_wheel_prize_extractions(&self) -> Vec<(WheelPrizeExtractionId, WheelPrizeExtraction)> {
+        STATE.with_borrow(|s| s.wheel_prize_extractions.iter().rev().collect())
     }
 
     async fn create_wheel_prize_extraction(
@@ -75,6 +101,7 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
             WheelPrizeExtractionAssetIdKey::new(wheel_prize_extraction.wheel_asset_id, id)?;
         let user_id_key =
             WheelPrizeExtractionUserIdKey::new(wheel_prize_extraction.extracted_by_user_id, id)?;
+        let principal_key = wheel_prize_extraction.extracted_for_principal;
 
         STATE.with_borrow_mut(|s| {
             s.wheel_prize_extractions.insert(id, wheel_prize_extraction);
@@ -83,6 +110,8 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
                 .insert(asset_id_key, id);
             s.wheel_prize_extraction_user_id_index
                 .insert(user_id_key, id);
+            s.wheel_prize_extraction_principal_index
+                .insert(principal_key, id);
         });
 
         Ok(id)
@@ -100,6 +129,7 @@ struct WheelPrizeExtractionState {
     wheel_prize_extraction_state_index: WheelPrizeExtractionStateIndexMemory,
     wheel_prize_extraction_asset_id_index: WheelPrizeExtractionAssetIdIndexMemory,
     wheel_prize_extraction_user_id_index: WheelPrizeExtractionUserIdIndexMemory,
+    wheel_prize_extraction_principal_index: WheelPrizeExtractionPrincipalIndexMemory,
 }
 
 impl Default for WheelPrizeExtractionState {
@@ -109,6 +139,7 @@ impl Default for WheelPrizeExtractionState {
             wheel_prize_extraction_state_index: init_wheel_prize_extraction_state_index(),
             wheel_prize_extraction_asset_id_index: init_wheel_prize_extraction_asset_id_index(),
             wheel_prize_extraction_user_id_index: init_wheel_prize_extraction_user_id_index(),
+            wheel_prize_extraction_principal_index: init_wheel_prize_extraction_principal_index(),
         }
     }
 }
