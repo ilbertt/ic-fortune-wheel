@@ -241,8 +241,8 @@ type UpdateWheelPrizesOrderResponse = variant {
 };
 
 type WheelPrizeExtractionState = variant {
-  extracting;
-  extracted;
+  processing;
+  completed;
   failed;
 };
 

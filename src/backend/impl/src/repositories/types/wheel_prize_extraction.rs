@@ -13,16 +13,16 @@ pub type WheelPrizeExtractionId = Uuid;
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub enum WheelPrizeExtractionState {
-    Extracting,
-    Extracted,
+    Processing,
+    Completed,
     Failed,
 }
 
 impl From<&WheelPrizeExtractionState> for u8 {
     fn from(state: &WheelPrizeExtractionState) -> u8 {
         match state {
-            WheelPrizeExtractionState::Extracting => 1,
-            WheelPrizeExtractionState::Extracted => 2,
+            WheelPrizeExtractionState::Processing => 1,
+            WheelPrizeExtractionState::Completed => 2,
             WheelPrizeExtractionState::Failed => 3,
         }
     }
@@ -238,8 +238,8 @@ mod tests {
     }
 
     #[rstest]
-    #[case::extracting(WheelPrizeExtractionState::Extracting)]
-    #[case::extracted(WheelPrizeExtractionState::Extracted)]
+    #[case::processing(WheelPrizeExtractionState::Processing)]
+    #[case::completed(WheelPrizeExtractionState::Completed)]
     #[case::failed(WheelPrizeExtractionState::Failed)]
     fn wheel_prize_extraction_state_key_storable_impl(#[case] state: WheelPrizeExtractionState) {
         let wheel_prize_extraction_id = fixtures::uuid();

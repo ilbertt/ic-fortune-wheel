@@ -5,11 +5,11 @@ use crate::repositories::{
 impl From<&WheelPrizeExtractionState> for backend_api::WheelPrizeExtractionState {
     fn from(state: &WheelPrizeExtractionState) -> Self {
         match state {
-            WheelPrizeExtractionState::Extracting => {
-                backend_api::WheelPrizeExtractionState::Extracting
+            WheelPrizeExtractionState::Processing => {
+                backend_api::WheelPrizeExtractionState::Processing
             }
-            WheelPrizeExtractionState::Extracted => {
-                backend_api::WheelPrizeExtractionState::Extracted
+            WheelPrizeExtractionState::Completed => {
+                backend_api::WheelPrizeExtractionState::Completed
             }
             WheelPrizeExtractionState::Failed => backend_api::WheelPrizeExtractionState::Failed,
         }

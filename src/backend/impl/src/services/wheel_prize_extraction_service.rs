@@ -85,7 +85,7 @@ impl<A: WheelAssetRepository, P: WheelPrizeExtractionRepository, U: UserProfileR
     fn get_last_wheel_prize_extraction(
         &self,
     ) -> Result<GetLastWheelPrizeExtractionResponse, ApiError> {
-        let state = WheelPrizeExtractionState::Extracted;
+        let state = WheelPrizeExtractionState::Completed;
         let last_extraction = self
             .wheel_prize_extraction_repository
             .get_last_wheel_prize_extraction(Some(&state))
@@ -124,7 +124,7 @@ impl<A: WheelAssetRepository, P: WheelPrizeExtractionRepository, U: UserProfileR
             ));
         }
 
-        let extracting_user_id = self
+        let extracted_by_user_id = self
             .user_profile_repository
             .get_user_by_principal(calling_principal)
             .ok_or_else(|| {
@@ -161,8 +161,8 @@ impl<A: WheelAssetRepository, P: WheelPrizeExtractionRepository, U: UserProfileR
         let wheel_prize_extraction = WheelPrizeExtraction {
             extracted_for_principal: request.extract_for_principal,
             wheel_asset_id: extracted_wheel_asset_id,
-            state: WheelPrizeExtractionState::Extracted,
-            extracted_by_user_id: extracting_user_id,
+            state: WheelPrizeExtractionState::Processing,
+            extracted_by_user_id,
             timestamps: TimestampFields::new(),
         };
 

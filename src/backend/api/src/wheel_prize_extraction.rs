@@ -2,10 +2,10 @@ use candid::{CandidType, Deserialize, Principal};
 
 #[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
 pub enum WheelPrizeExtractionState {
-    #[serde(rename = "extracting")]
-    Extracting,
-    #[serde(rename = "extracted")]
-    Extracted,
+    #[serde(rename = "processing")]
+    Processing,
+    #[serde(rename = "completed")]
+    Completed,
     #[serde(rename = "failed")]
     Failed,
 }
