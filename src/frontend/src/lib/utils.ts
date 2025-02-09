@@ -10,9 +10,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const appVersion = process.env.NEXT_PUBLIC_VERSION as string;
+
 export const printVersionToConsole = () => {
   // eslint-disable-next-line no-console
-  console.log('Version:', process.env.NEXT_PUBLIC_VERSION);
+  console.log('Version:', appVersion);
 };
 
 export const renderError = (err: ApiError): string =>

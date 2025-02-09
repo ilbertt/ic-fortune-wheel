@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
     DFX_NETWORK: dfxEnvList.DFX_NETWORK,
     CANISTER_ID_BACKEND: dfxEnvList.CANISTER_ID_BACKEND,
     CANISTER_ID_INTERNET_IDENTITY: dfxEnvList.CANISTER_ID_INTERNET_IDENTITY,
-    NEXT_PUBLIC_VERSION: `${version}+${lastCommitShortSha}`,
+    NEXT_PUBLIC_VERSION: `v${version}+${lastCommitShortSha}`,
     NEXT_PUBLIC_IC_HOST:
       dfxEnvList.DFX_NETWORK === 'ic'
         ? 'https://icp-api.io'

@@ -1,8 +1,9 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { appVersion, cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import {
+  History,
   LayoutDashboard,
   LogOut,
   PenLine,
@@ -132,15 +133,19 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
             <DropdownMenuSeparator />
           </>
         )}
+        <DropdownMenuItem className="text-indaco-blue" onClick={handleLogout}>
+          <LogOut /> Log out
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem className="[&>img]:size-4" asChild>
           <Link href={GITHUB_REPO_URL} target="_blank">
             <GithubIcon />
             GitHub
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-indaco-blue" onClick={handleLogout}>
-          <LogOut /> Log out
+        <DropdownMenuItem className="text-xs" disabled>
+          <History />
+          <code>{appVersion}</code>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
