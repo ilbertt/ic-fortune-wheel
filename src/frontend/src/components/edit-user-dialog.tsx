@@ -29,6 +29,11 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { type Err } from '@/declarations/backend/backend.did';
+import { UserIdDisplay } from '@/components/user-id-display';
+import { Label } from '@/components/ui/label';
+import { UserRoleBadge } from './user-role-badge';
+import { ROUTES } from '@/lib/routes';
+import Link from 'next/link';
 
 const editUserFormSchema = z.object({
   username: z.string().min(1),
@@ -89,6 +94,24 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid gap-4 py-4">
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label>Your ID</Label>
+                <UserIdDisplay userId={user?.id} />
+              </div>
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label>Your Role</Label>
+                {user && <UserRoleBadge userRole={user.role} />}
+                <p className="text-muted-foreground text-[0.8rem]">
+                  The role can be changed by admins in the{' '}
+                  <Link
+                    href={ROUTES.dashboard.team}
+                    className="text-indaco-blue underline"
+                  >
+                    Team
+                  </Link>{' '}
+                  page.
+                </p>
+              </div>
               <FormField
                 control={form.control}
                 name="username"

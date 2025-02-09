@@ -18,6 +18,7 @@ import FortuneWheel from '@/components/wheel/wheel';
 import { FortuneWheelContainer } from '@/components/wheel/container';
 import { FortuneWheelLogo } from '@/components/wheel/logo';
 import { FortuneWheelModal } from '@/components/wheel/modal';
+import { ROUTES } from '@/lib/routes';
 
 export default function Page() {
   const {
@@ -48,7 +49,10 @@ export default function Page() {
             </CardTitle>
             <CardDescription>
               You can change them in the{' '}
-              <Link href="/admin/assets" className="text-indaco-blue underline">
+              <Link
+                href={ROUTES.dashboard.assets}
+                className="text-indaco-blue underline"
+              >
                 Assets
               </Link>{' '}
               page. Drag and drop to reorder.
@@ -80,7 +84,7 @@ export default function Page() {
                 The preview of how the Fortune Wheel will look like. The
                 dedicated Fortune Wheel page is available{' '}
                 <Link
-                  href="/fw"
+                  href={ROUTES.fortuneWheel}
                   target="_blank"
                   className="text-indaco-blue underline"
                 >

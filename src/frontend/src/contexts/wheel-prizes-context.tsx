@@ -45,7 +45,7 @@ type WheelPrizesContextType = {
   fetchPrizes: () => Promise<void>;
   fetching: boolean;
   spinPrizeByIndex: (index: number) => void;
-  spinPrizeById: (id: string) => void;
+  spinPrizeByWheelAssetId: (id: string) => void;
   stopSpinning: () => void;
   currentPrize: {
     prize: WheelPrize;
@@ -65,7 +65,7 @@ const WheelPrizesContext = createContext<WheelPrizesContextType>({
   fetchPrizes: () => Promise.reject(),
   fetching: false,
   spinPrizeByIndex: () => {},
-  spinPrizeById: () => {},
+  spinPrizeByWheelAssetId: () => {},
   stopSpinning: () => {},
   currentPrize: null,
   resetCurrentPrize: () => {},
@@ -188,7 +188,7 @@ export const WheelPrizesProvider = ({
     [prizes],
   );
 
-  const spinPrizeById = useCallback(
+  const spinPrizeByWheelAssetId = useCallback(
     (id: string) => {
       const prizeIndex = prizes.findIndex(prize => prize.wheel_asset_id === id);
       if (prizeIndex > -1) {
@@ -223,7 +223,7 @@ export const WheelPrizesProvider = ({
         fetchPrizes,
         fetching,
         spinPrizeByIndex,
-        spinPrizeById,
+        spinPrizeByWheelAssetId,
         stopSpinning,
         currentPrize,
         resetCurrentPrize,

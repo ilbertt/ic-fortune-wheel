@@ -161,7 +161,7 @@ impl<A: WheelAssetRepository, P: WheelPrizeExtractionRepository, U: UserProfileR
         let wheel_prize_extraction = WheelPrizeExtraction {
             extracted_for_principal: request.extract_for_principal,
             wheel_asset_id: extracted_wheel_asset_id,
-            state: WheelPrizeExtractionState::Processing,
+            state: WheelPrizeExtractionState::Completed, // TODO: add the processing logic for token transfers
             extracted_by_user_id,
             timestamps: TimestampFields::new(),
         };
