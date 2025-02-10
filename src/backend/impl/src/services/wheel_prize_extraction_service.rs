@@ -135,15 +135,22 @@ impl<A: WheelAssetRepository, P: WheelPrizeExtractionRepository, U: UserProfileR
             })?
             .0;
 
-        let available_wheel_assets_ids = self
-            .wheel_asset_repository
-            .list_wheel_assets_by_state(WheelAssetState::Enabled)?
-            .into_iter()
-            .filter(|(_, wheel_asset)| wheel_asset.available_quantity() > 0)
-            .collect::<Vec<_>>();
-
         let (extracted_wheel_asset_id, mut extracted_wheel_asset) = {
-            let random_index = random_index(available_wheel_assets_ids.len()).await?;
+            let available_wheel_assets_ids = self
+                .wheel_asset_repository
+                .list_wheel_assets_by_state(WheelAssetState::Enabled)?
+                .into_iter()
+                .filter(|(_, wheel_asset)| wheel_asset.available_quantity() > 0)
+                .collect::<Vec<_>>();
+
+            let available_wheel_assets_count = available_wheel_assets_ids.len();
+            if available_wheel_assets_count == 0 {
+                return Err(ApiError::conflict(
+                    "No wheel assets available for extraction",
+                ));
+            }
+
+            let random_index = random_index(available_wheel_assets_count).await?;
 
             available_wheel_assets_ids
                 .get(random_index)
