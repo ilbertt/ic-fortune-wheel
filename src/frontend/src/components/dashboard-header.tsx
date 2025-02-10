@@ -5,6 +5,7 @@ import { Logo } from '@/components/logo';
 import {
   History,
   LayoutDashboard,
+  LoaderPinwheel,
   LogOut,
   PenLine,
   ScanLine,
@@ -133,6 +134,13 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
             <DropdownMenuSeparator />
           </>
         )}
+        <DropdownMenuItem className="[&>img]:size-4" asChild>
+          <Link href={ROUTES.fortuneWheel} target="_blank">
+            <LoaderPinwheel />
+            Fortune Wheel
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem className="text-indaco-blue" onClick={handleLogout}>
           <LogOut /> Log out
         </DropdownMenuItem>

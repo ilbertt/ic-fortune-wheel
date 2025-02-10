@@ -67,10 +67,10 @@ export default function Page() {
   return (
     <>
       <Image
-        className="absolute left-5 top-10 z-10 h-10 w-auto"
-        src="/images/brand-logo.png"
+        className="absolute left-5 top-10 z-10 h-12 w-auto"
+        src="/images/brand-logo.svg"
         alt="brand logo"
-        width={264}
+        width={356}
         height={64}
       />
       <Image
