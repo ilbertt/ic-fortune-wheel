@@ -61,7 +61,7 @@ async fn create_wheel_prize_extraction(
         .into()
 }
 
-pub struct WheelPrizeExtractionController<A: AccessControlService, W: WheelPrizeExtractionService> {
+struct WheelPrizeExtractionController<A: AccessControlService, W: WheelPrizeExtractionService> {
     access_control_service: A,
     wheel_prize_extraction_service: W,
 }
