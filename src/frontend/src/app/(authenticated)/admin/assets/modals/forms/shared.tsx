@@ -21,7 +21,6 @@ import { FileInput } from '@/components/file-input';
 import Image from 'next/image';
 import { useFormContext } from 'react-hook-form';
 import { CurrencyInput, Input } from '@/components/ui/input';
-import { InputNumberControls } from '@/components/input-number-controls';
 import { DialogFooter } from '@/components/ui/dialog';
 import { DeleteAssetModal } from '../Delete';
 import {
@@ -219,7 +218,6 @@ export const PrizeFormFields = () => {
                     placeholder="100"
                     {...field}
                   />
-                  <InputNumberControls />
                 </div>
               </FormControl>
               <FormMessage />
