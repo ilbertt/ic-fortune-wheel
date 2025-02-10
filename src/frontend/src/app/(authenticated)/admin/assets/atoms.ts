@@ -17,4 +17,5 @@ export const wheelAssetToEdit = atom<
   const newAsset =
     typeof update === 'function' ? update(get(wheelAssetToEdit)) : update;
   set(formAssetTypeAtom, newAsset ? enumKey(newAsset.asset_type) : null);
+  set(wheelAssetToEdit, newAsset);
 });

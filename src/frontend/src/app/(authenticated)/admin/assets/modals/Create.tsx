@@ -26,8 +26,9 @@ export const CreateAssetModal: React.FC = () => {
 
   const handleOnComplete = useCallback(async () => {
     await fetchAssets();
+    setAssetType(null);
     setOpen(false);
-  }, [fetchAssets]);
+  }, [fetchAssets, setAssetType]);
 
   const handleOnOpenChange = useCallback(
     (open: boolean) => {
