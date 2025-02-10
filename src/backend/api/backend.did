@@ -281,6 +281,17 @@ type CreateWheelPrizeExtractionResponse = variant {
   err : Err;
 };
 
+type TransferTokenRequest = record {
+  ledger_canister_id : principal;
+  to : principal;
+  amount : nat;
+};
+
+type TransferTokenResponse = variant {
+  ok : nat;
+  err : Err;
+};
+
 // HTTP
 type HeaderField = record { text; text };
 
@@ -321,6 +332,8 @@ service : {
   get_last_wheel_prize_extraction: () -> (GetLastWheelPrizeExtractionResponse) query;
   list_wheel_prize_extractions: () -> (ListWheelPrizeExtractionsResponse) query;
   create_wheel_prize_extraction: (CreateWheelPrizeExtractionRequest) -> (CreateWheelPrizeExtractionResponse);
+
+  transfer_token: (TransferTokenRequest) -> (TransferTokenResponse);
 
   // HTTP
   http_request : (request : HttpRequest) -> (HttpResponse) query;
