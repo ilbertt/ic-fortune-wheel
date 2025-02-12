@@ -75,8 +75,8 @@ export default function Page() {
       />
       <Image
         className="absolute right-5 top-10 z-10 size-64"
-        src="/images/qrcode-oisy.png"
-        alt="qrcode"
+        src="/images/qrcode-oisy.svg"
+        alt="Oisy QR code"
         width={200}
         height={200}
       />
