@@ -29,26 +29,27 @@ type AuthProviderProps = {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const auth = useAuthClient({
-    loginOptions: {
-      identityProvider,
-      maxTimeToLive:
-        BigInt(3) * BigInt(24 * 60 * 60) * BigInt(1000 * 1000 * 1000), // 3 days in nanoseconds
-    },
-    createOptions: {
-      idleOptions: {
-        disableIdle: true,
+  const { actor, identity, isAuthenticated, authClient, login, logout } =
+    useAuthClient({
+      loginOptions: {
+        identityProvider,
+        maxTimeToLive:
+          BigInt(3) * BigInt(24 * 60 * 60) * BigInt(1000 * 1000 * 1000), // 3 days in nanoseconds
       },
-    },
-    actorOptions: {
-      canisterId,
-      idlFactory,
-    },
-  });
+      createOptions: {
+        idleOptions: {
+          disableIdle: true,
+        },
+      },
+      actorOptions: {
+        canisterId,
+        idlFactory,
+      },
+    });
 
   useEffect(() => {
-    if (auth.identity && auth.actor) {
-      if (auth.isAuthenticated) {
+    if (identity && actor) {
+      if (isAuthenticated) {
         if (pathname.startsWith(ROUTES.login) || pathname === '/') {
           router.replace(ROUTES.dashboard.ROOT);
         }
@@ -58,13 +59,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
     }
-  }, [auth, pathname, router]);
+  }, [identity, actor, isAuthenticated, pathname, router]);
 
   if (
     // the fortune wheel page is always accessible
     !pathname.startsWith(ROUTES.fortuneWheel) &&
-    ((auth.isAuthenticated && !pathname.startsWith(ROUTES.dashboard.ROOT)) ||
-      (!auth.isAuthenticated && !pathname.startsWith(ROUTES.login)))
+    ((isAuthenticated && !pathname.startsWith(ROUTES.dashboard.ROOT)) ||
+      (!isAuthenticated && !pathname.startsWith(ROUTES.login)))
   ) {
     // do not render anything if the pathname doesn't match the desired pages
     // to avoid a flash of content
@@ -74,12 +75,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        actor: auth.actor as unknown as ActorSubclass<_SERVICE>,
-        authClient: auth.authClient,
-        identity: auth.identity,
-        isAuthenticated: auth.isAuthenticated,
-        login: auth.login,
-        logout: auth.logout,
+        actor: actor as unknown as ActorSubclass<_SERVICE>,
+        authClient,
+        identity,
+        isAuthenticated,
+        login,
+        logout,
       }}
     >
       {children}
