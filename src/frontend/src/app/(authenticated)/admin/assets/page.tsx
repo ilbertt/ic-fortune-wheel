@@ -23,10 +23,8 @@ import {
 } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
-import type { Err } from '@/declarations/backend/backend.did';
-import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
-import { renderError, renderUsdValue } from '@/lib/utils';
+import { renderUsdValue } from '@/lib/utils';
 import {
   wheelAssetBalance,
   wheelAssetsUsdValueSum,
@@ -34,13 +32,14 @@ import {
   wheelAssetUrl,
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
-import { CircleDollarSign, RefreshCw, Send } from 'lucide-react';
+import { CircleDollarSign, RefreshCw } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { TopUpModal } from './modals/TopUp';
 import { AssetsTable } from './AssetsTable';
 import { Loader } from '@/components/loader';
 import { CreateAssetModal } from './modals/Create';
 import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { SendTokenModal } from './modals/SendToken';
 
 type TokenRowProps = {
   token: WheelAssetToken;
@@ -121,36 +120,14 @@ const EmptyAssets: React.FC = () => {
 };
 
 export default function Page() {
-  const { actor } = useAuth();
   const {
     enabledAssets,
     disabledAssets,
     tokenAssets,
     fetchingAssets,
-    fetchAssets,
+    refreshingTokens,
+    refreshTokenAssets,
   } = useWheelAssets();
-  const [refreshingTokens, setRefreshingTokens] = useState(false);
-  const { toast } = useToast();
-
-  const handleRefresh = useCallback(() => {
-    setRefreshingTokens(true);
-    actor
-      .fetch_tokens_data()
-      .then(extractOk)
-      // wait for the backend to update the tokens
-      .then(() => new Promise(resolve => setTimeout(resolve, 10_000)))
-      .then(fetchAssets)
-      .catch((e: Err) => {
-        const title = 'Error refreshing tokens';
-        console.error(title, e);
-        toast({
-          title,
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      })
-      .finally(() => setRefreshingTokens(false));
-  }, [actor, toast, fetchAssets]);
 
   return (
     <PageLayout>
@@ -178,13 +155,10 @@ export default function Page() {
                 )}
                 <div className="mt-4 flex flex-row flex-wrap items-center justify-center gap-4">
                   <TopUpModal />
-                  <Button variant="outline">
-                    <Send />
-                    Send
-                  </Button>
+                  <SendTokenModal />
                   <Button
                     variant="outline"
-                    onClick={handleRefresh}
+                    onClick={refreshTokenAssets}
                     loading={refreshingTokens}
                   >
                     <RefreshCw />

@@ -24,9 +24,9 @@ const InputWithPrefix = React.forwardRef<
   HTMLInputElement,
   React.ComponentProps<'input'> & {
     /**
-     * Should be a symbol like _€_, _$_ or _%_.
+     * Should be a symbol like _€_, _$_, _%_, _BTC_, _ckETH_, etc.
      *
-     * Symbols longer than 3 characters may not layout correctly.
+     * Symbols longer than 5 characters may not layout correctly.
      */
     prefix: string;
   }
@@ -47,7 +47,8 @@ const InputWithPrefix = React.forwardRef<
           {
             'pl-10': prefix.length === 1,
             'pl-12': prefix.length === 2,
-            'pl-[60px]': prefix.length > 2,
+            'pl-[60px]': prefix.length > 2 && prefix.length <= 4,
+            'pl-[90px]': prefix.length > 4,
           },
           className,
         )}

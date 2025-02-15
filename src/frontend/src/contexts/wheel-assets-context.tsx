@@ -24,6 +24,8 @@ type WheelContextType = {
   tokenAssets: WheelAssetToken[];
   fetchingAssets: boolean;
   fetchAssets: () => Promise<void>;
+  refreshingTokens: boolean;
+  refreshTokenAssets: () => Promise<void>;
 };
 
 const WheelAssetsContext = createContext<WheelContextType>({
@@ -32,6 +34,8 @@ const WheelAssetsContext = createContext<WheelContextType>({
   tokenAssets: [],
   fetchingAssets: false,
   fetchAssets: async () => {},
+  refreshingTokens: false,
+  refreshTokenAssets: async () => {},
 });
 
 type WheelAssetsProviderProps = {
@@ -46,6 +50,7 @@ export const WheelAssetsProvider = ({
   const { actor } = useAuth();
   const { isCurrentUserAdmin } = useUser();
   const [fetchingAssets, setFetchingAssets] = useState(false);
+  const [refreshingTokens, setRefreshingTokens] = useState(false);
   const [assets, setAssets] = useState<{
     enabled: WheelAsset[];
     disabled: WheelAsset[];
@@ -93,6 +98,28 @@ export const WheelAssetsProvider = ({
       });
   }, [actor, toast, isCurrentUserAdmin]);
 
+  const refreshTokenAssets = useCallback(() => {
+    setRefreshingTokens(true);
+    return (
+      actor
+        .fetch_tokens_data()
+        .then(extractOk)
+        // wait for the backend to update the tokens
+        .then(() => new Promise(resolve => setTimeout(resolve, 10_000)))
+        .then(fetchAssets)
+        .catch((e: Err) => {
+          const title = 'Error refreshing tokens';
+          console.error(title, e);
+          toast({
+            title,
+            description: renderError(e),
+            variant: 'destructive',
+          });
+        })
+        .finally(() => setRefreshingTokens(false))
+    );
+  }, [actor, toast, fetchAssets]);
+
   useEffect(() => {
     if (!isCurrentUserAdmin) {
       return;
@@ -112,6 +139,8 @@ export const WheelAssetsProvider = ({
         tokenAssets: tokenAssets,
         fetchingAssets,
         fetchAssets,
+        refreshingTokens,
+        refreshTokenAssets,
       }}
     >
       {children}

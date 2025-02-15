@@ -3,7 +3,7 @@ import type {
   WheelAssetState,
   WheelAssetType,
 } from '@/declarations/backend/backend.did';
-import { enumKey, fileFromUrl } from '@/lib/utils';
+import { bigIntToFloat, enumKey, fileFromUrl } from '@/lib/utils';
 import { backendBaseUrl } from '@/lib/api';
 
 export type WheelAssetToken = Omit<WheelAsset, 'asset_type'> & {
@@ -32,13 +32,12 @@ export const isWheelAssetGadget = (
 };
 
 export const wheelAssetBalance = (asset: WheelAssetToken): number => {
-  const balance = asset.asset_type.token.balance[0];
+  const balance = asset.asset_type.token.balance[0]?.balance;
   if (!balance) {
     return 0;
   }
-  // we can reasonably assume the balance won't overflow the Number type
-  const balanceNumber = Number(balance.balance);
-  return balanceNumber / 10 ** asset.asset_type.token.ledger_config.decimals;
+  const decimals = asset.asset_type.token.ledger_config.decimals;
+  return bigIntToFloat(balance, decimals);
 };
 
 export const wheelAssetTokenTotalUsdValue = (

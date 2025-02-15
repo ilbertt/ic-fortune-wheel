@@ -5,6 +5,7 @@ import type {
   GenericCandidEnum,
   ExtractKeysFromCandidEnum,
 } from '@/lib/types/utils';
+import { formatUnits, parseUnits } from '@ethersproject/units';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -174,4 +175,13 @@ export const fileFromUrl = async (url: string): Promise<File | null> => {
     console.error('Failed to fetch file', e);
     return null;
   }
+};
+
+export const floatToBigInt = (val: number, decimals: number): bigint => {
+  return parseUnits(val.toString(), decimals).toBigInt();
+};
+
+export const bigIntToFloat = (val: bigint, decimals: number): number => {
+  const num = formatUnits(val.toString(), decimals);
+  return parseFloat(num);
 };
