@@ -38,6 +38,10 @@
       "replica": {
         "subnet_type": "system"
       }
+    },
+    "staging": {
+      "providers": ["https://icp-api.io"],
+      "type": "persistent"
     }
   }
 }
