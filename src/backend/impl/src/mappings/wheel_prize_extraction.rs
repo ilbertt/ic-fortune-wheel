@@ -8,10 +8,16 @@ impl From<&WheelPrizeExtractionState> for backend_api::WheelPrizeExtractionState
             WheelPrizeExtractionState::Processing => {
                 backend_api::WheelPrizeExtractionState::Processing
             }
-            WheelPrizeExtractionState::Completed => {
-                backend_api::WheelPrizeExtractionState::Completed
+            WheelPrizeExtractionState::Completed { wheel_asset_id } => {
+                backend_api::WheelPrizeExtractionState::Completed {
+                    wheel_asset_id: wheel_asset_id.to_string(),
+                }
             }
-            WheelPrizeExtractionState::Failed => backend_api::WheelPrizeExtractionState::Failed,
+            WheelPrizeExtractionState::Failed { error } => {
+                backend_api::WheelPrizeExtractionState::Failed {
+                    error: error.clone(),
+                }
+            }
         }
     }
 }
@@ -29,7 +35,6 @@ pub fn map_wheel_prize_extraction(
     backend_api::WheelPrizeExtraction {
         id: wheel_prize_extraction_id.to_string(),
         extracted_for_principal: wheel_prize_extraction.extracted_for_principal,
-        wheel_asset_id: wheel_prize_extraction.wheel_asset_id.to_string(),
         extracted_by_user_id: wheel_prize_extraction.extracted_by_user_id.to_string(),
         state: wheel_prize_extraction.state.into(),
     }

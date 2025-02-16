@@ -56,6 +56,16 @@ pub struct WheelAssetTokenLedgerConfig {
     pub decimals: u8,
 }
 
+impl WheelAssetTokenLedgerConfig {
+    fn unit_amount(&self) -> u128 {
+        10u128.pow(self.decimals as u32)
+    }
+
+    fn unit_amount_float(&self) -> f64 {
+        self.unit_amount() as f64
+    }
+}
+
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub enum WheelAssetType {
     Token {
@@ -130,7 +140,7 @@ impl WheelAssetType {
                 ..
             } => balance
                 .as_ref()
-                .map(|el| ((el.balance as f64) / 10f64.powi(ledger_config.decimals as i32)))
+                .map(|el| ((el.balance as f64) / ledger_config.unit_amount_float()))
                 .unwrap_or(0f64),
             WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => 0f64,
         }
@@ -156,6 +166,21 @@ impl WheelAssetType {
                 }
 
                 (total_usd_amount / prize_usd_amount).trunc() as u32
+            }),
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
+        }
+    }
+
+    pub fn token_prize_amount(&self) -> Option<u128> {
+        match self {
+            WheelAssetType::Token {
+                prize_usd_amount,
+                usd_price,
+                ledger_config,
+                ..
+            } => usd_price.as_ref().map(|p| {
+                let token_amount = prize_usd_amount / p.usd_price;
+                (token_amount * ledger_config.unit_amount_float()).trunc() as u128
             }),
             WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
         }

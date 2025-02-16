@@ -1,20 +1,21 @@
 use candid::{CandidType, Deserialize, Principal};
 
+use crate::ApiError;
+
 #[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
 pub enum WheelPrizeExtractionState {
     #[serde(rename = "processing")]
     Processing,
     #[serde(rename = "completed")]
-    Completed,
+    Completed { wheel_asset_id: String },
     #[serde(rename = "failed")]
-    Failed,
+    Failed { error: ApiError },
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]
 pub struct WheelPrizeExtraction {
     pub id: String,
     pub extracted_for_principal: Principal,
-    pub wheel_asset_id: String,
     pub extracted_by_user_id: String,
     pub state: WheelPrizeExtractionState,
 }

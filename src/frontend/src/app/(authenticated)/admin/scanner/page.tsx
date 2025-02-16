@@ -10,7 +10,9 @@ import { renderError } from '@/lib/utils';
 import { Principal } from '@dfinity/principal';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { Volume2 } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+
+const EXTRACTION_RESULT_RESET_TIMEOUT_MS = 20_000;
 
 type ExtractionState =
   | {
@@ -29,14 +31,16 @@ export default function Page() {
   const { actor } = useAuth();
   const [scanError, setScanError] = useState<string | null>(null);
   const [extractionState, setExtractionState] = useState<ExtractionState>(null);
+  const isExtractingRef = useRef(false);
 
   const handleScan: React.ComponentProps<typeof Scanner>['onScan'] =
     useCallback(
       res => {
-        if (res && res[0]) {
+        if (res && res[0] && !isExtractingRef.current) {
           try {
             const principal = Principal.fromText(res[0].rawValue);
             setScanError(null);
+            isExtractingRef.current = true;
             setExtractionState({ state: 'extracting' });
             actor
               .create_wheel_prize_extraction({
@@ -52,6 +56,12 @@ export default function Page() {
                   state: 'error',
                   message: renderError(e),
                 });
+              })
+              .finally(() => {
+                isExtractingRef.current = false;
+                setTimeout(() => {
+                  setExtractionState(null);
+                }, EXTRACTION_RESULT_RESET_TIMEOUT_MS);
               });
           } catch (e) {
             console.warn('Invalid principal', e);

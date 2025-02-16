@@ -48,6 +48,8 @@ pub trait WheelAssetService {
 
     fn fetch_tokens_data(&self) -> Result<(), ApiError>;
 
+    fn schedule_token_data_fetchers(&self, asset_id: WheelAssetId, asset_type: WheelAssetType);
+
     async fn create_wheel_asset(
         &self,
         asset: CreateWheelAssetRequest,
@@ -134,8 +136,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
             })
             .await?;
 
-            self.schedule_balance_fetcher(asset_id, asset.asset_type.clone());
-            self.schedule_price_fetcher(asset_id, asset.asset_type);
+            self.schedule_token_data_fetchers(asset_id, asset.asset_type.clone());
         }
 
         Ok(())
@@ -149,8 +150,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
         let token_assets_count = token_assets.len();
 
         for (asset_id, asset) in token_assets {
-            self.schedule_balance_fetcher(asset_id, asset.asset_type.clone());
-            self.schedule_price_fetcher(asset_id, asset.asset_type);
+            self.schedule_token_data_fetchers(asset_id, asset.asset_type);
         }
 
         println!(
@@ -159,6 +159,11 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
         );
 
         Ok(())
+    }
+
+    fn schedule_token_data_fetchers(&self, asset_id: WheelAssetId, asset_type: WheelAssetType) {
+        self.schedule_balance_fetcher(asset_id, asset_type.clone());
+        self.schedule_price_fetcher(asset_id, asset_type);
     }
 
     async fn create_wheel_asset(

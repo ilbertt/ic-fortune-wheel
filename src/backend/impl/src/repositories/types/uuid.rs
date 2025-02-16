@@ -31,6 +31,10 @@ impl Uuid {
     }
 
     pub fn min() -> Self {
+        Self::nil()
+    }
+
+    pub fn nil() -> Self {
         Self(UuidImpl::nil())
     }
 }

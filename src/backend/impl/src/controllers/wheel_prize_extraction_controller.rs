@@ -9,11 +9,12 @@ use ic_cdk::{caller, query, update};
 
 use crate::{
     repositories::{
-        UserProfileRepositoryImpl, WheelAssetRepositoryImpl, WheelPrizeExtractionRepositoryImpl,
+        HttpAssetRepositoryImpl, UserProfileRepositoryImpl, WheelAssetRepositoryImpl,
+        WheelPrizeExtractionRepositoryImpl,
     },
     services::{
-        AccessControlService, AccessControlServiceImpl, WheelPrizeExtractionService,
-        WheelPrizeExtractionServiceImpl,
+        AccessControlService, AccessControlServiceImpl, WalletServiceImpl, WheelAssetServiceImpl,
+        WheelPrizeExtractionService, WheelPrizeExtractionServiceImpl,
     },
 };
 
@@ -73,6 +74,8 @@ impl Default
             WheelAssetRepositoryImpl,
             WheelPrizeExtractionRepositoryImpl,
             UserProfileRepositoryImpl,
+            WalletServiceImpl<UserProfileRepositoryImpl>,
+            WheelAssetServiceImpl<WheelAssetRepositoryImpl, HttpAssetRepositoryImpl>,
         >,
     >
 {

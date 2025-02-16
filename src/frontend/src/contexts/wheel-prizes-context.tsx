@@ -92,7 +92,7 @@ export const WheelPrizesProvider = ({
 
   const fetchPrizes = useCallback(async () => {
     setFetching(true);
-    actor
+    await actor
       ?.list_wheel_prizes()
       .then(extractOk)
       .then(newPrizes => {

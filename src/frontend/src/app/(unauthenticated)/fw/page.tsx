@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import type { Err } from '@/declarations/backend/backend.did';
 import { extractOk } from '@/lib/api';
+import { isWheelPrizeExtractionCompleted } from '@/lib/wheel-prize-extraction';
 
 const FortuneWheel = dynamic(() => import('@/components/wheel/wheel'), {
   ssr: false,
@@ -34,9 +35,12 @@ export default function Page() {
             const newExtraction = res[0];
             if (
               newExtraction &&
-              newExtraction.id !== lastExtractionIdRef.current
+              newExtraction.id !== lastExtractionIdRef.current &&
+              isWheelPrizeExtractionCompleted(newExtraction.state)
             ) {
-              spinPrizeByWheelAssetId(newExtraction.wheel_asset_id);
+              spinPrizeByWheelAssetId(
+                newExtraction.state.completed.wheel_asset_id,
+              );
               lastExtractionIdRef.current = newExtraction.id;
               // eslint-disable-next-line no-console
               console.log(

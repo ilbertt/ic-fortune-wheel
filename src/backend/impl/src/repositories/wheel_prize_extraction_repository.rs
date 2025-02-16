@@ -6,9 +6,9 @@ use candid::Principal;
 use super::{
     init_wheel_prize_extraction_asset_id_index, init_wheel_prize_extraction_principal_index,
     init_wheel_prize_extraction_state_index, init_wheel_prize_extraction_user_id_index,
-    init_wheel_prize_extractions, WheelPrizeExtraction, WheelPrizeExtractionAssetIdIndexMemory,
-    WheelPrizeExtractionAssetIdKey, WheelPrizeExtractionId, WheelPrizeExtractionMemory,
-    WheelPrizeExtractionPrincipalIndexMemory,
+    init_wheel_prize_extractions, Timestamped, WheelPrizeExtraction,
+    WheelPrizeExtractionAssetIdIndexMemory, WheelPrizeExtractionAssetIdKey, WheelPrizeExtractionId,
+    WheelPrizeExtractionMemory, WheelPrizeExtractionPrincipalIndexMemory,
     WheelPrizeExtractionState as WheelPrizeExtractionStateEnum,
     WheelPrizeExtractionStateIndexMemory, WheelPrizeExtractionStateKey,
     WheelPrizeExtractionStateRange, WheelPrizeExtractionUserIdIndexMemory,
@@ -39,6 +39,12 @@ pub trait WheelPrizeExtractionRepository {
         &self,
         wheel_prize_extraction: WheelPrizeExtraction,
     ) -> Result<WheelPrizeExtractionId, ApiError>;
+
+    fn update_wheel_prize_extraction(
+        &self,
+        id: WheelPrizeExtractionId,
+        wheel_prize_extraction: WheelPrizeExtraction,
+    ) -> Result<(), ApiError>;
 }
 
 pub struct WheelPrizeExtractionRepositoryImpl {}
@@ -96,31 +102,100 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
         wheel_prize_extraction: WheelPrizeExtraction,
     ) -> Result<WheelPrizeExtractionId, ApiError> {
         let id = WheelPrizeExtractionId::new().await?;
-        let state_key = WheelPrizeExtractionStateKey::new(&wheel_prize_extraction.state, id)?;
-        let asset_id_key =
-            WheelPrizeExtractionAssetIdKey::new(wheel_prize_extraction.wheel_asset_id, id)?;
-        let user_id_key =
-            WheelPrizeExtractionUserIdKey::new(wheel_prize_extraction.extracted_by_user_id, id)?;
-        let principal_key = wheel_prize_extraction.extracted_for_principal;
 
         STATE.with_borrow_mut(|s| {
-            s.wheel_prize_extractions.insert(id, wheel_prize_extraction);
-            s.wheel_prize_extraction_state_index.insert(state_key, id);
-            s.wheel_prize_extraction_asset_id_index
-                .insert(asset_id_key, id);
-            s.wheel_prize_extraction_user_id_index
-                .insert(user_id_key, id);
-            s.wheel_prize_extraction_principal_index
-                .insert(principal_key, id);
-        });
+            self.insert_wheel_prize_extraction(s, id, wheel_prize_extraction)?;
+            Ok(id)
+        })
+    }
 
-        Ok(id)
+    fn update_wheel_prize_extraction(
+        &self,
+        id: WheelPrizeExtractionId,
+        mut wheel_prize_extraction: WheelPrizeExtraction,
+    ) -> Result<(), ApiError> {
+        STATE.with_borrow_mut(|s| {
+            // remove old indexes
+            {
+                let old_wheel_prize_extraction = s
+                    .wheel_prize_extractions
+                    .get(&id)
+                    .ok_or_else(|| ApiError::not_found("Wheel prize extraction not found"))?;
+                let old_state_key =
+                    WheelPrizeExtractionStateKey::new(&old_wheel_prize_extraction.state, id)?;
+                s.wheel_prize_extraction_state_index.remove(&old_state_key);
+                let old_user_id_key = WheelPrizeExtractionUserIdKey::new(
+                    old_wheel_prize_extraction.extracted_by_user_id,
+                    id,
+                )?;
+                s.wheel_prize_extraction_user_id_index
+                    .remove(&old_user_id_key);
+                let old_principal_key = old_wheel_prize_extraction.extracted_for_principal;
+                s.wheel_prize_extraction_principal_index
+                    .remove(&old_principal_key);
+                if let Some(old_asset_id) = old_wheel_prize_extraction.wheel_asset_id() {
+                    let old_asset_id_key = WheelPrizeExtractionAssetIdKey::new(old_asset_id, id)?;
+                    s.wheel_prize_extraction_asset_id_index
+                        .remove(&old_asset_id_key);
+                }
+            }
+
+            // insert new data
+            wheel_prize_extraction.update_timestamp();
+            self.insert_wheel_prize_extraction(s, id, wheel_prize_extraction)?;
+
+            Ok(())
+        })
     }
 }
 
 impl WheelPrizeExtractionRepositoryImpl {
     pub fn new() -> Self {
         Self {}
+    }
+
+    fn set_asset_id_index(
+        &self,
+        state: &mut WheelPrizeExtractionState,
+        id: WheelPrizeExtractionId,
+        wheel_prize_extraction: &WheelPrizeExtraction,
+    ) -> Result<(), ApiError> {
+        if let Some(wheel_asset_id) = wheel_prize_extraction.wheel_asset_id() {
+            let asset_id_key = WheelPrizeExtractionAssetIdKey::new(wheel_asset_id, id)?;
+            state
+                .wheel_prize_extraction_asset_id_index
+                .insert(asset_id_key, id);
+        }
+        Ok(())
+    }
+
+    fn insert_wheel_prize_extraction(
+        &self,
+        state: &mut WheelPrizeExtractionState,
+        id: WheelPrizeExtractionId,
+        wheel_prize_extraction: WheelPrizeExtraction,
+    ) -> Result<(), ApiError> {
+        let state_key = WheelPrizeExtractionStateKey::new(&wheel_prize_extraction.state, id)?;
+        let user_id_key =
+            WheelPrizeExtractionUserIdKey::new(wheel_prize_extraction.extracted_by_user_id, id)?;
+        let principal_key = wheel_prize_extraction.extracted_for_principal;
+
+        state
+            .wheel_prize_extractions
+            .insert(id, wheel_prize_extraction.clone());
+        state
+            .wheel_prize_extraction_state_index
+            .insert(state_key, id);
+        state
+            .wheel_prize_extraction_user_id_index
+            .insert(user_id_key, id);
+        state
+            .wheel_prize_extraction_principal_index
+            .insert(principal_key, id);
+
+        self.set_asset_id_index(state, id, &wheel_prize_extraction)?;
+
+        Ok(())
     }
 }
 

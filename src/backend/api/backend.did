@@ -242,13 +242,13 @@ type UpdateWheelPrizesOrderResponse = variant {
 
 type WheelPrizeExtractionState = variant {
   processing;
-  completed;
-  failed;
+  completed : record { wheel_asset_id : text };
+  failed : record { error : Err };
 };
 
 type WheelPrizeExtraction = record {
   id : text;
-  wheel_asset_id : text;
+  extracted_for_principal : principal;
   extracted_by_user_id : text;
   state : WheelPrizeExtractionState;
 };

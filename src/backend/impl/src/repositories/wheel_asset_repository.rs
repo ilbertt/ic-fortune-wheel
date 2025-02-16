@@ -73,7 +73,7 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
             let old_asset = s
                 .wheel_assets
                 .get(&id)
-                .ok_or_else(|| ApiError::not_found("Wheel asset"))?;
+                .ok_or_else(|| ApiError::not_found("Wheel asset not found"))?;
             let old_state_key = WheelAssetStateKey::new(old_asset.state, id)?;
             s.wheel_asset_state_index.remove(&old_state_key);
             let old_asset_type_key = WheelAssetTypeKey::new(&old_asset.asset_type, id)?;
