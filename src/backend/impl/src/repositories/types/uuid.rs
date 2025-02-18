@@ -17,8 +17,8 @@ const UUID_RNG_SIZE: usize = 10;
 pub struct Uuid(UuidImpl);
 
 impl Uuid {
-    pub async fn new() -> Result<Self, ApiError> {
-        with_random_bytes(|bytes: [u8; UUID_RNG_SIZE]| Self::from_random_bytes(bytes)).await
+    pub fn new() -> Self {
+        with_random_bytes(|bytes: [u8; UUID_RNG_SIZE]| Self::from_random_bytes(bytes))
     }
 
     pub fn from_random_bytes(bytes: [u8; UUID_RNG_SIZE]) -> Self {

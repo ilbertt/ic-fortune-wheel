@@ -14,7 +14,7 @@ use super::{
 pub trait WheelAssetRepository {
     fn get_wheel_asset(&self, id: &WheelAssetId) -> Option<WheelAsset>;
 
-    async fn create_wheel_asset(&self, asset: WheelAsset) -> Result<WheelAssetId, ApiError>;
+    fn create_wheel_asset(&self, asset: WheelAsset) -> Result<WheelAssetId, ApiError>;
 
     fn update_wheel_asset(&self, id: WheelAssetId, asset: WheelAsset) -> Result<(), ApiError>;
 
@@ -50,8 +50,8 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
         STATE.with_borrow(|s| s.wheel_assets.get(id))
     }
 
-    async fn create_wheel_asset(&self, asset: WheelAsset) -> Result<WheelAssetId, ApiError> {
-        let id = WheelAssetId::new().await?;
+    fn create_wheel_asset(&self, asset: WheelAsset) -> Result<WheelAssetId, ApiError> {
+        let id = WheelAssetId::new();
         let state_key = WheelAssetStateKey::new(asset.state, id)?;
         let asset_type_key = WheelAssetTypeKey::new(&asset.asset_type, id)?;
 

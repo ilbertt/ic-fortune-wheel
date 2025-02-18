@@ -56,12 +56,12 @@ pub struct HttpAsset {
 
 impl HttpAsset {
     /// Creates a new HttpAsset, returning the new path composed by parent_path and a new uuid.
-    pub async fn new_at_path(
+    pub fn new_at_path(
         parent_path: &Path,
         content_type: String,
         content_bytes: Vec<u8>,
     ) -> Result<(HttpAssetPath, Self), ApiError> {
-        let path = parent_path.join(Uuid::new().await?.to_string());
+        let path = parent_path.join(Uuid::new().to_string());
         let timestamps = TimestampFields::new();
         let http_asset = HttpAsset {
             content_type,
@@ -162,14 +162,13 @@ mod tests {
     }
 
     #[rstest]
-    async fn http_asset_new_at_path() {
+    fn http_asset_new_at_path() {
         let parent_path = PathBuf::from("/tmp");
         let content_type = "text/plain".to_string();
         let content_bytes = vec![1, 2, 3];
 
         let (path, http_asset) =
             HttpAsset::new_at_path(&parent_path, content_type.clone(), content_bytes.clone())
-                .await
                 .unwrap();
 
         assert_eq!(http_asset.content_type, content_type);

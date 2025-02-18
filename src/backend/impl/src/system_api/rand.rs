@@ -1,42 +1,16 @@
 use backend_api::ApiError;
+use fastrand::Rng;
+use ic_cdk::api::management_canister::main::raw_rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 use std::cell::RefCell;
 
-#[cfg(target_family = "wasm")]
-use ic_cdk::api::management_canister::main::raw_rand;
-
 thread_local! {
-    static RNG: RefCell<Option<ChaCha20Rng>> = const { RefCell::new(None) };
+  static RNG: RefCell<Rng> = create_rng();
 }
 
 pub async fn chacha20_rng() -> Result<ChaCha20Rng, ApiError> {
-    let seed = get_seed().await?;
-    Ok(ChaCha20Rng::from_seed(seed))
-}
-
-async fn with_rng<T>(cb: impl FnOnce(&mut ChaCha20Rng) -> T) -> Result<T, ApiError> {
-    let is_init = RNG.with_borrow(|rng| rng.is_some());
-
-    if !is_init {
-        let rng = chacha20_rng().await?;
-        RNG.with(|option_rng| {
-            option_rng.borrow_mut().get_or_insert(rng);
-        });
-    }
-
-    RNG.with_borrow_mut(|rng| {
-        let rng = rng
-            .as_mut()
-            .ok_or_else(|| ApiError::internal("Failed to initialize random number generator"))?;
-
-        Ok(cb(rng))
-    })
-}
-
-async fn get_seed() -> Result<[u8; 32], ApiError> {
-    #[cfg(target_family = "wasm")]
-    {
+    let seed: [u8; 32] = {
         let (seed,) = raw_rand().await.map_err(|(code, msg)| {
             ApiError::internal(&format!(
                 "System API call to `raw_rand` failed: ({:?}) {}",
@@ -50,21 +24,39 @@ async fn get_seed() -> Result<[u8; 32], ApiError> {
                 err
             ))
         })
+    }?;
+    Ok(ChaCha20Rng::from_seed(seed))
+}
+
+fn create_rng() -> RefCell<Rng> {
+    let seed = get_seed();
+    let rng = Rng::with_seed(seed);
+
+    RefCell::new(rng)
+}
+
+fn get_seed() -> u64 {
+    #[cfg(target_family = "wasm")]
+    {
+        ic_cdk::api::time()
     }
 
     // fallback seed for non-wasm targets, e.g. unit tests
     #[cfg(not(target_family = "wasm"))]
-    Ok([0u8; 32])
+    {
+        0
+    }
 }
 
-pub async fn with_random_bytes<const N: usize, T>(
-    cb: impl FnOnce([u8; N]) -> T,
-) -> Result<T, ApiError> {
+fn with_rng<T>(cb: impl FnOnce(&mut Rng) -> T) -> T {
+    RNG.with_borrow_mut(cb)
+}
+
+pub fn with_random_bytes<const N: usize, T>(cb: impl FnOnce([u8; N]) -> T) -> T {
     with_rng(|rng| {
         let mut bytes = [0u8; N];
-        rng.fill_bytes(&mut bytes);
+        rng.fill(&mut bytes);
 
         cb(bytes)
     })
-    .await
 }

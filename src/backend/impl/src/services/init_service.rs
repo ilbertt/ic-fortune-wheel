@@ -5,7 +5,7 @@ use crate::repositories::{UserProfile, UserProfileRepository, UserProfileReposit
 
 #[cfg_attr(test, mockall::automock)]
 pub trait InitService {
-    async fn init(&self, calling_principal: Principal) -> Result<(), ApiError>;
+    fn init(&self, calling_principal: Principal) -> Result<(), ApiError>;
 }
 
 pub struct InitServiceImpl<T: UserProfileRepository> {
@@ -19,7 +19,7 @@ impl Default for InitServiceImpl<UserProfileRepositoryImpl> {
 }
 
 impl<T: UserProfileRepository> InitService for InitServiceImpl<T> {
-    async fn init(&self, calling_principal: Principal) -> Result<(), ApiError> {
+    fn init(&self, calling_principal: Principal) -> Result<(), ApiError> {
         if self
             .user_profile_repository
             .get_user_by_principal(&calling_principal)
@@ -31,8 +31,7 @@ impl<T: UserProfileRepository> InitService for InitServiceImpl<T> {
         let profile = UserProfile::new_admin(calling_principal);
 
         self.user_profile_repository
-            .create_user_profile(calling_principal, profile)
-            .await?;
+            .create_user_profile(calling_principal, profile)?;
 
         Ok(())
     }

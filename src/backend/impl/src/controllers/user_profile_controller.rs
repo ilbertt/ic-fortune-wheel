@@ -26,12 +26,11 @@ fn get_my_user_profile() -> ApiResult<GetMyUserProfileResponse> {
 
 #[update]
 #[log_errors]
-async fn create_my_user_profile() -> ApiResult<CreateMyUserProfileResponse> {
+fn create_my_user_profile() -> ApiResult<CreateMyUserProfileResponse> {
     let calling_principal = caller();
 
     UserProfileController::default()
         .create_my_user_profile(calling_principal)
-        .await
         .into()
 }
 
@@ -113,7 +112,7 @@ impl<A: AccessControlService, U: UserProfileService> UserProfileController<A, U>
             .get_my_user_profile(calling_principal)
     }
 
-    async fn create_my_user_profile(
+    fn create_my_user_profile(
         &self,
         calling_principal: Principal,
     ) -> Result<CreateMyUserProfileResponse, ApiError> {
@@ -122,7 +121,6 @@ impl<A: AccessControlService, U: UserProfileService> UserProfileController<A, U>
 
         self.user_profile_service
             .create_my_user_profile(calling_principal)
-            .await
     }
 
     fn update_my_user_profile(

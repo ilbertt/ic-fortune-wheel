@@ -13,7 +13,7 @@ pub trait UserProfileRepository {
 
     fn get_user_profile_by_user_id(&self, user_id: &UserId) -> Option<UserProfile>;
 
-    async fn create_user_profile(
+    fn create_user_profile(
         &self,
         calling_principal: Principal,
         user_profile: UserProfile,
@@ -52,12 +52,12 @@ impl UserProfileRepository for UserProfileRepositoryImpl {
         STATE.with_borrow(|s| s.profiles.get(user_id))
     }
 
-    async fn create_user_profile(
+    fn create_user_profile(
         &self,
         calling_principal: Principal,
         user_profile: UserProfile,
     ) -> Result<UserId, ApiError> {
-        let user_id = UserId::new().await?;
+        let user_id = UserId::new();
 
         STATE.with_borrow_mut(|s| {
             s.profiles.insert(user_id, user_profile.clone());

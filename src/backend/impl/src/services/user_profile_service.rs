@@ -16,7 +16,7 @@ pub trait UserProfileService {
         calling_principal: Principal,
     ) -> Result<GetMyUserProfileResponse, ApiError>;
 
-    async fn create_my_user_profile(
+    fn create_my_user_profile(
         &self,
         calling_principal: Principal,
     ) -> Result<CreateMyUserProfileResponse, ApiError>;
@@ -66,7 +66,7 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
         Ok(map_user_profile(id, profile))
     }
 
-    async fn create_my_user_profile(
+    fn create_my_user_profile(
         &self,
         calling_principal: Principal,
     ) -> Result<CreateMyUserProfileResponse, ApiError> {
@@ -84,8 +84,7 @@ impl<T: UserProfileRepository> UserProfileService for UserProfileServiceImpl<T> 
         let profile = UserProfile::new_unassigned(calling_principal);
         let id = self
             .user_profile_repository
-            .create_user_profile(calling_principal, profile.clone())
-            .await?;
+            .create_user_profile(calling_principal, profile.clone())?;
 
         Ok(map_user_profile(id, profile))
     }

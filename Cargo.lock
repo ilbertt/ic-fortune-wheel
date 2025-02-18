@@ -199,6 +199,7 @@ dependencies = [
  "candid_parser",
  "chrono",
  "external_canisters",
+ "fastrand",
  "ic-asset-certification",
  "ic-cdk",
  "ic-cdk-timers",

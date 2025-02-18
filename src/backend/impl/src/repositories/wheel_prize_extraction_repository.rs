@@ -35,7 +35,7 @@ pub trait WheelPrizeExtractionRepository {
 
     fn list_wheel_prize_extractions(&self) -> Vec<(WheelPrizeExtractionId, WheelPrizeExtraction)>;
 
-    async fn create_wheel_prize_extraction(
+    fn create_wheel_prize_extraction(
         &self,
         wheel_prize_extraction: WheelPrizeExtraction,
     ) -> Result<WheelPrizeExtractionId, ApiError>;
@@ -97,11 +97,11 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
         STATE.with_borrow(|s| s.wheel_prize_extractions.iter().rev().collect())
     }
 
-    async fn create_wheel_prize_extraction(
+    fn create_wheel_prize_extraction(
         &self,
         wheel_prize_extraction: WheelPrizeExtraction,
     ) -> Result<WheelPrizeExtractionId, ApiError> {
-        let id = WheelPrizeExtractionId::new().await?;
+        let id = WheelPrizeExtractionId::new();
 
         STATE.with_borrow_mut(|s| {
             self.insert_wheel_prize_extraction(s, id, wheel_prize_extraction)?;

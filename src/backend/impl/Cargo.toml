@@ -26,6 +26,7 @@ serde.workspace = true
 
 rand = { version = "0.8", default-features = false }
 rand_chacha = { version = "0.3", default-features = false }
+fastrand = "2.3"
 
 chrono = { version = "0.4", default-features = false, features = ["std"] }
 uuid = "1.11"

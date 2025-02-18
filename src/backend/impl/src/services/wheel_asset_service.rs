@@ -44,13 +44,13 @@ pub trait WheelAssetService {
         request: ListWheelAssetsRequest,
     ) -> Result<ListWheelAssetsResponse, ApiError>;
 
-    async fn set_default_wheel_assets(&self) -> Result<(), ApiError>;
+    fn set_default_wheel_assets(&self) -> Result<(), ApiError>;
 
     fn fetch_tokens_data(&self) -> Result<(), ApiError>;
 
     fn schedule_token_data_fetchers(&self, asset_id: WheelAssetId, asset_type: WheelAssetType);
 
-    async fn create_wheel_asset(
+    fn create_wheel_asset(
         &self,
         asset: CreateWheelAssetRequest,
     ) -> Result<CreateWheelAssetResponse, ApiError>;
@@ -59,7 +59,7 @@ pub trait WheelAssetService {
 
     fn delete_wheel_asset(&self, request: DeleteWheelAssetRequest) -> Result<(), ApiError>;
 
-    async fn update_wheel_asset_image(
+    fn update_wheel_asset_image(
         &self,
         request: UpdateWheelAssetImageRequest,
     ) -> Result<(), ApiError>;
@@ -108,7 +108,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
         Ok(items)
     }
 
-    async fn set_default_wheel_assets(&self) -> Result<(), ApiError> {
+    fn set_default_wheel_assets(&self) -> Result<(), ApiError> {
         let existing_assets_count = self.wheel_asset_repository.list_wheel_assets().len();
 
         if existing_assets_count > 0 {
@@ -123,8 +123,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
         ] {
             let asset_id = self
                 .wheel_asset_repository
-                .create_wheel_asset(asset.clone())
-                .await?;
+                .create_wheel_asset(asset.clone())?;
 
             // Not so nice done in this way, but it's quicker
             self.update_wheel_asset_image(UpdateWheelAssetImageRequest {
@@ -133,8 +132,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
                     content_bytes: wheel_image_content_bytes,
                     content_type: "image/png".to_string(),
                 }),
-            })
-            .await?;
+            })?;
 
             self.schedule_token_data_fetchers(asset_id, asset.asset_type.clone());
         }
@@ -166,7 +164,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
         self.schedule_price_fetcher(asset_id, asset_type);
     }
 
-    async fn create_wheel_asset(
+    fn create_wheel_asset(
         &self,
         request: CreateWheelAssetRequest,
     ) -> Result<CreateWheelAssetResponse, ApiError> {
@@ -181,8 +179,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
 
         let id = self
             .wheel_asset_repository
-            .create_wheel_asset(wheel_asset.clone())
-            .await?;
+            .create_wheel_asset(wheel_asset.clone())?;
 
         Ok(map_wheel_asset(id, wheel_asset))
     }
@@ -286,7 +283,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
         self.wheel_asset_repository.delete_wheel_asset(&asset_id)
     }
 
-    async fn update_wheel_asset_image(
+    fn update_wheel_asset_image(
         &self,
         request: UpdateWheelAssetImageRequest,
     ) -> Result<(), ApiError> {
@@ -308,8 +305,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
             Path::new(WHEEL_ASSET_IMAGES_HTTP_PATH),
             content_type,
             content_bytes,
-        )
-        .await?;
+        )?;
         self.http_asset_repository
             .create_http_asset(http_asset_path.clone(), http_asset)?;
 

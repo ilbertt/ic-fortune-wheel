@@ -156,8 +156,7 @@ impl<
             WheelPrizeExtraction::new_processing(extracted_for_principal, extracted_by_user_id);
         let wheel_prize_extraction_id = self
             .wheel_prize_extraction_repository
-            .create_wheel_prize_extraction(wheel_prize_extraction.clone())
-            .await?;
+            .create_wheel_prize_extraction(wheel_prize_extraction.clone())?;
 
         println!(
             "Wheel prize extraction (id:{}): processing for principal {}",

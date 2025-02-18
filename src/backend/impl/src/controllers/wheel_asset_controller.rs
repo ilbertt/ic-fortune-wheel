@@ -30,12 +30,11 @@ fn list_wheel_assets(request: ListWheelAssetsRequest) -> ApiResult<ListWheelAsse
 
 #[update]
 #[log_errors]
-async fn set_default_wheel_assets() -> ApiResult<()> {
+fn set_default_wheel_assets() -> ApiResult<()> {
     let calling_principal = caller();
 
     WheelAssetController::default()
         .set_default_wheel_assets(calling_principal)
-        .await
         .into()
 }
 
@@ -51,14 +50,11 @@ fn fetch_tokens_data() -> ApiResult<()> {
 
 #[update]
 #[log_errors]
-async fn create_wheel_asset(
-    request: CreateWheelAssetRequest,
-) -> ApiResult<CreateWheelAssetResponse> {
+fn create_wheel_asset(request: CreateWheelAssetRequest) -> ApiResult<CreateWheelAssetResponse> {
     let calling_principal = caller();
 
     WheelAssetController::default()
         .create_wheel_asset(calling_principal, request)
-        .await
         .into()
 }
 
@@ -84,12 +80,11 @@ fn delete_wheel_asset(request: DeleteWheelAssetRequest) -> ApiResult<()> {
 
 #[update]
 #[log_errors]
-async fn update_wheel_asset_image(request: UpdateWheelAssetImageRequest) -> ApiResult<()> {
+fn update_wheel_asset_image(request: UpdateWheelAssetImageRequest) -> ApiResult<()> {
     let calling_principal = caller();
 
     WheelAssetController::default()
         .update_wheel_asset_image(calling_principal, request)
-        .await
         .into()
 }
 
@@ -152,11 +147,11 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         self.wheel_asset_service.list_wheel_assets(request)
     }
 
-    async fn set_default_wheel_assets(&self, calling_principal: Principal) -> Result<(), ApiError> {
+    fn set_default_wheel_assets(&self, calling_principal: Principal) -> Result<(), ApiError> {
         self.access_control_service
             .assert_principal_is_admin(&calling_principal)?;
 
-        self.wheel_asset_service.set_default_wheel_assets().await
+        self.wheel_asset_service.set_default_wheel_assets()
     }
 
     fn fetch_tokens_data(&self, calling_principal: Principal) -> Result<(), ApiError> {
@@ -170,7 +165,7 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         self.wheel_asset_service.fetch_tokens_data()
     }
 
-    async fn create_wheel_asset(
+    fn create_wheel_asset(
         &self,
         calling_principal: Principal,
         request: CreateWheelAssetRequest,
@@ -178,7 +173,7 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         self.access_control_service
             .assert_principal_is_admin(&calling_principal)?;
 
-        self.wheel_asset_service.create_wheel_asset(request).await
+        self.wheel_asset_service.create_wheel_asset(request)
     }
 
     fn update_wheel_asset(
@@ -203,7 +198,7 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         self.wheel_asset_service.delete_wheel_asset(request)
     }
 
-    async fn update_wheel_asset_image(
+    fn update_wheel_asset_image(
         &self,
         calling_principal: Principal,
         request: UpdateWheelAssetImageRequest,
@@ -213,9 +208,7 @@ impl<A: AccessControlService, W: WheelAssetService> WheelAssetController<A, W> {
         self.access_control_service
             .assert_principal_is_admin(&calling_principal)?;
 
-        self.wheel_asset_service
-            .update_wheel_asset_image(request)
-            .await
+        self.wheel_asset_service.update_wheel_asset_image(request)
     }
 
     fn list_wheel_prizes(&self) -> Result<ListWheelPrizesResponse, ApiError> {

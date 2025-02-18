@@ -4,9 +4,7 @@ use crate::{
 };
 use backend_api::ApiError;
 use candid::Principal;
-use ic_cdk::{caller, init, post_upgrade, pre_upgrade, println, spawn};
-use ic_cdk_timers::set_timer;
-use std::time::Duration;
+use ic_cdk::{caller, init, post_upgrade, pre_upgrade, println};
 
 #[init]
 fn init() {
@@ -25,20 +23,6 @@ fn post_upgrade() {
     let calling_principal = caller();
 
     InitController::default().post_upgrade(calling_principal);
-}
-
-fn spawn_init_admin(calling_principal: Principal) {
-    set_timer(Duration::from_secs(0), move || {
-        spawn(async move {
-            if let Err(err) = InitController::default()
-                .init_admin(calling_principal)
-                .await
-            {
-                ic_cdk::trap(&format!("Failed to initialize admins: {:?}", err));
-            }
-            println!("Admins initialized");
-        })
-    });
 }
 
 struct InitController<I: InitService, H: HttpAssetService> {
@@ -65,8 +49,8 @@ impl<I: InitService, H: HttpAssetService> InitController<I, H> {
         }
     }
 
-    async fn init_admin(&self, calling_principal: Principal) -> Result<(), ApiError> {
-        self.init_service.init(calling_principal).await
+    fn init_admin(&self, calling_principal: Principal) -> Result<(), ApiError> {
+        self.init_service.init(calling_principal)
     }
 
     fn init(&self, calling_principal: Principal) {
@@ -86,8 +70,12 @@ impl<I: InitService, H: HttpAssetService> InitController<I, H> {
     }
 
     fn internal_init(&self, calling_principal: Principal) {
-        spawn_init_admin(calling_principal);
-
+        match self.init_admin(calling_principal) {
+            Ok(_) => println!("init: Admins initialized"),
+            Err(err) => {
+                ic_cdk::trap(&format!("Failed to initialize admins: {}", err));
+            }
+        }
         match self.http_asset_service.init() {
             Ok(_) => println!("init: http_asset_service initialized"),
             Err(err) => {
