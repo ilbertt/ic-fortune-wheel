@@ -18,6 +18,8 @@ pub struct WheelPrizeExtraction {
     pub extracted_for_principal: Principal,
     pub extracted_by_user_id: String,
     pub state: WheelPrizeExtractionState,
+    pub created_at: String,
+    pub updated_at: String,
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize, PartialEq, Eq)]

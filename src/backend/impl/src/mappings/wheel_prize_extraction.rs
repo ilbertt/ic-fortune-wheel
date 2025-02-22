@@ -37,5 +37,7 @@ pub fn map_wheel_prize_extraction(
         extracted_for_principal: wheel_prize_extraction.extracted_for_principal,
         extracted_by_user_id: wheel_prize_extraction.extracted_by_user_id.to_string(),
         state: wheel_prize_extraction.state.into(),
+        created_at: wheel_prize_extraction.timestamps.created_at.to_string(),
+        updated_at: wheel_prize_extraction.timestamps.updated_at.to_string(),
     }
 }

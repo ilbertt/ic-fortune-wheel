@@ -251,6 +251,8 @@ type WheelPrizeExtraction = record {
   extracted_for_principal : principal;
   extracted_by_user_id : text;
   state : WheelPrizeExtractionState;
+  created_at : text;
+  updated_at : text;
 };
 
 type GetWheelPrizeExtractionRequest = record {
