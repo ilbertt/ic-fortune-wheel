@@ -85,6 +85,10 @@ impl WheelPrizeExtraction {
             }
         }
     }
+
+    pub fn is_failed(&self) -> bool {
+        matches!(self.state, WheelPrizeExtractionState::Failed { .. })
+    }
 }
 
 impl Timestamped for WheelPrizeExtraction {

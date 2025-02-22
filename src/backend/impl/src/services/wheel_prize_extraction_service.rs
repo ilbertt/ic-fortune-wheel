@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use backend_api::{
     ApiError, CreateWheelPrizeExtractionRequest, GetLastWheelPrizeExtractionResponse,
     GetWheelPrizeExtractionRequest, GetWheelPrizeExtractionResponse,
@@ -10,7 +12,7 @@ use rand::{distributions::Uniform, prelude::*};
 use crate::{
     mappings::map_wheel_prize_extraction,
     repositories::{
-        HttpAssetRepositoryImpl, UserProfileRepository, UserProfileRepositoryImpl,
+        elapsed_since, HttpAssetRepositoryImpl, UserProfileRepository, UserProfileRepositoryImpl,
         WheelAssetRepository, WheelAssetRepositoryImpl, WheelAssetState, WheelAssetType,
         WheelPrizeExtraction, WheelPrizeExtractionId, WheelPrizeExtractionRepository,
         WheelPrizeExtractionRepositoryImpl, WheelPrizeExtractionState,
@@ -18,6 +20,10 @@ use crate::{
     services::{WalletService, WalletServiceImpl, WheelAssetService, WheelAssetServiceImpl},
     system_api::chacha20_rng,
 };
+
+/// The minimum time duration to wait before enabling a new extraction for the same principal,
+/// if the previous extraction failed.
+const MINIMUM_FAILED_WHEEL_PRIZE_EXTRACTION_AGE_DURATION: Duration = Duration::from_secs(30);
 
 #[cfg_attr(test, mockall::automock)]
 #[allow(clippy::needless_lifetimes)]
@@ -131,14 +137,22 @@ impl<
 
         let extracted_for_principal = request.extract_for_principal;
 
-        if self
+        if let Some((_, existing_wheel_prize_extraction)) = self
             .wheel_prize_extraction_repository
             .get_wheel_prize_extraction_by_principal(&extracted_for_principal)
-            .is_some()
         {
-            return Err(ApiError::invalid_argument(
-                "This principal has already been extracted",
-            ));
+            if !existing_wheel_prize_extraction.is_failed() {
+                return Err(ApiError::invalid_argument(
+                    "This principal has already been extracted",
+                ));
+            } else if elapsed_since(&existing_wheel_prize_extraction.timestamps.created_at)
+                < MINIMUM_FAILED_WHEEL_PRIZE_EXTRACTION_AGE_DURATION
+            {
+                return Err(ApiError::invalid_argument(&format!(
+                    "You must wait {} seconds before extracting this principal again",
+                    MINIMUM_FAILED_WHEEL_PRIZE_EXTRACTION_AGE_DURATION.as_secs(),
+                )));
+            }
         }
 
         let extracted_by_user_id = self
@@ -163,100 +177,93 @@ impl<
             wheel_prize_extraction_id, extracted_for_principal
         );
 
-        let (extracted_wheel_asset_id, mut extracted_wheel_asset) = {
-            let available_wheel_assets_ids = self
-                .wheel_asset_repository
-                .list_wheel_assets_by_state(WheelAssetState::Enabled)?
-                .into_iter()
-                .filter(|(_, wheel_asset)| wheel_asset.available_quantity() > 0)
-                .collect::<Vec<_>>();
-
-            let available_wheel_assets_count = available_wheel_assets_ids.len();
-            if available_wheel_assets_count == 0 {
-                return Err(ApiError::conflict(
-                    "No wheel assets available for extraction",
-                ));
-            }
-
-            let random_index = match random_index(available_wheel_assets_count).await {
-                Ok(index) => index,
-                Err(error) => {
-                    wheel_prize_extraction.set_failed(error.clone());
-
-                    println!(
-                        "Wheel prize extraction (id:{}): {}",
-                        wheel_prize_extraction_id, wheel_prize_extraction.state
-                    );
-
-                    self.wheel_prize_extraction_repository
-                        .update_wheel_prize_extraction(
-                            wheel_prize_extraction_id,
-                            wheel_prize_extraction,
-                        )?;
-
-                    return Err(error);
-                }
-            };
-
-            available_wheel_assets_ids
-                .get(random_index)
-                .cloned()
-                // SAFETY: the random index is in the range `[0, len)`, so it is always < `len`
-                .unwrap()
-        };
-
-        if let WheelAssetType::Token { ledger_config, .. } = &extracted_wheel_asset.asset_type {
-            println!(
-                "Wheel prize extraction (id:{}): Transferring token prize",
+        let extracted_wheel_asset_id = self
+            .with_set_failed_on_error(
                 wheel_prize_extraction_id,
-            );
+                &mut wheel_prize_extraction,
+                || async {
+                    let (extracted_wheel_asset_id, mut extracted_wheel_asset) = {
+                        let available_wheel_assets_ids = self
+                            .wheel_asset_repository
+                            .list_wheel_assets_by_state(WheelAssetState::Enabled)?
+                            .into_iter()
+                            .filter(|(_, wheel_asset)| wheel_asset.available_quantity() > 0)
+                            .collect::<Vec<_>>();
 
-            match self
-                .wallet_service
-                .transfer_token(
-                    *calling_principal,
-                    TransferTokenRequest {
-                        ledger_canister_id: ledger_config.ledger_canister_id,
-                        to: extracted_for_principal,
-                        amount: extracted_wheel_asset
-                            .asset_type
-                            .token_prize_amount()
-                            .unwrap_or(0)
-                            .into(),
-                    },
-                )
-                .await
-            {
-                Ok(_) => {
-                    self.wheel_asset_service.schedule_token_data_fetchers(
-                        extracted_wheel_asset_id,
-                        extracted_wheel_asset.asset_type.clone(),
-                    );
+                        let available_wheel_assets_count = available_wheel_assets_ids.len();
+                        if available_wheel_assets_count == 0 {
+                            return Err(ApiError::conflict(
+                                "No wheel assets available for extraction",
+                            ));
+                        }
+
+                        let random_index = random_index(available_wheel_assets_count).await?;
+
+                        available_wheel_assets_ids
+                            .get(random_index)
+                            .cloned()
+                            .ok_or_else(|| {
+                                ApiError::internal(&format!(
+                                    "Wheel asset at index {} not found in available wheel assets list",
+                                    random_index,
+                                ))
+                            })?
+                    };
+
+                    if let WheelAssetType::Token { ledger_config, .. } =
+                        &extracted_wheel_asset.asset_type
+                    {
+                        println!(
+                            "Wheel prize extraction (id:{}): Transferring token prize",
+                            wheel_prize_extraction_id,
+                        );
+
+                        self.wallet_service
+                            .transfer_token(
+                                *calling_principal,
+                                TransferTokenRequest {
+                                    ledger_canister_id: ledger_config.ledger_canister_id,
+                                    to: extracted_for_principal,
+                                    amount: extracted_wheel_asset
+                                        .asset_type
+                                        .token_prize_amount()
+                                        .unwrap_or(0)
+                                        .into(),
+                                },
+                            )
+                            .await?;
+                        self.wheel_asset_service.schedule_token_data_fetchers(
+                            extracted_wheel_asset_id,
+                            extracted_wheel_asset.asset_type.clone(),
+                        );
+
+                        println!(
+                            "Wheel prize extraction (id:{}): Completed token transfer",
+                            wheel_prize_extraction_id,
+                        );
+                    }
+
                     extracted_wheel_asset.use_one()?;
-                    wheel_prize_extraction.set_completed(extracted_wheel_asset_id);
 
-                    println!(
-                        "Wheel prize extraction (id:{}): Completed token transfer",
-                        wheel_prize_extraction_id,
-                    );
-                }
-                Err(error) => wheel_prize_extraction.set_failed(error),
-            }
-        } else {
-            extracted_wheel_asset.use_one()?;
-            wheel_prize_extraction.set_completed(extracted_wheel_asset_id);
-        }
+                    self.wheel_asset_repository
+                        .update_wheel_asset(extracted_wheel_asset_id, extracted_wheel_asset)?;
+
+                    Ok(extracted_wheel_asset_id)
+                },
+            )
+            .await?;
+
+        wheel_prize_extraction.set_completed(extracted_wheel_asset_id);
 
         println!(
-            "Wheel prize extraction (id:{}, state:{}): wheel asset id {}",
-            wheel_prize_extraction_id, wheel_prize_extraction.state, extracted_wheel_asset_id
+            "Wheel prize extraction (id:{}, state:{}): wheel asset id {:?}",
+            wheel_prize_extraction_id,
+            wheel_prize_extraction.state,
+            wheel_prize_extraction.wheel_asset_id()
         );
 
         self.wheel_prize_extraction_repository
             .update_wheel_prize_extraction(wheel_prize_extraction_id, wheel_prize_extraction)?;
-
-        self.wheel_asset_repository
-            .update_wheel_asset(extracted_wheel_asset_id, extracted_wheel_asset)?;
 
         Ok(())
     }
@@ -303,6 +310,31 @@ impl<
         }
 
         Ok(())
+    }
+
+    async fn with_set_failed_on_error<F, Fut, T>(
+        &self,
+        extraction_id: WheelPrizeExtractionId,
+        extraction: &mut WheelPrizeExtraction,
+        f: F,
+    ) -> Result<T, ApiError>
+    where
+        F: FnOnce() -> Fut,
+        Fut: std::future::Future<Output = Result<T, ApiError>>,
+    {
+        match f().await {
+            Ok(result) => Ok(result),
+            Err(error) => {
+                extraction.set_failed(error.clone());
+                println!(
+                    "Wheel prize extraction (id:{}): {}",
+                    extraction_id, extraction.state
+                );
+                self.wheel_prize_extraction_repository
+                    .update_wheel_prize_extraction(extraction_id, extraction.clone())?;
+                Err(error)
+            }
+        }
     }
 }
 

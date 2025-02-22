@@ -31,7 +31,7 @@ pub trait WheelPrizeExtractionRepository {
     fn get_wheel_prize_extraction_by_principal(
         &self,
         principal: &Principal,
-    ) -> Option<WheelPrizeExtraction>;
+    ) -> Option<(WheelPrizeExtractionId, WheelPrizeExtraction)>;
 
     fn list_wheel_prize_extractions(&self) -> Vec<(WheelPrizeExtractionId, WheelPrizeExtraction)>;
 
@@ -84,12 +84,12 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
     fn get_wheel_prize_extraction_by_principal(
         &self,
         principal: &Principal,
-    ) -> Option<WheelPrizeExtraction> {
+    ) -> Option<(WheelPrizeExtractionId, WheelPrizeExtraction)> {
         STATE.with_borrow(|s| {
             s.wheel_prize_extraction_principal_index
                 .get(principal)
                 // SAFETY: wheel prize extraction with this id should always exist
-                .map(|id| s.wheel_prize_extractions.get(&id).unwrap())
+                .map(|id| (id, s.wheel_prize_extractions.get(&id).unwrap()))
         })
     }
 

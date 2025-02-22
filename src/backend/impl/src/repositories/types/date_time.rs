@@ -50,6 +50,14 @@ impl DateTime {
         ))
     }
 
+    pub fn timestamp_nanos(&self) -> u64 {
+        self.0
+            .timestamp_nanos_opt()
+            .unwrap_or(0)
+            .try_into()
+            .unwrap()
+    }
+
     pub fn timestamp_micros(&self) -> u64 {
         self.0.timestamp_micros().try_into().unwrap()
     }
@@ -110,6 +118,10 @@ impl Storable for DateTime {
 pub fn get_current_date_time() -> DateTime {
     // we can be confident to unwrap here as timestamp is always available
     get_date_time().and_then(DateTime::new).unwrap()
+}
+
+pub fn elapsed_since(timestamp_ns: &DateTime) -> std::time::Duration {
+    std::time::Duration::from_nanos(ic_cdk::api::time() - timestamp_ns.timestamp_nanos())
 }
 
 #[cfg(test)]
