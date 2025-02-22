@@ -17,15 +17,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { USER_ROLE_OPTIONS } from '@/constants/user';
-import { useAuth } from '@/contexts/auth-context';
 import { useUser } from '@/contexts/user-context';
 import type {
   UserProfile as UserProfileType,
   UserRole,
 } from '@/declarations/backend/backend.did';
-import { extractOk } from '@/lib/api';
 import type { ExtractKeysFromCandidEnum } from '@/lib/types/utils';
-import { enumKey, toastError, toCandidEnum } from '@/lib/utils';
+import { enumKey } from '@/lib/utils';
 import { UserMinus2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import {
@@ -41,7 +39,8 @@ import {
 import { Loader } from '@/components/loader';
 import { useTeamMembers } from '@/hooks/use-team-members';
 import { UserProfile } from '@/components/user-profile';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDeleteUser } from '@/hooks/use-delete-user';
+import { useUpdateUser } from '@/hooks/use-update-user';
 
 type TeamMemberRowProps = {
   member: UserProfileType;
@@ -49,50 +48,20 @@ type TeamMemberRowProps = {
 
 const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member }) => {
   const { user } = useUser();
-  const { actor } = useAuth();
-  const queryClient = useQueryClient();
   const isCurrentUser = member.id === user?.id;
   const [role, setRole] = useState<ExtractKeysFromCandidEnum<UserRole>>(
     enumKey(member.role),
   );
-
-  const deleteUserMutation = useMutation({
-    mutationFn: async () => {
-      const result = await actor?.delete_user_profile({ user_id: member.id });
-      return extractOk(result);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
-    },
-    onError: e => toastError(e, 'Error deleting user'),
-  });
-
-  const updateRoleMutation = useMutation({
-    mutationFn: async (newRole: ExtractKeysFromCandidEnum<UserRole>) => {
-      const result = await actor?.update_user_profile({
-        user_id: member.id,
-        username: [],
-        role: [toCandidEnum(newRole)],
-      });
-      return extractOk(result);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
-    },
-    onError: e => {
-      toastError(e, 'Error updating tole');
-      // Reset role back to original on error
-      setRole(enumKey(member.role));
-    },
-  });
+  const { deleteUser, isDeleting } = useDeleteUser();
+  const { updateUser, isUpdating } = useUpdateUser();
 
   const handleRoleChange = useCallback(
     (value: string) => {
       const newRole = value as ExtractKeysFromCandidEnum<UserRole>;
       setRole(newRole);
-      updateRoleMutation.mutate(newRole);
+      updateUser({ userId: member.id, role: newRole });
     },
-    [updateRoleMutation],
+    [member.id, updateUser],
   );
 
   return (
@@ -100,11 +69,11 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member }) => {
       <UserProfile user={member} showId />
       <div className="flex w-full flex-col flex-wrap gap-2 md:flex-row md:items-center md:justify-end">
         <div className="flex flex-row flex-wrap items-center gap-0.5">
-          {updateRoleMutation.isPending && <Loader className="mr-2 h-4 w-4" />}
+          {isUpdating && <Loader className="mr-2 h-4 w-4" />}
           <Select
             value={role}
             onValueChange={handleRoleChange}
-            disabled={isCurrentUser || updateRoleMutation.isPending}
+            disabled={isCurrentUser || isUpdating}
           >
             <SelectTrigger className="md:w-[180px]">
               <SelectValue placeholder="Select a role" />
@@ -135,12 +104,12 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member }) => {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={deleteUserMutation.isPending}>
+                <AlertDialogCancel disabled={isDeleting}>
                   Cancel
                 </AlertDialogCancel>
                 <Button
-                  onClick={() => deleteUserMutation.mutate()}
-                  loading={deleteUserMutation.isPending}
+                  onClick={() => deleteUser(member.id)}
+                  loading={isDeleting}
                 >
                   <UserMinus2 />
                   Remove
