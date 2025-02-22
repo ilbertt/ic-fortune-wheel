@@ -6,9 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreditCard, DollarSign, User, Users } from 'lucide-react';
 import { useUser } from '@/contexts/user-context';
 import { EditUserDialog } from '@/components/edit-user-dialog';
+import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { Skeleton } from '@/components/ui/skeleton';
+import { renderUsdValue } from '@/lib/utils';
+import { wheelAssetsUsdValueSum } from '@/lib/wheel-asset';
+import { ActivityTable } from './ActivityTable';
 
 export default function Home() {
   const { isCurrentUserUnassigned } = useUser();
+  const { tokenAssets, fetchingAssets } = useWheelAssets();
 
   return (
     <PageLayout>
@@ -26,7 +32,7 @@ export default function Home() {
                 </CardTitle>
                 <Users className="text-indaco-blue size-4" />
               </CardHeader>
-              <CardContent className="text-2xl font-bold">2350</CardContent>
+              <CardContent className="text-2xl font-bold">-</CardContent>
             </Card>
             <Card className="col-span-full md:col-span-3">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -35,16 +41,30 @@ export default function Home() {
                 </CardTitle>
                 <DollarSign className="text-indaco-blue size-4" />
               </CardHeader>
-              <CardContent className="text-2xl font-bold">$800.00</CardContent>
+              <CardContent className="text-2xl font-bold">
+                {fetchingAssets ? (
+                  <Skeleton className="mt-1 h-10 w-48" />
+                ) : (
+                  renderUsdValue(wheelAssetsUsdValueSum(tokenAssets))
+                )}
+              </CardContent>
             </Card>
             <Card className="col-span-full md:col-span-3">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Spent</CardTitle>
                 <CreditCard className="text-indaco-blue size-4" />
               </CardHeader>
-              <CardContent className="text-2xl font-bold">$200.00</CardContent>
+              <CardContent className="text-2xl font-bold">-</CardContent>
             </Card>
             <div className="hidden md:col-span-3 md:block" />
+            <Card className="col-span-full">
+              <CardHeader>
+                <CardTitle>Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ActivityTable />
+              </CardContent>
+            </Card>
           </>
         )}
         {isCurrentUserUnassigned && (

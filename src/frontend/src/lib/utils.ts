@@ -185,3 +185,16 @@ export const bigIntToFloat = (val: bigint, decimals: number): number => {
   const num = formatUnits(val.toString(), decimals);
   return parseFloat(num);
 };
+
+export const parseDatetime = (input: string): Date => {
+  return new Date(input);
+};
+
+export const renderDatetime = (input: string): string => {
+  const date = parseDatetime(input);
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'short',
+    timeStyle: 'medium',
+    hour12: false,
+  }).format(date);
+};

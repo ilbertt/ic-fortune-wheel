@@ -1,7 +1,6 @@
 'use client';
 
 import { PageContent, PageHeader, PageLayout } from '@/components/layouts';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -17,22 +16,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserIdDisplay } from '@/components/user-id-display';
 import { USER_ROLE_OPTIONS } from '@/constants/user';
 import { useAuth } from '@/contexts/auth-context';
 import { useUser } from '@/contexts/user-context';
 import type {
   Err,
-  UserProfile,
+  UserProfile as UserProfileType,
   UserRole,
 } from '@/declarations/backend/backend.did';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import type { ExtractKeysFromCandidEnum } from '@/lib/types/utils';
-import { userInitials } from '@/lib/user';
 import { enumKey, renderError, toCandidEnum } from '@/lib/utils';
 import { UserMinus2 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -44,9 +41,11 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Loader } from '@/components/loader';
+import { useTeamMembers } from '@/contexts/team-members-context';
+import { UserProfile } from '@/components/user-profile';
 
 type TeamMemberRowProps = {
-  member: UserProfile;
+  member: UserProfileType;
   onDelete: () => Promise<void>;
 };
 
@@ -109,21 +108,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
 
   return (
     <div className="flex flex-col items-start space-y-3 md:flex-row md:items-center md:justify-between md:space-x-4">
-      <div className="flex items-center space-x-4">
-        <Avatar className="h-8 w-8">
-          <AvatarFallback>{userInitials(member)}</AvatarFallback>
-        </Avatar>
-        <div>
-          <p className="text-sm font-medium leading-none">
-            {member.username}
-            {isCurrentUser && ' (You)'}
-          </p>
-          <UserIdDisplay
-            userId={member.id}
-            className="[&>p]:whitespace-normal [&>p]:md:whitespace-nowrap"
-          />
-        </div>
-      </div>
+      <UserProfile user={member} showId />
       <div className="flex w-full flex-col flex-wrap gap-2 md:flex-row md:items-center md:justify-end">
         <div className="flex flex-row flex-wrap items-center gap-0.5">
           {isUpdateLoading && <Loader className="mr-2 h-4 w-4" />}
@@ -178,29 +163,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
 };
 
 export default function Page() {
-  const { actor } = useAuth();
-  const [teamMembers, setTeamMembers] = useState<UserProfile[]>([]);
-  const { toast } = useToast();
-
-  const fetchTeamMembers = useCallback(async () => {
-    await actor
-      ?.list_users()
-      .then(extractOk)
-      .then(setTeamMembers)
-      .catch((e: Err) => {
-        const title = 'Error fetching team members';
-        console.error(title, e);
-        toast({
-          title,
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      });
-  }, [actor, toast]);
-
-  useEffect(() => {
-    fetchTeamMembers();
-  }, [fetchTeamMembers]);
+  const { teamMembersList, fetchTeamMembers } = useTeamMembers();
 
   return (
     <PageLayout>
@@ -212,8 +175,8 @@ export default function Page() {
             <CardDescription>Manage permissions for your team</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
-            {teamMembers.length > 0 ? (
-              teamMembers.map(member => (
+            {teamMembersList.length > 0 ? (
+              teamMembersList.map(member => (
                 <TeamMemberRow
                   key={member.id}
                   member={member}
