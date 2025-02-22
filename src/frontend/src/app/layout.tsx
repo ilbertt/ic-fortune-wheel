@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/contexts/auth-context';
 import { Toaster } from '@/components/ui/toaster';
+import { ClientLayout } from './ClientLayout';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,10 +32,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <main className="min-h-screen">{children}</main>
-          <Toaster />
-        </AuthProvider>
+        <ClientLayout>
+          <AuthProvider>
+            <main className="min-h-screen">{children}</main>
+            <Toaster />
+          </AuthProvider>
+        </ClientLayout>
       </body>
     </html>
   );

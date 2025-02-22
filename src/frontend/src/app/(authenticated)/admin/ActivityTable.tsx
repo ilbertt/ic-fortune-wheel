@@ -6,10 +6,10 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { PrincipalDisplay } from '@/components/principal-display';
 import { UserProfile } from '@/components/user-profile';
-import { useTeamMembers } from '@/contexts/team-members-context';
 import type { WheelPrizeExtraction } from '@/declarations/backend/backend.did';
 import { WheelPrizeExtractionStateBadge } from '@/components/wheel-prize-extraction-state-badge';
 import { renderDatetime } from '@/lib/utils';
+import { useTeamMembers } from '@/hooks/use-team-members';
 
 const columnHelper = createColumnHelper<WheelPrizeExtraction>();
 

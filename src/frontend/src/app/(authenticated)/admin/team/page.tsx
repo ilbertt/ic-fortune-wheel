@@ -20,14 +20,12 @@ import { USER_ROLE_OPTIONS } from '@/constants/user';
 import { useAuth } from '@/contexts/auth-context';
 import { useUser } from '@/contexts/user-context';
 import type {
-  Err,
   UserProfile as UserProfileType,
   UserRole,
 } from '@/declarations/backend/backend.did';
-import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import type { ExtractKeysFromCandidEnum } from '@/lib/types/utils';
-import { enumKey, renderError, toCandidEnum } from '@/lib/utils';
+import { enumKey, toastError, toCandidEnum } from '@/lib/utils';
 import { UserMinus2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import {
@@ -41,81 +39,72 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Loader } from '@/components/loader';
-import { useTeamMembers } from '@/contexts/team-members-context';
+import { useTeamMembers } from '@/hooks/use-team-members';
 import { UserProfile } from '@/components/user-profile';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type TeamMemberRowProps = {
   member: UserProfileType;
-  onDelete: () => Promise<void>;
 };
 
-const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
+const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member }) => {
   const { user } = useUser();
   const { actor } = useAuth();
+  const queryClient = useQueryClient();
+  const isCurrentUser = member.id === user?.id;
   const [role, setRole] = useState<ExtractKeysFromCandidEnum<UserRole>>(
     enumKey(member.role),
   );
-  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
-  const { toast } = useToast();
-  const isCurrentUser = member.id === user?.id;
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async () => {
+      const result = await actor?.delete_user_profile({ user_id: member.id });
+      return extractOk(result);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team-members'] });
+    },
+    onError: e => toastError(e, 'Error deleting user'),
+  });
+
+  const updateRoleMutation = useMutation({
+    mutationFn: async (newRole: ExtractKeysFromCandidEnum<UserRole>) => {
+      const result = await actor?.update_user_profile({
+        user_id: member.id,
+        username: [],
+        role: [toCandidEnum(newRole)],
+      });
+      return extractOk(result);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['team-members'] });
+    },
+    onError: e => {
+      toastError(e, 'Error updating tole');
+      // Reset role back to original on error
+      setRole(enumKey(member.role));
+    },
+  });
 
   const handleRoleChange = useCallback(
     (value: string) => {
-      const oldRole = enumKey(member.role);
       const newRole = value as ExtractKeysFromCandidEnum<UserRole>;
       setRole(newRole);
-      setIsUpdateLoading(true);
-      actor
-        ?.update_user_profile({
-          user_id: member.id,
-          username: [],
-          role: [toCandidEnum(newRole)],
-        })
-        .then(extractOk)
-        .catch((e: Err) => {
-          setRole(oldRole);
-          const title = 'Error updating role';
-          console.error(title, e);
-          toast({
-            title,
-            description: renderError(e),
-            variant: 'destructive',
-          });
-        })
-        .finally(() => setIsUpdateLoading(false));
+      updateRoleMutation.mutate(newRole);
     },
-    [actor, member, toast],
+    [updateRoleMutation],
   );
-
-  const handleDeleteUser = useCallback(() => {
-    setIsDeleteLoading(true);
-    actor
-      ?.delete_user_profile({ user_id: member.id })
-      .then(extractOk)
-      .then(onDelete)
-      .catch((e: Err) => {
-        const title = 'Error deleting user';
-        console.error(title, e);
-        toast({
-          title,
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      })
-      .finally(() => setIsDeleteLoading(false));
-  }, [actor, member, toast, onDelete]);
 
   return (
     <div className="flex flex-col items-start space-y-3 md:flex-row md:items-center md:justify-between md:space-x-4">
       <UserProfile user={member} showId />
       <div className="flex w-full flex-col flex-wrap gap-2 md:flex-row md:items-center md:justify-end">
         <div className="flex flex-row flex-wrap items-center gap-0.5">
-          {isUpdateLoading && <Loader className="mr-2 h-4 w-4" />}
+          {updateRoleMutation.isPending && <Loader className="mr-2 h-4 w-4" />}
           <Select
             value={role}
             onValueChange={handleRoleChange}
-            disabled={isCurrentUser || isUpdateLoading}
+            disabled={isCurrentUser || updateRoleMutation.isPending}
           >
             <SelectTrigger className="md:w-[180px]">
               <SelectValue placeholder="Select a role" />
@@ -146,10 +135,13 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={isDeleteLoading}>
+                <AlertDialogCancel disabled={deleteUserMutation.isPending}>
                   Cancel
                 </AlertDialogCancel>
-                <Button onClick={handleDeleteUser} loading={isDeleteLoading}>
+                <Button
+                  onClick={() => deleteUserMutation.mutate()}
+                  loading={deleteUserMutation.isPending}
+                >
                   <UserMinus2 />
                   Remove
                 </Button>
@@ -163,7 +155,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member, onDelete }) => {
 };
 
 export default function Page() {
-  const { teamMembersList, fetchTeamMembers } = useTeamMembers();
+  const { data, isLoading } = useTeamMembers();
 
   return (
     <PageLayout>
@@ -175,13 +167,9 @@ export default function Page() {
             <CardDescription>Manage permissions for your team</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
-            {teamMembersList.length > 0 ? (
-              teamMembersList.map(member => (
-                <TeamMemberRow
-                  key={member.id}
-                  member={member}
-                  onDelete={fetchTeamMembers}
-                />
+            {!isLoading ? (
+              data?.teamMembersList.map(member => (
+                <TeamMemberRow key={member.id} member={member} />
               ))
             ) : (
               <Loader />
