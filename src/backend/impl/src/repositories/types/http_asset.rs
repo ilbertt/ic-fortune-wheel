@@ -6,14 +6,9 @@ use std::{
 
 use backend_api::ApiError;
 use candid::{CandidType, Decode, Deserialize, Encode};
-use ic_asset_certification::{Asset, AssetConfig, AssetEncoding};
-use ic_http_certification::HeaderField;
 use ic_stable_structures::{storable::Bound, Storable};
 
 use super::{TimestampFields, Timestamped, Uuid};
-
-/// 1 week public cache
-const ONE_HOUR_CACHE_CONTROL: &str = "public, max-age=604800, immutable";
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct HttpAssetPath(pub PathBuf);
@@ -26,11 +21,15 @@ impl HttpAssetPath {
     pub fn as_path_buf(&self) -> &PathBuf {
         &self.0
     }
+
+    pub fn into_path_buf(self) -> PathBuf {
+        self.0
+    }
 }
 
 impl Display for HttpAssetPath {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0.to_string_lossy())
+        write!(f, "{}", self.as_path_buf().to_string_lossy())
     }
 }
 
@@ -70,26 +69,6 @@ impl HttpAsset {
         };
         Ok((HttpAssetPath::new(path), http_asset))
     }
-
-    pub fn to_asset_with_config<'a>(
-        &self,
-        path: &'a HttpAssetPath,
-    ) -> (Asset<'_, 'a>, AssetConfig) {
-        let path = path.as_path_buf().as_os_str().to_str().unwrap();
-        let asset = Asset::new(path, self.content_bytes.clone());
-        let asset_config = AssetConfig::File {
-            path: path.to_string(),
-            content_type: Some(self.content_type.clone()),
-            headers: get_asset_headers(vec![(
-                "cache-control".to_string(),
-                ONE_HOUR_CACHE_CONTROL.to_string(),
-            )]),
-            aliased_by: vec![],
-            fallback_for: vec![],
-            encodings: vec![AssetEncoding::Identity.default_config()],
-        };
-        (asset, asset_config)
-    }
 }
 
 impl Timestamped for HttpAsset {
@@ -108,23 +87,6 @@ impl Storable for HttpAsset {
     }
 
     const BOUND: Bound = Bound::Unbounded;
-}
-
-fn get_asset_headers(additional_headers: Vec<HeaderField>) -> Vec<HeaderField> {
-    // set up the default headers and include additional headers provided by the caller
-    let mut headers = vec![
-        ("strict-transport-security".to_string(), "max-age=31536000; includeSubDomains".to_string()),
-        ("x-frame-options".to_string(), "DENY".to_string()),
-        ("x-content-type-options".to_string(), "nosniff".to_string()),
-        ("content-security-policy".to_string(), "default-src 'self'; img-src 'self' data:; form-action 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content".to_string()),
-        ("referrer-policy".to_string(), "no-referrer".to_string()),
-        ("permissions-policy".to_string(), "accelerometer=(),ambient-light-sensor=(),autoplay=(),battery=(),camera=(),display-capture=(),document-domain=(),encrypted-media=(),fullscreen=(),gamepad=(),geolocation=(),gyroscope=(),layout-animations=(self),legacy-image-formats=(self),magnetometer=(),microphone=(),midi=(),oversized-images=(self),payment=(),picture-in-picture=(),publickey-credentials-get=(),speaker-selection=(),sync-xhr=(self),unoptimized-images=(self),unsized-media=(self),usb=(),screen-wake-lock=(),web-share=(),xr-spatial-tracking=()".to_string()),
-        ("cross-origin-embedder-policy".to_string(), "require-corp".to_string()),
-        ("cross-origin-opener-policy".to_string(), "same-origin".to_string()),
-    ];
-    headers.extend(additional_headers);
-
-    headers
 }
 
 #[cfg(test)]
