@@ -45,6 +45,11 @@ pub trait WheelPrizeExtractionRepository {
         id: WheelPrizeExtractionId,
         wheel_prize_extraction: WheelPrizeExtraction,
     ) -> Result<(), ApiError>;
+
+    fn list_wheel_prize_extractions_by_state(
+        &self,
+        state: &WheelPrizeExtractionStateEnum,
+    ) -> Vec<(WheelPrizeExtractionId, WheelPrizeExtraction)>;
 }
 
 pub struct WheelPrizeExtractionRepositoryImpl {}
@@ -145,6 +150,22 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
             self.insert_wheel_prize_extraction(s, id, wheel_prize_extraction)?;
 
             Ok(())
+        })
+    }
+
+    fn list_wheel_prize_extractions_by_state(
+        &self,
+        state: &WheelPrizeExtractionStateEnum,
+    ) -> Vec<(WheelPrizeExtractionId, WheelPrizeExtraction)> {
+        STATE.with_borrow(|s| {
+            let state_range = WheelPrizeExtractionStateRange::new(state).unwrap();
+            s.wheel_prize_extraction_state_index
+                .range(state_range)
+                .map(|(_, id)| {
+                    // SAFETY: wheel prize extraction with this id should always exist
+                    (id, s.wheel_prize_extractions.get(&id).unwrap())
+                })
+                .collect()
         })
     }
 }

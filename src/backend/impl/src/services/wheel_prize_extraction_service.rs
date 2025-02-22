@@ -3,7 +3,7 @@ use std::time::Duration;
 use backend_api::{
     ApiError, CreateWheelPrizeExtractionRequest, GetLastWheelPrizeExtractionResponse,
     GetWheelPrizeExtractionRequest, GetWheelPrizeExtractionResponse,
-    ListWheelPrizeExtractionsResponse, TransferTokenRequest,
+    GetWheelPrizeExtractionsStatsResponse, ListWheelPrizeExtractionsResponse, TransferTokenRequest,
 };
 use candid::Principal;
 use ic_cdk::println;
@@ -44,6 +44,10 @@ pub trait WheelPrizeExtractionService {
         calling_principal: &'a Principal,
         request: CreateWheelPrizeExtractionRequest,
     ) -> Result<(), ApiError>;
+
+    fn get_wheel_prize_extractions_stats(
+        &self,
+    ) -> Result<GetWheelPrizeExtractionsStatsResponse, ApiError>;
 }
 
 pub struct WheelPrizeExtractionServiceImpl<
@@ -177,7 +181,7 @@ impl<
             wheel_prize_extraction_id, extracted_for_principal
         );
 
-        let extracted_wheel_asset_id = self
+        let (extracted_wheel_asset_id, extracted_wheel_prize_usd_amount) = self
             .with_set_failed_on_error(
                 wheel_prize_extraction_id,
                 &mut wheel_prize_extraction,
@@ -246,14 +250,15 @@ impl<
                     extracted_wheel_asset.use_one()?;
 
                     self.wheel_asset_repository
-                        .update_wheel_asset(extracted_wheel_asset_id, extracted_wheel_asset)?;
+                        .update_wheel_asset(extracted_wheel_asset_id, extracted_wheel_asset.clone())?;
 
-                    Ok(extracted_wheel_asset_id)
+                    Ok((extracted_wheel_asset_id, extracted_wheel_asset.asset_type.token_prize_usd_amount()))
                 },
             )
             .await?;
 
-        wheel_prize_extraction.set_completed(extracted_wheel_asset_id);
+        wheel_prize_extraction
+            .set_completed(extracted_wheel_asset_id, extracted_wheel_prize_usd_amount);
 
         println!(
             "Wheel prize extraction (id:{}, state:{}): wheel asset id {:?}",
@@ -266,6 +271,37 @@ impl<
             .update_wheel_prize_extraction(wheel_prize_extraction_id, wheel_prize_extraction)?;
 
         Ok(())
+    }
+
+    fn get_wheel_prize_extractions_stats(
+        &self,
+    ) -> Result<GetWheelPrizeExtractionsStatsResponse, ApiError> {
+        let completed_state = WheelPrizeExtractionState::default_completed();
+        let completed_extractions = self
+            .wheel_prize_extraction_repository
+            .list_wheel_prize_extractions_by_state(&completed_state);
+
+        let total_completed_extractions = completed_extractions.len() as u32;
+        let total_spent_usd = completed_extractions
+            .into_iter()
+            .filter_map(|(_, extraction)| {
+                if let WheelPrizeExtractionState::Completed {
+                    prize_usd_amount, ..
+                } = extraction.state
+                {
+                    prize_usd_amount
+                } else {
+                    None
+                }
+            })
+            .sum::<f64>()
+            // summing no values returns -0 for some reasons
+            .abs();
+
+        Ok(GetWheelPrizeExtractionsStatsResponse {
+            total_completed_extractions,
+            total_spent_usd,
+        })
     }
 }
 

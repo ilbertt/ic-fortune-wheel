@@ -14,8 +14,13 @@ pub type WheelPrizeExtractionId = Uuid;
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
 pub enum WheelPrizeExtractionState {
     Processing,
-    Completed { wheel_asset_id: WheelAssetId },
-    Failed { error: ApiError },
+    Completed {
+        wheel_asset_id: WheelAssetId,
+        prize_usd_amount: Option<f64>,
+    },
+    Failed {
+        error: ApiError,
+    },
 }
 
 impl From<&WheelPrizeExtractionState> for u8 {
@@ -32,8 +37,15 @@ impl Display for WheelPrizeExtractionState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             WheelPrizeExtractionState::Processing => write!(f, "Processing"),
-            WheelPrizeExtractionState::Completed { wheel_asset_id } => {
-                write!(f, "Completed (wheel_asset_id:{wheel_asset_id})",)
+            WheelPrizeExtractionState::Completed {
+                wheel_asset_id,
+                prize_usd_amount,
+            } => {
+                write!(
+                    f,
+                    "Completed (wheel_asset_id:{wheel_asset_id}, prize_usd_amount:{:?})",
+                    prize_usd_amount
+                )
             }
             WheelPrizeExtractionState::Failed { error } => write!(f, "Failed (error:{error})",),
         }
@@ -44,6 +56,7 @@ impl WheelPrizeExtractionState {
     pub fn default_completed() -> Self {
         Self::Completed {
             wheel_asset_id: WheelAssetId::nil(),
+            prize_usd_amount: None,
         }
     }
 }
@@ -69,8 +82,11 @@ impl WheelPrizeExtraction {
         }
     }
 
-    pub fn set_completed(&mut self, wheel_asset_id: WheelAssetId) {
-        self.state = WheelPrizeExtractionState::Completed { wheel_asset_id };
+    pub fn set_completed(&mut self, wheel_asset_id: WheelAssetId, prize_usd_amount: Option<f64>) {
+        self.state = WheelPrizeExtractionState::Completed {
+            wheel_asset_id,
+            prize_usd_amount,
+        };
     }
 
     pub fn set_failed(&mut self, error: ApiError) {
@@ -79,7 +95,7 @@ impl WheelPrizeExtraction {
 
     pub fn wheel_asset_id(&self) -> Option<WheelAssetId> {
         match &self.state {
-            WheelPrizeExtractionState::Completed { wheel_asset_id } => Some(*wheel_asset_id),
+            WheelPrizeExtractionState::Completed { wheel_asset_id, .. } => Some(*wheel_asset_id),
             WheelPrizeExtractionState::Processing | WheelPrizeExtractionState::Failed { .. } => {
                 None
             }
@@ -299,7 +315,7 @@ mod tests {
 
     #[rstest]
     #[case::processing(WheelPrizeExtractionState::Processing)]
-    #[case::completed(WheelPrizeExtractionState::Completed { wheel_asset_id: fixtures::uuid() })]
+    #[case::completed(WheelPrizeExtractionState::Completed { wheel_asset_id: fixtures::uuid(), prize_usd_amount: Some(1.5) })]
     #[case::failed(WheelPrizeExtractionState::Failed { error: ApiError::internal("error") })]
     fn wheel_prize_extraction_state_key_storable_impl(#[case] state: WheelPrizeExtractionState) {
         let wheel_prize_extraction_id = fixtures::uuid();

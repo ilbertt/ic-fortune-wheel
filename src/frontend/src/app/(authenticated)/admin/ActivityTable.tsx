@@ -22,7 +22,7 @@ export const ActivityTable: React.FC = () => {
       columnHelper.accessor('id', {
         header: 'ID',
         cell: ctx => (
-          <div className="text-muted-foreground w-fit whitespace-nowrap font-medium">
+          <div className="text-muted-foreground max-w-24 overflow-hidden text-ellipsis whitespace-nowrap font-medium md:max-w-fit">
             {ctx.getValue()}
           </div>
         ),

@@ -242,7 +242,10 @@ type UpdateWheelPrizesOrderResponse = variant {
 
 type WheelPrizeExtractionState = variant {
   processing;
-  completed : record { wheel_asset_id : text };
+  completed : record {
+    wheel_asset_id : text;
+    prize_usd_amount: opt float64;
+  };
   failed : record { error : Err };
 };
 
@@ -294,6 +297,16 @@ type TransferTokenResponse = variant {
   err : Err;
 };
 
+type WheelPrizeExtractionsStats = record {
+  total_completed_extractions : nat32;
+  total_spent_usd : float64;
+};
+
+type GetWheelPrizeExtractionsStatsResponse = variant {
+  ok : WheelPrizeExtractionsStats;
+  err : Err;
+};
+
 // HTTP
 type HeaderField = record { text; text };
 
@@ -334,6 +347,7 @@ service : {
   get_last_wheel_prize_extraction: () -> (GetLastWheelPrizeExtractionResponse) query;
   list_wheel_prize_extractions: () -> (ListWheelPrizeExtractionsResponse) query;
   create_wheel_prize_extraction: (CreateWheelPrizeExtractionRequest) -> (CreateWheelPrizeExtractionResponse);
+  get_wheel_prize_extractions_stats: () -> (GetWheelPrizeExtractionsStatsResponse) query;
 
   transfer_token: (TransferTokenRequest) -> (TransferTokenResponse);
 

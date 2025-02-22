@@ -185,6 +185,15 @@ impl WheelAssetType {
             WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
         }
     }
+
+    pub fn token_prize_usd_amount(&self) -> Option<f64> {
+        match self {
+            WheelAssetType::Token {
+                prize_usd_amount, ..
+            } => Some(*prize_usd_amount),
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, CandidType, Deserialize, PartialEq, Eq, PartialOrd, Ord)]

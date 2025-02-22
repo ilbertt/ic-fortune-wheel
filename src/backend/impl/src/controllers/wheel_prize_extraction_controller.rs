@@ -1,7 +1,7 @@
 use backend_api::{
     ApiError, ApiResult, CreateWheelPrizeExtractionRequest, GetLastWheelPrizeExtractionResponse,
     GetWheelPrizeExtractionRequest, GetWheelPrizeExtractionResponse,
-    ListWheelPrizeExtractionsResponse,
+    GetWheelPrizeExtractionsStatsResponse, ListWheelPrizeExtractionsResponse,
 };
 use backend_macros::log_errors;
 use candid::Principal;
@@ -59,6 +59,16 @@ async fn create_wheel_prize_extraction(
     WheelPrizeExtractionController::default()
         .create_wheel_prize_extraction(&calling_principal, request)
         .await
+        .into()
+}
+
+#[query]
+#[log_errors]
+fn get_wheel_prize_extractions_stats() -> ApiResult<GetWheelPrizeExtractionsStatsResponse> {
+    let calling_principal = caller();
+
+    WheelPrizeExtractionController::default()
+        .get_wheel_prize_extractions_stats(&calling_principal)
         .into()
 }
 
@@ -129,5 +139,16 @@ impl<A: AccessControlService, W: WheelPrizeExtractionService> WheelPrizeExtracti
         self.wheel_prize_extraction_service
             .create_wheel_prize_extraction(calling_principal, request)
             .await
+    }
+
+    fn get_wheel_prize_extractions_stats(
+        &self,
+        calling_principal: &Principal,
+    ) -> Result<GetWheelPrizeExtractionsStatsResponse, ApiError> {
+        self.access_control_service
+            .assert_principal_is_admin_or_scanner(calling_principal)?;
+
+        self.wheel_prize_extraction_service
+            .get_wheel_prize_extractions_stats()
     }
 }
