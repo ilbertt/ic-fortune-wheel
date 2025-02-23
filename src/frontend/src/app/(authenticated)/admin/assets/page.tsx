@@ -24,7 +24,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/auth-context';
 import { extractOk } from '@/lib/api';
-import { renderUsdValue } from '@/lib/utils';
+import { renderNumberWithDigits, renderUsdValue } from '@/lib/utils';
 import {
   wheelAssetBalance,
   wheelAssetsUsdValueSum,
@@ -61,7 +61,10 @@ const TokenRow: React.FC<TokenRowProps> = ({ token, refreshingTokens }) => {
           <Skeleton className="h-5 w-16" />
         ) : (
           <p className="m-0 font-medium leading-none">
-            {wheelAssetBalance(token)}
+            {renderNumberWithDigits(wheelAssetBalance(token), {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 6,
+            })}
           </p>
         )}
         {refreshingTokens ? (

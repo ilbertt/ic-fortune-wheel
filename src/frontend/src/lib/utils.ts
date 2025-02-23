@@ -7,6 +7,9 @@ import type {
 } from '@/lib/types/utils';
 import { formatUnits, parseUnits } from '@ethersproject/units';
 
+const DEFAULT_LOCALE = 'en-US';
+const DEFAULT_THOUSAND_SEPARATOR = ',';
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -35,68 +38,41 @@ export const toCandidEnum = <T extends GenericCandidEnum>(
 };
 
 export const renderUsdValue = (usdValue: number): string => {
-  return usdValue.toLocaleString(undefined, {
+  return usdValue.toLocaleString(DEFAULT_LOCALE, {
     style: 'currency',
     currency: 'USD',
   });
 };
 
-const getThousandSeparator = (locale?: Intl.LocalesArgument): string => {
-  const numberWithDecimalSeparator = 1111.1;
-  return (
-    Intl.NumberFormat(locale)
-      .formatToParts(numberWithDecimalSeparator)
-      .find(part => part.type === 'group')?.value ?? ','
-  );
-};
-
-export const getDecimalSeparator = (locale?: Intl.LocalesArgument): string => {
-  const numberWithDecimalSeparator = 1.1;
-  return (
-    Intl.NumberFormat(locale)
-      .formatToParts(numberWithDecimalSeparator)
-      .find(part => part.type === 'decimal')?.value ?? '.'
-  );
-};
-
 /**
  * Can be used together with `renderNumberWithDigits`, as it does the opposite.
+ * @returns `undefined` if the value is not a number or if it's not a valid number string
  */
 export const parseFormattedNumber = (
   value: string | number | null | undefined,
 ): number | undefined => {
-  if (!value) {
-    return undefined;
-  }
   if (typeof value === 'number') {
     return value;
   }
-  const rawValue = value.replace(getThousandSeparator(), '');
+  if (!value) {
+    return undefined;
+  }
+  const rawValue = value.replace(DEFAULT_THOUSAND_SEPARATOR, '');
   const numericValue = parseFloat(rawValue); // if the string is an integer, this will return an integer number
   return isNaN(numericValue) ? undefined : numericValue;
 };
 
 /**
  * @param value the value to be formatted, which can also be the output of this function used as input again, e.g. in a form field.
- * @param digits the number of decimal places, defaults to 2
+ * @param options the Intl.NumberFormatOptions to be used for the formatting
  * @returns a string formatted to 2 decimal places in US locale, e.g. *12345.67* -> *12,345.67*
  */
 export const renderNumberWithDigits = (
   value: string | number | null | undefined,
-  digits = 2,
+  options?: Intl.NumberFormatOptions,
 ): string | undefined => {
-  if (!value) {
-    return undefined;
-  }
-  const numericValue =
-    typeof value === 'number' ? value : parseFormattedNumber(value);
-  if (!numericValue || isNaN(numericValue)) {
-    return undefined;
-  }
-  return numericValue.toLocaleString('en-US', {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  });
+  const numericValue = parseFormattedNumber(value);
+  return numericValue?.toLocaleString(DEFAULT_LOCALE, options);
 };
 
 export const candidOpt = <T>(opt: T | null | undefined): [] | [T] => {

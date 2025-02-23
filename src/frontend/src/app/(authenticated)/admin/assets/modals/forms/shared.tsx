@@ -4,12 +4,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { formAssetTypeAtom } from '../../atoms';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
-import {
-  cn,
-  formatBytes,
-  getDecimalSeparator,
-  localFileToSrc,
-} from '@/lib/utils';
+import { cn, formatBytes, localFileToSrc } from '@/lib/utils';
 import {
   FormControl,
   FormField,
@@ -232,12 +227,7 @@ export const PrizeFormFields = () => {
             <FormItem className={cn({ hidden: assetType !== 'token' })}>
               <FormLabel>Prize Value *</FormLabel>
               <FormControl>
-                <CurrencyInput
-                  currency="$"
-                  placeholder={`1${getDecimalSeparator()}00`}
-                  className="w-32"
-                  {...field}
-                />
+                <CurrencyInput currency="$" className="w-32" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
