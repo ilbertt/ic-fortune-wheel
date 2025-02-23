@@ -16,7 +16,6 @@ import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { renderError } from '@/lib/utils';
 import { useUser } from '@/contexts/user-context';
-import { useTeamMembers } from './team-members-context';
 
 type ActivityContextType = {
   activity: WheelPrizeExtraction[];
@@ -41,27 +40,19 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({
 }) => {
   const { actor } = useAuth();
   const { isCurrentUserAdmin } = useUser();
-  const { teamMembers } = useTeamMembers();
   const [activity, setActivity] = useState<WheelPrizeExtraction[]>([]);
   const [fetchingActivity, setFetchingActivity] = useState(false);
   const { toast } = useToast();
 
   const fetchActivity = useCallback(async () => {
-    if (!isCurrentUserAdmin || Object.keys(teamMembers).length === 0) {
+    if (!isCurrentUserAdmin) {
       return;
     }
     setFetchingActivity(true);
     await actor
       ?.list_wheel_prize_extractions()
       .then(extractOk)
-      .then(extractions => {
-        const mappedActivity = extractions.map(extraction => ({
-          ...extraction,
-          extractedBy: teamMembers[extraction.extracted_by_user_id],
-        }));
-
-        setActivity(mappedActivity);
-      })
+      .then(extractions => setActivity(extractions))
       .catch((e: Err) => {
         const title = 'Error fetching activity';
         console.error(title, e);
@@ -72,7 +63,7 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({
         });
       })
       .finally(() => setFetchingActivity(false));
-  }, [actor, toast, isCurrentUserAdmin, teamMembers]);
+  }, [actor, toast, isCurrentUserAdmin]);
 
   useEffect(() => {
     fetchActivity();

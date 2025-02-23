@@ -42,7 +42,7 @@ export function WheelPrizeExtractionStateBadge({
             Failed
           </Badge>
         </PopoverTrigger>
-        <PopoverContent className="w-80">
+        <PopoverContent>
           <div className="font-medium">Error Details</div>
           <p className="text-muted-foreground mt-2 text-sm">
             {renderError(state.failed.error)}

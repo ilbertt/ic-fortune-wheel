@@ -19,6 +19,7 @@ import { renderError } from '@/lib/utils';
 import { useUser } from '@/contexts/user-context';
 
 type WheelContextType = {
+  assets: Record<WheelAsset['id'], WheelAsset>;
   enabledAssets: WheelAsset[];
   disabledAssets: WheelAsset[];
   tokenAssets: WheelAssetToken[];
@@ -26,9 +27,11 @@ type WheelContextType = {
   fetchAssets: () => Promise<void>;
   refreshingTokens: boolean;
   refreshTokenAssets: () => Promise<void>;
+  getWheelAsset: (id: WheelAsset['id']) => WheelAsset | undefined;
 };
 
 const WheelAssetsContext = createContext<WheelContextType>({
+  assets: {},
   enabledAssets: [],
   disabledAssets: [],
   tokenAssets: [],
@@ -36,6 +39,7 @@ const WheelAssetsContext = createContext<WheelContextType>({
   fetchAssets: async () => {},
   refreshingTokens: false,
   refreshTokenAssets: async () => {},
+  getWheelAsset: () => undefined,
 });
 
 type WheelAssetsProviderProps = {
@@ -52,9 +56,10 @@ export const WheelAssetsProvider = ({
   const [fetchingAssets, setFetchingAssets] = useState(false);
   const [refreshingTokens, setRefreshingTokens] = useState(false);
   const [assets, setAssets] = useState<{
+    assets: Record<WheelAsset['id'], WheelAsset>;
     enabled: WheelAsset[];
     disabled: WheelAsset[];
-  }>({ enabled: [], disabled: [] });
+  }>({ assets: {}, enabled: [], disabled: [] });
   const [tokenAssets, setTokenAssets] = useState<WheelAssetToken[]>([]);
   const { toast } = useToast();
 
@@ -68,6 +73,7 @@ export const WheelAssetsProvider = ({
       .then(res => {
         const newAssets = res.reduce(
           (acc, asset) => {
+            acc.assets[asset.id] = asset;
             if (isWheelAssetDisabled(asset)) {
               acc.disabled.push(asset);
             } else {
@@ -75,7 +81,11 @@ export const WheelAssetsProvider = ({
             }
             return acc;
           },
-          { enabled: [] as WheelAsset[], disabled: [] as WheelAsset[] },
+          {
+            assets: {} as Record<WheelAsset['id'], WheelAsset>,
+            enabled: [] as WheelAsset[],
+            disabled: [] as WheelAsset[],
+          },
         );
         setAssets(newAssets);
         const tokenAssetsArr = res
@@ -134,6 +144,7 @@ export const WheelAssetsProvider = ({
   return (
     <WheelAssetsContext.Provider
       value={{
+        assets: assets.assets,
         enabledAssets: assets.enabled,
         disabledAssets: assets.disabled,
         tokenAssets: tokenAssets,
@@ -141,6 +152,7 @@ export const WheelAssetsProvider = ({
         fetchAssets,
         refreshingTokens,
         refreshTokenAssets,
+        getWheelAsset: (id: WheelAsset['id']) => assets.assets[id],
       }}
     >
       {children}

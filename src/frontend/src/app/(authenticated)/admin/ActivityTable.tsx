@@ -9,13 +9,23 @@ import { UserProfile } from '@/components/user-profile';
 import { useTeamMembers } from '@/contexts/team-members-context';
 import type { WheelPrizeExtraction } from '@/declarations/backend/backend.did';
 import { WheelPrizeExtractionStateBadge } from '@/components/wheel-prize-extraction-state-badge';
-import { renderDatetime } from '@/lib/utils';
+import { renderDatetime, renderUsdValue } from '@/lib/utils';
+import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { wheelAssetUrl } from '@/lib/wheel-asset';
+import Image from 'next/image';
+import { isWheelPrizeExtractionCompleted } from '@/lib/wheel-prize-extraction';
 
 const columnHelper = createColumnHelper<WheelPrizeExtraction>();
 
 export const ActivityTable: React.FC = () => {
   const { activity } = useActivity();
   const { getTeamMember } = useTeamMembers();
+  const { getWheelAsset } = useWheelAssets();
 
   const columns = useMemo(
     () => [
@@ -29,7 +39,48 @@ export const ActivityTable: React.FC = () => {
       }),
       columnHelper.display({
         header: 'Type',
-        cell: () => 'Wheel Prize Extraction',
+        cell: ctx => {
+          const wheelPrizeExtraction = ctx.row.original;
+          let wheelAsset;
+          if (isWheelPrizeExtractionCompleted(wheelPrizeExtraction.state)) {
+            wheelAsset = getWheelAsset(
+              wheelPrizeExtraction.state.completed.wheel_asset_id,
+            );
+          }
+          return (
+            <div className="flex flex-row items-center gap-2">
+              Wheel Prize Extraction
+              {wheelAsset ? (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    {wheelAsset.wheel_image_path[0] && (
+                      <Image
+                        className="aspect-square max-h-6 max-w-6 cursor-pointer object-contain"
+                        src={wheelAssetUrl(wheelAsset.wheel_image_path)!}
+                        alt={wheelAsset.name}
+                        width={50}
+                        height={50}
+                      />
+                    )}
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    {wheelAsset.name}
+                    {isWheelPrizeExtractionCompleted(
+                      wheelPrizeExtraction.state,
+                    ) &&
+                    wheelPrizeExtraction.state.completed.prize_usd_amount[0] !==
+                      undefined
+                      ? ` (${renderUsdValue(
+                          wheelPrizeExtraction.state.completed
+                            .prize_usd_amount[0],
+                        )})`
+                      : null}
+                  </PopoverContent>
+                </Popover>
+              ) : null}
+            </div>
+          );
+        },
       }),
       columnHelper.accessor('extracted_for_principal', {
         header: 'Extracted For',
@@ -54,7 +105,7 @@ export const ActivityTable: React.FC = () => {
         },
       }),
     ],
-    [getTeamMember],
+    [getTeamMember, getWheelAsset],
   );
 
   return <DataTable columns={columns} data={activity} />;
