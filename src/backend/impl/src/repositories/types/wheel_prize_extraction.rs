@@ -12,7 +12,7 @@ use super::{TimestampFields, Timestamped, UserId, Uuid, WheelAssetId};
 pub type WheelPrizeExtractionId = Uuid;
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
-pub enum WheelPrizeExtractionState {
+pub enum WheelPrizeExtractionStateOld {
     Processing,
     Completed {
         wheel_asset_id: WheelAssetId,
@@ -21,6 +21,65 @@ pub enum WheelPrizeExtractionState {
     Failed {
         error: ApiError,
     },
+}
+
+impl From<WheelPrizeExtractionStateOld> for WheelPrizeExtractionState {
+    fn from(old: WheelPrizeExtractionStateOld) -> Self {
+        match old {
+            WheelPrizeExtractionStateOld::Processing => WheelPrizeExtractionState::Processing,
+            WheelPrizeExtractionStateOld::Completed {
+                prize_usd_amount, ..
+            } => WheelPrizeExtractionState::Completed { prize_usd_amount },
+            WheelPrizeExtractionStateOld::Failed { error } => {
+                WheelPrizeExtractionState::Failed { error }
+            }
+        }
+    }
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
+pub struct WheelPrizeExtractionOld {
+    pub extracted_for_principal: Principal,
+    pub state: WheelPrizeExtractionStateOld,
+    pub extracted_by_user_id: UserId,
+    pub timestamps: TimestampFields,
+}
+
+impl From<WheelPrizeExtractionOld> for WheelPrizeExtraction {
+    fn from(old: WheelPrizeExtractionOld) -> Self {
+        let wheel_asset_id = match old.state {
+            WheelPrizeExtractionStateOld::Completed { wheel_asset_id, .. } => Some(wheel_asset_id),
+            WheelPrizeExtractionStateOld::Processing
+            | WheelPrizeExtractionStateOld::Failed { .. } => None,
+        };
+
+        Self {
+            extracted_for_principal: old.extracted_for_principal,
+            state: old.state.into(),
+            extracted_by_user_id: old.extracted_by_user_id,
+            timestamps: old.timestamps,
+            wheel_asset_id,
+        }
+    }
+}
+
+impl Storable for WheelPrizeExtractionOld {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(Encode!(self).unwrap())
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        Decode!(bytes.as_ref(), Self).unwrap()
+    }
+
+    const BOUND: Bound = Bound::Unbounded;
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq)]
+pub enum WheelPrizeExtractionState {
+    Processing,
+    Completed { prize_usd_amount: Option<f64> },
+    Failed { error: ApiError },
 }
 
 impl From<&WheelPrizeExtractionState> for u8 {
@@ -37,15 +96,8 @@ impl Display for WheelPrizeExtractionState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             WheelPrizeExtractionState::Processing => write!(f, "Processing"),
-            WheelPrizeExtractionState::Completed {
-                wheel_asset_id,
-                prize_usd_amount,
-            } => {
-                write!(
-                    f,
-                    "Completed (wheel_asset_id:{wheel_asset_id}, prize_usd_amount:{:?})",
-                    prize_usd_amount
-                )
+            WheelPrizeExtractionState::Completed { prize_usd_amount } => {
+                write!(f, "Completed (prize_usd_amount:{:?})", prize_usd_amount)
             }
             WheelPrizeExtractionState::Failed { error } => write!(f, "Failed (error:{error})",),
         }
@@ -55,7 +107,6 @@ impl Display for WheelPrizeExtractionState {
 impl WheelPrizeExtractionState {
     pub fn default_completed() -> Self {
         Self::Completed {
-            wheel_asset_id: WheelAssetId::nil(),
             prize_usd_amount: None,
         }
     }
@@ -67,6 +118,7 @@ pub struct WheelPrizeExtraction {
     pub state: WheelPrizeExtractionState,
     pub extracted_by_user_id: UserId,
     pub timestamps: TimestampFields,
+    pub wheel_asset_id: Option<WheelAssetId>,
 }
 
 impl WheelPrizeExtraction {
@@ -79,27 +131,18 @@ impl WheelPrizeExtraction {
             state: WheelPrizeExtractionState::Processing,
             extracted_by_user_id,
             timestamps: TimestampFields::new(),
+            wheel_asset_id: None,
         }
     }
 
     pub fn set_completed(&mut self, wheel_asset_id: WheelAssetId, prize_usd_amount: Option<f64>) {
-        self.state = WheelPrizeExtractionState::Completed {
-            wheel_asset_id,
-            prize_usd_amount,
-        };
+        self.state = WheelPrizeExtractionState::Completed { prize_usd_amount };
+        self.wheel_asset_id = Some(wheel_asset_id);
     }
 
-    pub fn set_failed(&mut self, error: ApiError) {
+    pub fn set_failed(&mut self, wheel_asset_id: Option<WheelAssetId>, error: ApiError) {
         self.state = WheelPrizeExtractionState::Failed { error };
-    }
-
-    pub fn wheel_asset_id(&self) -> Option<WheelAssetId> {
-        match &self.state {
-            WheelPrizeExtractionState::Completed { wheel_asset_id, .. } => Some(*wheel_asset_id),
-            WheelPrizeExtractionState::Processing | WheelPrizeExtractionState::Failed { .. } => {
-                None
-            }
-        }
+        self.wheel_asset_id = wheel_asset_id;
     }
 
     pub fn is_failed(&self) -> bool {
@@ -119,7 +162,10 @@ impl Storable for WheelPrizeExtraction {
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        Decode!(bytes.as_ref(), Self).unwrap()
+        match Decode!(bytes.as_ref(), WheelPrizeExtractionOld) {
+            Ok(old) => old.into(),
+            Err(_) => Decode!(bytes.as_ref(), Self).unwrap(),
+        }
     }
 
     const BOUND: Bound = Bound::Unbounded;
@@ -314,8 +360,64 @@ mod tests {
     }
 
     #[rstest]
+    #[case::completed(fixtures::old_wheel_prize_extraction_completed())]
+    #[case::pending(fixtures::old_wheel_prize_extraction_pending())]
+    #[case::failed(fixtures::old_wheel_prize_extraction_failed())]
+    fn storable_impl_compat(#[case] old_wheel_prize_extraction: WheelPrizeExtractionOld) {
+        let old_serialized_wheel_prize_extraction = old_wheel_prize_extraction.to_bytes();
+        let new_deserialized_wheel_prize_extraction =
+            WheelPrizeExtraction::from_bytes(old_serialized_wheel_prize_extraction);
+
+        assert_eq!(
+            old_wheel_prize_extraction.extracted_by_user_id,
+            new_deserialized_wheel_prize_extraction.extracted_by_user_id
+        );
+        assert_eq!(
+            old_wheel_prize_extraction.extracted_for_principal,
+            new_deserialized_wheel_prize_extraction.extracted_for_principal
+        );
+        assert_eq!(
+            old_wheel_prize_extraction.timestamps,
+            new_deserialized_wheel_prize_extraction.timestamps
+        );
+        match old_wheel_prize_extraction.state {
+            WheelPrizeExtractionStateOld::Completed {
+                wheel_asset_id: old_wheel_asset_id,
+                prize_usd_amount: old_prize_usd_amount,
+            } => match new_deserialized_wheel_prize_extraction.state {
+                WheelPrizeExtractionState::Completed {
+                    prize_usd_amount: new_prize_usd_amount,
+                } => {
+                    assert_eq!(old_prize_usd_amount, new_prize_usd_amount);
+                    assert_eq!(
+                        old_wheel_asset_id,
+                        new_deserialized_wheel_prize_extraction
+                            .wheel_asset_id
+                            .unwrap()
+                    );
+                }
+                _ => panic!("Expected completed state"),
+            },
+            WheelPrizeExtractionStateOld::Failed { error: old_error } => {
+                match new_deserialized_wheel_prize_extraction.state {
+                    WheelPrizeExtractionState::Failed { error: new_error } => {
+                        assert_eq!(old_error, new_error);
+                    }
+                    _ => panic!("Expected failed state"),
+                }
+            }
+            WheelPrizeExtractionStateOld::Processing => {
+                assert_eq!(
+                    new_deserialized_wheel_prize_extraction.state,
+                    WheelPrizeExtractionState::Processing
+                );
+            }
+        }
+    }
+
+    #[rstest]
     #[case::processing(WheelPrizeExtractionState::Processing)]
-    #[case::completed(WheelPrizeExtractionState::Completed { wheel_asset_id: fixtures::uuid(), prize_usd_amount: Some(1.5) })]
+    #[case::completed(WheelPrizeExtractionState::Completed { prize_usd_amount: Some(1.5) })]
     #[case::failed(WheelPrizeExtractionState::Failed { error: ApiError::internal("error") })]
     fn wheel_prize_extraction_state_key_storable_impl(#[case] state: WheelPrizeExtractionState) {
         let wheel_prize_extraction_id = fixtures::uuid();

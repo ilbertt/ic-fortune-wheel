@@ -36,11 +36,10 @@ export default function Page() {
             if (
               newExtraction &&
               newExtraction.id !== lastExtractionIdRef.current &&
-              isWheelPrizeExtractionCompleted(newExtraction.state)
+              isWheelPrizeExtractionCompleted(newExtraction.state) &&
+              newExtraction.wheel_asset_id[0]
             ) {
-              spinPrizeByWheelAssetId(
-                newExtraction.state.completed.wheel_asset_id,
-              );
+              spinPrizeByWheelAssetId(newExtraction.wheel_asset_id[0]);
               lastExtractionIdRef.current = newExtraction.id;
               // eslint-disable-next-line no-console
               console.log(

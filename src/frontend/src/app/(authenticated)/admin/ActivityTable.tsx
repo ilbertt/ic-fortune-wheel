@@ -41,12 +41,9 @@ export const ActivityTable: React.FC = () => {
         header: 'Type',
         cell: ctx => {
           const wheelPrizeExtraction = ctx.row.original;
-          let wheelAsset;
-          if (isWheelPrizeExtractionCompleted(wheelPrizeExtraction.state)) {
-            wheelAsset = getWheelAsset(
-              wheelPrizeExtraction.state.completed.wheel_asset_id,
-            );
-          }
+          const wheelAsset = wheelPrizeExtraction.wheel_asset_id[0]
+            ? getWheelAsset(wheelPrizeExtraction.wheel_asset_id[0])
+            : null;
           return (
             <div className="flex flex-row items-center gap-2">
               Wheel Prize Extraction
