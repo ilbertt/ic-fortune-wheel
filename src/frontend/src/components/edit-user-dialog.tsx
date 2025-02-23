@@ -1,10 +1,7 @@
 'use client';
 
-import { renderError } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/auth-context';
 import { useState } from 'react';
-import { useUser } from '@/contexts/user-context';
 import {
   Dialog,
   DialogContent,
@@ -26,14 +23,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useToast } from '@/hooks/use-toast';
-import { extractOk } from '@/lib/api';
-import { type Err } from '@/declarations/backend/backend.did';
 import { UserIdDisplay } from '@/components/user-id-display';
 import { Label } from '@/components/ui/label';
 import { UserRoleBadge } from './user-role-badge';
 import { ROUTES } from '@/lib/routes';
 import Link from 'next/link';
+import { useUser } from '@/hooks/use-user';
+import { useUpdateMyUser } from '@/hooks/use-update-my-user';
 
 const editUserFormSchema = z.object({
   username: z.string().min(1),
@@ -46,8 +42,7 @@ type EditUserDialogProps = {
 export const EditUserDialog: React.FC<EditUserDialogProps> = ({
   triggerButton,
 }) => {
-  const { actor } = useAuth();
-  const { user, fetchUser } = useUser();
+  const { user } = useUser();
   const form = useForm<z.infer<typeof editUserFormSchema>>({
     resolver: zodResolver(editUserFormSchema),
     mode: 'onChange',
@@ -55,30 +50,15 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({
       username: user?.username || '',
     },
   });
-  const { isValid: isFormValid, isSubmitting: isFormSubmitting } =
-    form.formState;
-  const { toast } = useToast();
+  const { isValid: isFormValid } = form.formState;
   const [open, setOpen] = useState(false);
+  const { updateMyUser, isUpdating } = useUpdateMyUser();
 
-  const onSubmit = async (data: z.infer<typeof editUserFormSchema>) => {
-    await actor
-      .update_my_user_profile({
-        username: [data.username],
-      })
-      .then(extractOk)
-      .then(async () => {
-        await fetchUser();
-        setOpen(false);
-      })
-      .catch((e: Err) => {
-        const title = 'Error updating user';
-        console.error(title, e);
-        toast({
-          title,
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      });
+  const onSubmit = (data: z.infer<typeof editUserFormSchema>) => {
+    updateMyUser(
+      { username: data.username },
+      { onSuccess: () => setOpen(false) },
+    );
   };
 
   return (
@@ -129,7 +109,7 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({
             <DialogFooter>
               <Button
                 type="submit"
-                loading={isFormSubmitting}
+                loading={isUpdating}
                 disabled={!isFormValid}
               >
                 Save changes

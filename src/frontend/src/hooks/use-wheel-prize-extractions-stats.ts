@@ -1,55 +1,30 @@
 'use client';
 
 import { useAuth } from '@/contexts/auth-context';
-import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
-import { renderError } from '@/lib/utils';
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { WheelPrizeExtractionsStats } from '@/declarations/backend/backend.did';
 
-type UseWheelPrizeExtractionsStatsOptions = {
-  refreshIntervalMs: number;
+const FETCH_WHEEL_PRIZE_EXTRACTIONS_INTERVAL_MS = 2_000;
+
+type UseWheelPrizeExtractionsStatsReturnType = {
+  stats: WheelPrizeExtractionsStats | undefined;
 };
 
-export const useWheelPrizeExtractionsStats = (
-  options: UseWheelPrizeExtractionsStatsOptions,
-) => {
-  const { refreshIntervalMs } = options;
-  const { actor } = useAuth();
-  const { toast } = useToast();
-  const [stats, setStats] = useState<WheelPrizeExtractionsStats | null>(null);
-  const [fetchingStats, setFetchingStats] = useState(true);
+export const useWheelPrizeExtractionsStats =
+  (): UseWheelPrizeExtractionsStatsReturnType => {
+    const { actor } = useAuth();
 
-  const fetchStats = useCallback(async () => {
-    setFetchingStats(true);
-    await actor
-      ?.get_wheel_prize_extractions_stats()
-      .then(extractOk)
-      .then(setStats)
-      .catch(e => {
-        const title = 'Error fetching wheel prize extraction stats';
-        console.error(title, e);
-        toast({
-          title,
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      })
-      .finally(() => setFetchingStats(false));
-  }, [actor, toast]);
+    const { data: stats } = useQuery<WheelPrizeExtractionsStats>({
+      queryKey: ['wheel-prize-extractions-stats'],
+      queryFn: async () => {
+        return actor!.get_wheel_prize_extractions_stats().then(extractOk);
+      },
+      enabled: !!actor,
+      refetchInterval: FETCH_WHEEL_PRIZE_EXTRACTIONS_INTERVAL_MS,
+    });
 
-  useEffect(() => {
-    fetchStats();
-
-    if (refreshIntervalMs) {
-      const interval = setInterval(fetchStats, refreshIntervalMs);
-      return () => clearInterval(interval);
-    }
-  }, [fetchStats, refreshIntervalMs]);
-
-  return {
-    stats,
-    fetchingStats,
-    fetchStats,
+    return {
+      stats,
+    };
   };
-};

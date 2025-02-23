@@ -1,7 +1,10 @@
 import type { Err } from '@/declarations/backend/backend.did';
 import '@tanstack/react-query';
 
-type QueryKey = ['team-members', ...ReadonlyArray<string>];
+type QueryKey = [
+  'team-members' | 'user' | 'activity' | 'wheel-prize-extractions-stats',
+  ...ReadonlyArray<string>,
+];
 type QueryMeta = {
   errorMessage?: string;
 };

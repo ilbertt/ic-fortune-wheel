@@ -1,7 +1,6 @@
 'use client';
 
 import { DataTable } from '@/components/ui/data-table';
-import { useActivity } from '@/contexts/activity-context';
 import { createColumnHelper } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { PrincipalDisplay } from '@/components/principal-display';
@@ -10,11 +9,12 @@ import type { WheelPrizeExtraction } from '@/declarations/backend/backend.did';
 import { WheelPrizeExtractionStateBadge } from '@/components/wheel-prize-extraction-state-badge';
 import { renderDatetime } from '@/lib/utils';
 import { useTeamMembers } from '@/hooks/use-team-members';
+import { useActivity } from '@/hooks/use-activity';
 
 const columnHelper = createColumnHelper<WheelPrizeExtraction>();
 
 export const ActivityTable: React.FC = () => {
-  const { activity } = useActivity();
+  const { data: activity } = useActivity();
   const { getTeamMember } = useTeamMembers();
 
   const columns = useMemo(
@@ -57,5 +57,5 @@ export const ActivityTable: React.FC = () => {
     [getTeamMember],
   );
 
-  return <DataTable columns={columns} data={activity} />;
+  return <DataTable columns={columns} data={activity || []} />;
 };

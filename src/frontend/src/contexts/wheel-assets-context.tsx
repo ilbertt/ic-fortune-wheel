@@ -16,7 +16,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useToast } from '@/hooks/use-toast';
 import { extractOk } from '@/lib/api';
 import { renderError } from '@/lib/utils';
-import { useUser } from '@/contexts/user-context';
+import { useUser } from '@/hooks/use-user';
 
 type WheelContextType = {
   enabledAssets: WheelAsset[];

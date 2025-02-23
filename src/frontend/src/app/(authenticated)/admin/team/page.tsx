@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { USER_ROLE_OPTIONS } from '@/constants/user';
-import { useUser } from '@/contexts/user-context';
 import type {
   UserProfile as UserProfileType,
   UserRole,
@@ -41,6 +40,7 @@ import { useTeamMembers } from '@/hooks/use-team-members';
 import { UserProfile } from '@/components/user-profile';
 import { useDeleteUser } from '@/hooks/use-delete-user';
 import { useUpdateUser } from '@/hooks/use-update-user';
+import { useUser } from '@/hooks/use-user';
 
 type TeamMemberRowProps = {
   member: UserProfileType;
