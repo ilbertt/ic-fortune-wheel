@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { PageLayout, PageContent, PageHeader } from '@/components/layouts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreditCard, DollarSign, User, Users } from 'lucide-react';
-import { useUser } from '@/contexts/user-context';
 import { EditUserDialog } from '@/components/edit-user-dialog';
 import { useWheelAssets } from '@/contexts/wheel-assets-context';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,15 +13,12 @@ import { ActivityTable } from './ActivityTable';
 import { useWheelPrizeExtractionsStats } from '@/hooks/use-wheel-prize-extractions-stats';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/routes';
-
-const FETCH_WHEEL_PRIZE_EXTRACTIONS_INTERVAL_MS = 2_000;
+import { useUser } from '@/hooks/use-user';
 
 export default function Home() {
   const { isCurrentUserUnassigned } = useUser();
   const { tokenAssets, fetchingAssets } = useWheelAssets();
-  const { stats } = useWheelPrizeExtractionsStats({
-    refreshIntervalMs: FETCH_WHEEL_PRIZE_EXTRACTIONS_INTERVAL_MS,
-  });
+  const { stats } = useWheelPrizeExtractionsStats();
 
   return (
     <PageLayout>

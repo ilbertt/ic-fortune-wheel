@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { UserIdDisplay } from '@/components/user-id-display';
-import { useUser } from '@/contexts/user-context';
 import type { UserProfile as UserProfileType } from '@/declarations/backend/backend.did';
+import { useUser } from '@/hooks/use-user';
 import { userInitials } from '@/lib/user';
 
 type UserProfileProps = {
