@@ -277,19 +277,20 @@ impl Storable for WheelPrizeExtractionAssetIdKey {
     };
 }
 
-pub struct WheelPrizeExtractionAssetIdRange {
-    start_bound: WheelPrizeExtractionAssetIdKey,
-    end_bound: WheelPrizeExtractionAssetIdKey,
-}
+// TODO: implement filters for asset id range in API
+// pub struct WheelPrizeExtractionAssetIdRange {
+//     start_bound: WheelPrizeExtractionAssetIdKey,
+//     end_bound: WheelPrizeExtractionAssetIdKey,
+// }
 
-impl WheelPrizeExtractionAssetIdRange {
-    pub fn new(wheel_asset_id: WheelAssetId) -> Result<Self, ApiError> {
-        Ok(Self {
-            start_bound: WheelPrizeExtractionAssetIdKey::new(wheel_asset_id, Uuid::min())?,
-            end_bound: WheelPrizeExtractionAssetIdKey::new(wheel_asset_id, Uuid::max())?,
-        })
-    }
-}
+// impl WheelPrizeExtractionAssetIdRange {
+//     pub fn new(wheel_asset_id: WheelAssetId) -> Result<Self, ApiError> {
+//         Ok(Self {
+//             start_bound: WheelPrizeExtractionAssetIdKey::new(wheel_asset_id, Uuid::min())?,
+//             end_bound: WheelPrizeExtractionAssetIdKey::new(wheel_asset_id, Uuid::max())?,
+//         })
+//     }
+// }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct WheelPrizeExtractionUserIdKey(Blob<{ Self::MAX_SIZE as usize }>);
@@ -329,19 +330,20 @@ impl Storable for WheelPrizeExtractionUserIdKey {
     };
 }
 
-pub struct WheelPrizeExtractionUserIdRange {
-    start_bound: WheelPrizeExtractionUserIdKey,
-    end_bound: WheelPrizeExtractionUserIdKey,
-}
+// TODO: implement filters for user id range in API
+// pub struct WheelPrizeExtractionUserIdRange {
+//     start_bound: WheelPrizeExtractionUserIdKey,
+//     end_bound: WheelPrizeExtractionUserIdKey,
+// }
 
-impl WheelPrizeExtractionUserIdRange {
-    pub fn new(user_id: UserId) -> Result<Self, ApiError> {
-        Ok(Self {
-            start_bound: WheelPrizeExtractionUserIdKey::new(user_id, Uuid::min())?,
-            end_bound: WheelPrizeExtractionUserIdKey::new(user_id, Uuid::max())?,
-        })
-    }
-}
+// impl WheelPrizeExtractionUserIdRange {
+//     pub fn new(user_id: UserId) -> Result<Self, ApiError> {
+//         Ok(Self {
+//             start_bound: WheelPrizeExtractionUserIdKey::new(user_id, Uuid::min())?,
+//             end_bound: WheelPrizeExtractionUserIdKey::new(user_id, Uuid::max())?,
+//         })
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
