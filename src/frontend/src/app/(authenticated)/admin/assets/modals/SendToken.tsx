@@ -42,7 +42,6 @@ import type { ZodProperties } from '@/lib/types/utils';
 import {
   bigIntToFloat,
   floatToBigInt,
-  getDecimalSeparator,
   renderError,
   renderUsdValue,
 } from '@/lib/utils';
@@ -96,9 +95,10 @@ export const SendTokenModal = () => {
   const selectedTokenAssetDecimals =
     selectedTokenAsset?.asset_type.token.ledger_config.decimals;
   const tokenName = selectedTokenAsset?.name || '';
-  const { ledgerCanisterMetadata } = useLedgerCanisterMetadata({
-    ledgerCanisterId: formLedgerCanisterId,
-  });
+  const { ledgerCanisterMetadata, isFetchingLedgerCanisterMetadata } =
+    useLedgerCanisterMetadata({
+      ledgerCanisterId: formLedgerCanisterId,
+    });
   const ledgerCanisterFee =
     ledgerCanisterMetadata && selectedTokenAssetDecimals
       ? bigIntToFloat(ledgerCanisterMetadata.fee, selectedTokenAssetDecimals)
@@ -255,6 +255,8 @@ export const SendTokenModal = () => {
                           variant="link"
                           className="ml-4 h-auto p-0 underline"
                           onClick={handleMaxAmountClick}
+                          loading={isFetchingLedgerCanisterMetadata}
+                          disabled={isFormSubmitting}
                         >
                           Max
                         </Button>
@@ -263,7 +265,10 @@ export const SendTokenModal = () => {
                     <FormControl>
                       <CurrencyInput
                         currency={tokenName}
-                        placeholder={`1${getDecimalSeparator()}00`}
+                        formatOptions={{
+                          minimumFractionDigits: selectedTokenAssetDecimals,
+                          maximumFractionDigits: selectedTokenAssetDecimals,
+                        }}
                         {...field}
                       />
                     </FormControl>

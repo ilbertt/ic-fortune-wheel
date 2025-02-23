@@ -138,7 +138,7 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
                 let old_principal_key = old_wheel_prize_extraction.extracted_for_principal;
                 s.wheel_prize_extraction_principal_index
                     .remove(&old_principal_key);
-                if let Some(old_asset_id) = old_wheel_prize_extraction.wheel_asset_id() {
+                if let Some(old_asset_id) = old_wheel_prize_extraction.wheel_asset_id {
                     let old_asset_id_key = WheelPrizeExtractionAssetIdKey::new(old_asset_id, id)?;
                     s.wheel_prize_extraction_asset_id_index
                         .remove(&old_asset_id_key);
@@ -181,7 +181,7 @@ impl WheelPrizeExtractionRepositoryImpl {
         id: WheelPrizeExtractionId,
         wheel_prize_extraction: &WheelPrizeExtraction,
     ) -> Result<(), ApiError> {
-        if let Some(wheel_asset_id) = wheel_prize_extraction.wheel_asset_id() {
+        if let Some(wheel_asset_id) = wheel_prize_extraction.wheel_asset_id {
             let asset_id_key = WheelPrizeExtractionAssetIdKey::new(wheel_asset_id, id)?;
             state
                 .wheel_prize_extraction_asset_id_index

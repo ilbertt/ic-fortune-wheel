@@ -7,10 +7,7 @@ pub enum WheelPrizeExtractionState {
     #[serde(rename = "processing")]
     Processing,
     #[serde(rename = "completed")]
-    Completed {
-        wheel_asset_id: String,
-        prize_usd_amount: Option<f64>,
-    },
+    Completed { prize_usd_amount: Option<f64> },
     #[serde(rename = "failed")]
     Failed { error: ApiError },
 }
@@ -21,6 +18,7 @@ pub struct WheelPrizeExtraction {
     pub extracted_for_principal: Principal,
     pub extracted_by_user_id: String,
     pub state: WheelPrizeExtractionState,
+    pub wheel_asset_id: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }

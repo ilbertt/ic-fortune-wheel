@@ -243,7 +243,6 @@ type UpdateWheelPrizesOrderResponse = variant {
 type WheelPrizeExtractionState = variant {
   processing;
   completed : record {
-    wheel_asset_id : text;
     prize_usd_amount: opt float64;
   };
   failed : record { error : Err };
@@ -254,6 +253,7 @@ type WheelPrizeExtraction = record {
   extracted_for_principal : principal;
   extracted_by_user_id : text;
   state : WheelPrizeExtractionState;
+  wheel_asset_id : opt text;
   created_at : text;
   updated_at : text;
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
-import { cn } from '@/lib/utils';
+import { cn, renderUsdValue } from '@/lib/utils';
 import { wheelAssetUrl } from '@/lib/wheel-asset';
 import Image from 'next/image';
 import { useEffect } from 'react';
@@ -60,7 +60,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
       )}
       <div className="prize-name-animation bg-ic-gradient rounded-xl px-4 py-2 text-3xl font-bold xl:text-5xl">
         {currentPrize.prize.prize_usd_amount[0]
-          ? `$${currentPrize.prize.prize_usd_amount[0]} in `
+          ? `${renderUsdValue(currentPrize.prize.prize_usd_amount[0])} in `
           : ''}
         {currentPrize.prize.name}
       </div>
