@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as childProcess from 'child_process';
 
 const dfxEnvList = dotenv.config({ path: '../../.env' }).parsed || {};
+const DFX_NETWORK = dfxEnvList.DFX_NETWORK;
 
 const { version } = JSON.parse(fs.readFileSync('./package.json').toString());
 const lastCommitShortSha = childProcess
@@ -13,14 +14,13 @@ const lastCommitShortSha = childProcess
 
 const nextConfig: NextConfig = {
   env: {
-    DFX_NETWORK: dfxEnvList.DFX_NETWORK,
+    DFX_NETWORK,
     CANISTER_ID_BACKEND: dfxEnvList.CANISTER_ID_BACKEND,
+    CANISTER_ID_FRONTEND: dfxEnvList.CANISTER_ID_FRONTEND,
     CANISTER_ID_INTERNET_IDENTITY: dfxEnvList.CANISTER_ID_INTERNET_IDENTITY,
     NEXT_PUBLIC_VERSION: `v${version}+${lastCommitShortSha}`,
     NEXT_PUBLIC_IC_HOST:
-      dfxEnvList.DFX_NETWORK === 'ic'
-        ? 'https://icp-api.io'
-        : 'http://127.0.0.1:4943',
+      DFX_NETWORK === 'ic' ? 'https://icp-api.io' : 'http://127.0.0.1:4943',
   },
   output: 'export',
   images: {
