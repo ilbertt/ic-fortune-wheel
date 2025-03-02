@@ -16,7 +16,7 @@ const FortuneWheel = dynamic(() => import('@/components/wheel/wheel'), {
   ssr: false,
 });
 
-const LAST_EXTRACTION_POLLING_INTERVAL_MS = 1_000;
+const LAST_EXTRACTION_POLLING_INTERVAL_MS = 1_500;
 
 export default function Page() {
   const { actor } = useAuth();

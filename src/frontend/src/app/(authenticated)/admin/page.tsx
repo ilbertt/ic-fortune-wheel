@@ -22,10 +22,7 @@ export default function Home() {
 
   return (
     <PageLayout>
-      <PageHeader
-        title="Dashboard"
-        rightContent={<Button variant="secondary">Action</Button>}
-      />
+      <PageHeader title="Dashboard" />
       <PageContent>
         {!isCurrentUserUnassigned && (
           <>

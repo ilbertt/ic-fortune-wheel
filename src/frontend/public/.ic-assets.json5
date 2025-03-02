@@ -44,4 +44,16 @@
     // "allow_raw_access": false
     disable_security_policy_warning: true,
   },
+  {
+    match: '.well-known',
+    ignore: false,
+  },
+  {
+    match: '.well-known/ii-alternative-origins',
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    },
+    ignore: false,
+  },
 ]
