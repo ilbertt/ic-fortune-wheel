@@ -4,11 +4,11 @@ import { useAuth } from '@/contexts/auth-context';
 import { extractOk } from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
-  Err,
   WheelAssetUiSettings,
   WheelAssetState,
   UpdateWheelAssetTypeConfig,
 } from '@/declarations/backend/backend.did';
+import { toastError } from '@/lib/utils';
 
 type UpdateWheelPrizeParams = {
   id: string;
@@ -24,7 +24,7 @@ export const useUpdateWheelPrize = () => {
   const { actor } = useAuth();
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, Err, UpdateWheelPrizeParams>({
+  return useMutation({
     mutationFn: async (params: UpdateWheelPrizeParams) => {
       return actor!
         .update_wheel_asset({
@@ -45,8 +45,6 @@ export const useUpdateWheelPrize = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wheel-prizes'] });
     },
-    meta: {
-      errorMessage: 'Error updating prize settings',
-    },
+    onError: err => toastError(err, 'Error updating prize settings'),
   });
 };

@@ -8,6 +8,7 @@ type QueryKey = [
     | 'activity'
     | 'wheel-prize-extractions-stats'
     | 'wheel-prizes'
+    | 'wheel-assets'
   ),
   ...ReadonlyArray<string>,
 ];

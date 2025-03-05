@@ -17,7 +17,7 @@ import { AssetTokenForm } from './forms/token';
 import { useAtom } from 'jotai';
 import { formAssetTypeAtom } from '../atoms';
 import { AssetGadgetForm } from './forms/gadget';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { useWheelAssets } from '@/hooks/use-wheel-assets';
 
 export const CreateAssetModal: React.FC = () => {
   const { fetchAssets } = useWheelAssets();

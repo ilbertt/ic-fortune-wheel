@@ -38,8 +38,9 @@ import { TopUpModal } from './modals/TopUp';
 import { AssetsTable } from './AssetsTable';
 import { Loader } from '@/components/loader';
 import { CreateAssetModal } from './modals/Create';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { useWheelAssets } from '@/hooks/use-wheel-assets';
 import { SendTokenModal } from './modals/SendToken';
+import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 
 type TokenRowProps = {
   token: WheelAssetToken;
@@ -123,14 +124,9 @@ const EmptyAssets: React.FC = () => {
 };
 
 export default function Page() {
-  const {
-    enabledAssets,
-    disabledAssets,
-    tokenAssets,
-    fetchingAssets,
-    refreshingTokens,
-    refreshTokenAssets,
-  } = useWheelAssets();
+  const { enabledAssets, disabledAssets, fetchingAssets } = useWheelAssets();
+  const { tokenAssets, refreshingTokens, refreshTokenAssets } =
+    useWheelAssetTokens();
 
   return (
     <PageLayout>

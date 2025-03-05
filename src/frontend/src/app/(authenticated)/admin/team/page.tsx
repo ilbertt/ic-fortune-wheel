@@ -52,8 +52,8 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member }) => {
   const [role, setRole] = useState<ExtractKeysFromCandidEnum<UserRole>>(
     enumKey(member.role),
   );
-  const { deleteUser, isDeleting } = useDeleteUser();
-  const { updateUser, isUpdating } = useUpdateUser();
+  const { mutate: deleteUser, isPending: isDeleting } = useDeleteUser();
+  const { mutate: updateUser, isPending: isUpdating } = useUpdateUser();
 
   const handleRoleChange = useCallback(
     (value: string) => {

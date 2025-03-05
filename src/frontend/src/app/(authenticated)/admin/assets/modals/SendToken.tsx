@@ -29,7 +29,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/contexts/auth-context';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
 import type {
   Err,
   TransferTokenRequest,
@@ -55,6 +54,7 @@ import { Send } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
+import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 
 const transferTokenFormSchema = z.object<
   ZodProperties<
@@ -70,7 +70,7 @@ const transferTokenFormSchema = z.object<
 
 export const SendTokenModal = () => {
   const { actor } = useAuth();
-  const { tokenAssets, refreshTokenAssets } = useWheelAssets();
+  const { tokenAssets, refreshTokenAssets } = useWheelAssetTokens();
   const form = useForm<z.infer<typeof transferTokenFormSchema>>({
     resolver: zodResolver(transferTokenFormSchema),
     mode: 'onChange',

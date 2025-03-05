@@ -17,7 +17,7 @@ export function useUser(): UseUserData {
   const { actor } = useAuth();
   const queryClient = useQueryClient();
 
-  const createUserMutation = useMutation<UserProfile, Err>({
+  const createUserMutation = useMutation({
     mutationFn: async () => {
       return actor!.create_my_user_profile().then(extractOk);
     },
@@ -27,16 +27,16 @@ export function useUser(): UseUserData {
     onError: error => toastError(error, 'Error creating user profile'),
   });
 
-  const { data: user } = useQuery<UserProfile, Err>({
+  const { data: user } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
       try {
-        return await actor!.get_my_user_profile().then(extractOk);
+        return actor!.get_my_user_profile().then(extractOk);
       } catch (err) {
         const error = err as Err;
         // If user doesn't exist, create a new profile
         if (error.code === 404) {
-          return await createUserMutation.mutateAsync();
+          return createUserMutation.mutateAsync();
         }
         throw error;
       }

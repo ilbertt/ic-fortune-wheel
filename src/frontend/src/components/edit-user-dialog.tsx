@@ -52,7 +52,7 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({
   });
   const { isValid: isFormValid } = form.formState;
   const [open, setOpen] = useState(false);
-  const { updateMyUser, isUpdating } = useUpdateMyUser();
+  const { mutate: updateMyUser, isPending: isUpdating } = useUpdateMyUser();
 
   const onSubmit = (data: z.infer<typeof editUserFormSchema>) => {
     updateMyUser(

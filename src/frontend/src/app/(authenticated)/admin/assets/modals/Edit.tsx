@@ -17,7 +17,7 @@ import { wheelAssetToEdit } from '../atoms';
 import { AssetTokenForm } from './forms/token';
 import { isWheelAssetGadget, isWheelAssetToken } from '@/lib/wheel-asset';
 import { AssetGadgetForm } from './forms/gadget';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { useWheelAssets } from '@/hooks/use-wheel-assets';
 
 type EditAssetModalProps = {
   asset: WheelAsset;

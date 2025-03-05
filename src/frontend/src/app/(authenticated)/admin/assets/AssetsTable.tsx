@@ -14,7 +14,7 @@ import { MinusCircle, PlusCircle } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { EditAssetModal } from './modals/Edit';
 import { Loader } from '@/components/loader';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { useWheelAssets } from '@/hooks/use-wheel-assets';
 
 type AssetStateToggleProps = {
   asset: WheelAsset;

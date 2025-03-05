@@ -5,7 +5,6 @@ import { PageLayout, PageContent, PageHeader } from '@/components/layouts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreditCard, DollarSign, User, Users } from 'lucide-react';
 import { EditUserDialog } from '@/components/edit-user-dialog';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { renderUsdValue } from '@/lib/utils';
 import { wheelAssetsUsdValueSum } from '@/lib/wheel-asset';
@@ -14,10 +13,11 @@ import { useWheelPrizeExtractionsStats } from '@/hooks/use-wheel-prize-extractio
 import Link from 'next/link';
 import { ROUTES } from '@/lib/routes';
 import { useUser } from '@/hooks/use-user';
+import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 
 export default function Home() {
   const { isCurrentUserUnassigned } = useUser();
-  const { tokenAssets, fetchingAssets } = useWheelAssets();
+  const { tokenAssets, refreshingTokens } = useWheelAssetTokens();
   const { stats } = useWheelPrizeExtractionsStats();
 
   return (
@@ -67,7 +67,7 @@ export default function Home() {
                 <DollarSign className="text-indaco-blue size-4" />
               </CardHeader>
               <CardContent className="text-2xl font-bold">
-                {fetchingAssets ? (
+                {refreshingTokens ? (
                   <Skeleton className="mt-1 h-10 w-48" />
                 ) : (
                   <div className="flex flex-row flex-wrap justify-between gap-2">

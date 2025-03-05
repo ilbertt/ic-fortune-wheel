@@ -8,7 +8,7 @@ import { UserProfile } from '@/components/user-profile';
 import type { WheelPrizeExtraction } from '@/declarations/backend/backend.did';
 import { WheelPrizeExtractionStateBadge } from '@/components/wheel-prize-extraction-state-badge';
 import { renderDatetime, renderUsdValue } from '@/lib/utils';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { useWheelAssets } from '@/hooks/use-wheel-assets';
 import {
   Popover,
   PopoverContent,

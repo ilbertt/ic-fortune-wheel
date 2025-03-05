@@ -11,16 +11,11 @@ type UpdateUserParams = {
   role?: ExtractKeysFromCandidEnum<UserRole>;
 };
 
-type UseUpdateUserReturn = {
-  updateUser: (params: UpdateUserParams) => void;
-  isUpdating: boolean;
-};
-
-export const useUpdateUser = (): UseUpdateUserReturn => {
+export const useUpdateUser = () => {
   const { actor } = useAuth();
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: async ({ userId, role, username }: UpdateUserParams) => {
       const result = await actor?.update_user_profile({
         user_id: userId,
@@ -34,9 +29,4 @@ export const useUpdateUser = (): UseUpdateUserReturn => {
     },
     onError: e => toastError(e, 'Error updating user'),
   });
-
-  return {
-    updateUser: mutation.mutate,
-    isUpdating: mutation.isPending,
-  };
 };
