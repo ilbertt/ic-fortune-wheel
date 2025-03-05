@@ -5,7 +5,7 @@ import { getLedgerActor } from '@/lib/ledger';
 import { Actor } from '@dfinity/agent';
 import { type IcrcTokenMetadata, mapTokenMetadata } from '@dfinity/ledger-icrc';
 import { Principal } from '@dfinity/principal';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 type UseLedgerCanisterMetadataParams = {
   ledgerCanisterId: Principal | string | undefined;
@@ -20,52 +20,52 @@ type UseLedgerCanisterMetadataReturn = {
 
 export const useLedgerCanisterMetadata = ({
   ledgerCanisterId: ledgerCanisterIdProp,
-  onError,
   onSuccess,
+  onError,
 }: UseLedgerCanisterMetadataParams): UseLedgerCanisterMetadataReturn => {
   const { actor } = useAuth();
-  const [
-    isFetchingLedgerCanisterMetadata,
-    setIsFetchingLedgerCanisterMetadata,
-  ] = useState(false);
-  const [metadata, setMetadata] = useState<IcrcTokenMetadata | null>(null);
 
-  useEffect(() => {
-    if (ledgerCanisterIdProp) {
+  const { data, isPending } = useQuery({
+    queryKey: [
+      'ledger-canister-metadata',
+      ledgerCanisterIdProp?.toString() || '',
+    ],
+    queryFn: async () => {
+      if (!ledgerCanisterIdProp || !actor) {
+        return null;
+      }
+
       try {
         const ledgerCanisterId = Principal.from(ledgerCanisterIdProp);
         const ledgerActor = getLedgerActor(
           ledgerCanisterId,
           Actor.agentOf(actor)!,
         );
-        setIsFetchingLedgerCanisterMetadata(true);
-        ledgerActor
-          .metadata({})
-          .then(mapTokenMetadata)
-          .then(metadata => {
-            const metadataRes = metadata || null;
-            setMetadata(metadataRes);
-            if (metadataRes && onSuccess) {
-              onSuccess(metadataRes);
-            }
-          })
-          .catch(err => {
-            console.error(err);
-            if (onError) {
-              onError();
-            }
-          })
-          .finally(() => {
-            setIsFetchingLedgerCanisterMetadata(false);
-          });
-      } catch {
-        // do nothing
+
+        const result = await ledgerActor.metadata({});
+        const mappedResult = mapTokenMetadata(result) || null;
+
+        if (mappedResult && onSuccess) {
+          onSuccess(mappedResult);
+        }
+
+        return mappedResult;
+      } catch (error) {
+        console.error(error);
+        if (onError) {
+          onError();
+        }
+        throw error;
       }
-    }
-  }, [ledgerCanisterIdProp, actor, onSuccess, onError]);
+    },
+    enabled: !!ledgerCanisterIdProp && !!actor,
+    meta: {
+      errorMessage: 'Error fetching ledger canister metadata',
+    },
+  });
 
   return {
-    isFetchingLedgerCanisterMetadata,
-    ledgerCanisterMetadata: metadata,
+    isFetchingLedgerCanisterMetadata: isPending,
+    ledgerCanisterMetadata: data || null,
   };
 };
