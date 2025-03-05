@@ -1,11 +1,9 @@
 'use client';
 
 import { useAuth } from '@/contexts/auth-context';
-import type { Err, WheelAsset } from '@/declarations/backend/backend.did';
+import type { WheelAsset } from '@/declarations/backend/backend.did';
 import { isWheelAssetDisabled } from '@/lib/wheel-asset';
 import { extractOk } from '@/lib/api';
-import { renderError } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/hooks/use-user';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
@@ -24,21 +22,15 @@ type UseWheelAssetsReturnType = {
   enabledAssets: WheelAsset[];
   disabledAssets: WheelAsset[];
   fetchingAssets: boolean;
-  fetchAssets: () => Promise<void>;
   getWheelAsset: (id: WheelAsset['id']) => WheelAsset | undefined;
 };
 
 export const useWheelAssets = (): UseWheelAssetsReturnType => {
   const { actor } = useAuth();
   const { isCurrentUserAdmin } = useUser();
-  const { toast } = useToast();
 
   // Query to fetch wheel assets
-  const {
-    data,
-    refetch,
-    isLoading: fetchingAssets,
-  } = useQuery<WheelAssetsData, Err>({
+  const { data, isLoading: fetchingAssets } = useQuery({
     queryKey: ['wheel-assets'],
     queryFn: async () => {
       const res = await actor!.list_wheel_assets({ state: [] }).then(extractOk);
@@ -69,23 +61,6 @@ export const useWheelAssets = (): UseWheelAssetsReturnType => {
     },
   });
 
-  const fetchAssets = useCallback(async (): Promise<void> => {
-    if (!isCurrentUserAdmin) {
-      return Promise.resolve();
-    }
-    try {
-      await refetch();
-    } catch (e) {
-      const title = 'Error fetching assets';
-      console.error(title, e);
-      toast({
-        title,
-        description: renderError(e as Err),
-        variant: 'destructive',
-      });
-    }
-  }, [refetch, isCurrentUserAdmin, toast]);
-
   const getWheelAsset = useCallback(
     (id: WheelAsset['id']): WheelAsset | undefined => {
       return data?.assets[id];
@@ -105,7 +80,6 @@ export const useWheelAssets = (): UseWheelAssetsReturnType => {
     enabledAssets: data?.enabled || defaultData.enabled,
     disabledAssets: data?.disabled || defaultData.disabled,
     fetchingAssets,
-    fetchAssets,
     getWheelAsset,
   };
 };

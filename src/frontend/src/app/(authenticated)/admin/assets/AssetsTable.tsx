@@ -3,59 +3,30 @@
 import { AssetTypeBadge } from '@/components/asset-type-badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
-import { useAuth } from '@/contexts/auth-context';
-import type { Err, WheelAsset } from '@/declarations/backend/backend.did';
-import { useToast } from '@/hooks/use-toast';
-import { extractOk } from '@/lib/api';
-import { renderError, renderUsdValue, toCandidEnum } from '@/lib/utils';
+import type { WheelAsset } from '@/declarations/backend/backend.did';
+import { renderUsdValue } from '@/lib/utils';
 import { isWheelAssetDisabled, isWheelAssetTypeToken } from '@/lib/wheel-asset';
 import { createColumnHelper } from '@tanstack/react-table';
 import { MinusCircle, PlusCircle } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { EditAssetModal } from './modals/Edit';
 import { Loader } from '@/components/loader';
-import { useWheelAssets } from '@/hooks/use-wheel-assets';
+import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
 
 type AssetStateToggleProps = {
   asset: WheelAsset;
 };
 
 const AssetStateToggle: React.FC<AssetStateToggleProps> = ({ asset }) => {
-  const { actor } = useAuth();
-  const { fetchAssets } = useWheelAssets();
   const isDisabled = isWheelAssetDisabled(asset);
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const updateWheelAsset = useUpdateWheelAsset();
 
-  const handleToggle = useCallback(() => {
-    setIsLoading(true);
-    actor
-      .update_wheel_asset({
-        id: asset.id,
-        state: [
-          isDisabled ? toCandidEnum('enabled') : toCandidEnum('disabled'),
-        ],
-        name: [],
-        total_amount: [],
-        used_amount: [],
-        asset_type_config: [],
-        wheel_ui_settings: [],
-      })
-      .then(extractOk)
-      .then(fetchAssets)
-      .catch((e: Err) => {
-        const title = isDisabled
-          ? 'Error enabling asset'
-          : 'Error disabling asset';
-        console.error(title, e);
-        toast({
-          title,
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      })
-      .finally(() => setIsLoading(false));
-  }, [actor, isDisabled, fetchAssets, toast, asset]);
+  const handleToggle = () => {
+    updateWheelAsset.mutate({
+      id: asset.id,
+      state: isDisabled ? 'enabled' : 'disabled',
+    });
+  };
 
   return (
     <Button
@@ -64,7 +35,7 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({ asset }) => {
       size="icon"
       onClick={handleToggle}
     >
-      {isLoading ? (
+      {updateWheelAsset.isPending ? (
         <Loader />
       ) : isDisabled ? (
         <PlusCircle className="text-green-500" />

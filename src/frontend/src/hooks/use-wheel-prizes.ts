@@ -8,7 +8,7 @@ import { wheelAssetUrl } from '@/lib/wheel-asset';
 import { type WheelDataType } from 'react-custom-roulette';
 import { useState } from 'react';
 import { useWheelPrizeOrder } from '@/hooks/use-wheel-prize-order';
-import { useUpdateWheelPrize } from '@/hooks/use-update-wheel-prize';
+import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
 
 const FETCH_WHEEL_PRIZES_INTERVAL_MS = 10_000;
 
@@ -65,7 +65,7 @@ type UseWheelPrizesReturnType = {
 export const useWheelPrizes = (): UseWheelPrizesReturnType => {
   const { actor } = useAuth();
   const updateOrderMutation = useWheelPrizeOrder();
-  const updateWheelPrize = useUpdateWheelPrize();
+  const updateWheelAsset = useUpdateWheelAsset();
   const [dirtyPrizes, setDirtyPrizes] = useState<{
     prizes: WheelPrize[];
     isDirty: boolean;
@@ -154,7 +154,7 @@ export const useWheelPrizes = (): UseWheelPrizesReturnType => {
 
       if (existingPrize && hasWheelPrizeChanged(existingPrize, dirtyPrize)) {
         promises.push(
-          updateWheelPrize.mutateAsync({
+          updateWheelAsset.mutateAsync({
             id: dirtyPrize.wheel_asset_id,
             wheel_ui_settings: dirtyPrize.wheel_ui_settings,
           }),
