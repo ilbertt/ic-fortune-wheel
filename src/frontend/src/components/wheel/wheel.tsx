@@ -1,7 +1,7 @@
 'use client';
 
 import Pointer from '@/assets/wheel/pointer.png';
-import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
+import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import { Wheel } from 'react-custom-roulette';
 import { cn } from '@/lib/utils';
 

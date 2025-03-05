@@ -4,7 +4,7 @@ import { FortuneWheelContainer } from '@/components/wheel/container';
 import { FortuneWheelLogo } from '@/components/wheel/logo';
 import { FortuneWheelModal } from '@/components/wheel/modal';
 import { useAuth } from '@/contexts/auth-context';
-import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
+import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';

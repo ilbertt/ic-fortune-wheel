@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { SortableList } from '@/components/ui/sortable-list';
-import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
+import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import { Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
