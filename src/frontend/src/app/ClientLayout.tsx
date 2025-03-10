@@ -12,15 +12,13 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
-      if (query.meta?.errorMessage) {
-        const title = query.meta.errorMessage;
-        console.error(title, error);
-        toast({
-          title: query.meta.errorMessage,
-          description: renderError(error),
-          variant: 'destructive',
-        });
-      }
+      const title = query.meta?.errorMessage || 'Error';
+      console.error(title, error);
+      toast({
+        title,
+        description: renderError(error),
+        variant: 'destructive',
+      });
     },
   }),
 });
