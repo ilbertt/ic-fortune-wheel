@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Err, UserProfile } from '@/declarations/backend/backend.did';
+import type { UserProfile } from '@/declarations/backend/backend.did';
 import { useAuth } from '@/contexts/auth-context';
 import { enumKey, toastError } from '@/lib/utils';
 import { extractOk } from '@/lib/api';
@@ -30,15 +30,13 @@ export function useUser(): UseUserData {
   const { data: user } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
-      try {
-        return actor!.get_my_user_profile().then(extractOk);
-      } catch (err) {
-        const error = err as Err;
-        // If user doesn't exist, create a new profile
-        if (error.code === 404) {
-          return createUserMutation.mutateAsync();
-        }
-        throw error;
+      const res = await actor!.get_my_user_profile();
+      if ('ok' in res) {
+        return res.ok;
+      } else if (res.err.code === 404) {
+        return createUserMutation.mutateAsync();
+      } else {
+        throw res.err;
       }
     },
     enabled: !!actor,
