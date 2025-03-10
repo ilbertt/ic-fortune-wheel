@@ -20,7 +20,6 @@ type QueryMeta = {
 declare module '@tanstack/react-query' {
   interface Register {
     queryKey: QueryKey;
-    mutationKey: QueryKey;
     queryMeta: QueryMeta;
     mutationMeta: QueryMeta;
     defaultError: Err;
