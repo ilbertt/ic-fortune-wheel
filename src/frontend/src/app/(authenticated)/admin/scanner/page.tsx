@@ -3,73 +3,33 @@
 import { PageLayout } from '@/components/layouts';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
-import { useAuth } from '@/contexts/auth-context';
-import { Err } from '@/declarations/backend/backend.did';
-import { extractOk } from '@/lib/api';
-import { renderError } from '@/lib/utils';
 import { Principal } from '@dfinity/principal';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { Volume2 } from 'lucide-react';
-import { useCallback, useRef, useState } from 'react';
-
-const EXTRACTION_RESULT_RESET_TIMEOUT_MS = 20_000;
-
-type ExtractionState =
-  | {
-      state: 'extracting';
-    }
-  | {
-      state: 'completed';
-    }
-  | {
-      state: 'error';
-      message: string;
-    }
-  | null;
+import { useCallback, useState } from 'react';
+import { useCreateWheelPrizeExtraction } from '@/hooks/use-create-wheel-prize-extraction';
 
 export default function Page() {
-  const { actor } = useAuth();
   const [scanError, setScanError] = useState<string | null>(null);
-  const [extractionState, setExtractionState] = useState<ExtractionState>(null);
-  const isExtractingRef = useRef(false);
+  const createWheelPrizeExtractionMutation = useCreateWheelPrizeExtraction();
 
   const handleScan: React.ComponentProps<typeof Scanner>['onScan'] =
     useCallback(
-      res => {
-        if (res && res[0] && !isExtractingRef.current) {
+      async res => {
+        if (res && res[0]) {
+          setScanError(null);
+          let principal: Principal;
           try {
-            const principal = Principal.fromText(res[0].rawValue);
-            setScanError(null);
-            isExtractingRef.current = true;
-            setExtractionState({ state: 'extracting' });
-            actor
-              .create_wheel_prize_extraction({
-                extract_for_principal: principal,
-              })
-              .then(extractOk)
-              .then(() => {
-                setExtractionState({ state: 'completed' });
-              })
-              .catch((e: Err) => {
-                console.warn('Failed to extract prize', e);
-                setExtractionState({
-                  state: 'error',
-                  message: renderError(e),
-                });
-              })
-              .finally(() => {
-                isExtractingRef.current = false;
-                setTimeout(() => {
-                  setExtractionState(null);
-                }, EXTRACTION_RESULT_RESET_TIMEOUT_MS);
-              });
+            principal = Principal.fromText(res[0].rawValue);
           } catch (e) {
             console.warn('Invalid principal', e);
             setScanError('Invalid principal');
+            return;
           }
+          await createWheelPrizeExtractionMutation.mutateAsync(principal);
         }
       },
-      [actor],
+      [createWheelPrizeExtractionMutation],
     );
 
   return (
@@ -98,20 +58,20 @@ export default function Page() {
               your volume is not muted!
             </AlertDescription>
           </Alert>
-          {!extractionState && !scanError && <p>Scanning...</p>}
-          {extractionState && extractionState.state === 'extracting' && (
+          {createWheelPrizeExtractionMutation.status === 'idle' &&
+            !scanError && <p>Scanning...</p>}
+          {createWheelPrizeExtractionMutation.status === 'pending' && (
             <p>Extracting...</p>
           )}
-          {extractionState && extractionState.state === 'completed' && (
+          {createWheelPrizeExtractionMutation.status === 'success' && (
             <p className="text-xl text-green-500">EXTRACTION SUCCESSFUL</p>
           )}
-          {extractionState &&
-            extractionState.state === 'error' &&
-            extractionState.message && (
-              <p className="text-xl text-red-500">
-                EXTRACTION FAILED: {extractionState.message}
-              </p>
-            )}
+          {createWheelPrizeExtractionMutation.status === 'error' && (
+            <p className="text-xl text-red-500">
+              EXTRACTION FAILED:{' '}
+              {createWheelPrizeExtractionMutation.error.message}
+            </p>
+          )}
           {scanError && <p className="text-red-500">SCAN ERROR: {scanError}</p>}
         </CardContent>
       </Card>
