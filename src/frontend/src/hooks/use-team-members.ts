@@ -4,6 +4,7 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/auth-context';
 import type { UserProfile, Err } from '@/declarations/backend/backend.did';
 import { extractOk } from '@/lib/api';
+import { useCallback } from 'react';
 
 type TeamMembersData = {
   teamMembers: Record<string, UserProfile>;
@@ -44,8 +45,13 @@ export function useTeamMembers(): UseTeamMembersReturnType {
     },
   });
 
+  const getTeamMember = useCallback(
+    (id: string): UserProfile | undefined => query.data?.teamMembers[id],
+    [query.data],
+  );
+
   return {
     ...query,
-    getTeamMember: (id: string) => query.data?.teamMembers[id],
+    getTeamMember,
   };
 }
