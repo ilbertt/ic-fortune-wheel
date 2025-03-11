@@ -28,22 +28,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAuth } from '@/contexts/auth-context';
-import type {
-  Err,
-  TransferTokenRequest,
-} from '@/declarations/backend/backend.did';
+import type { TransferTokenRequest } from '@/declarations/backend/backend.did';
 import { useLedgerCanisterMetadata } from '@/hooks/use-ledger-canister-metadata';
-import { useToast } from '@/hooks/use-toast';
-import { extractOk } from '@/lib/api';
 import { PrincipalSchema } from '@/lib/forms';
 import type { ZodProperties } from '@/lib/types/utils';
-import {
-  bigIntToFloat,
-  floatToBigInt,
-  renderError,
-  renderUsdValue,
-} from '@/lib/utils';
+import { bigIntToFloat, floatToBigInt, renderUsdValue } from '@/lib/utils';
 import {
   wheelAssetBalance,
   wheelAssetTokenTotalUsdValue,
@@ -55,6 +44,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
+import { useTransferToken } from '@/hooks/use-transfer-token';
 
 const transferTokenFormSchema = z.object<
   ZodProperties<
@@ -69,8 +59,9 @@ const transferTokenFormSchema = z.object<
 });
 
 export const SendTokenModal = () => {
-  const { actor } = useAuth();
-  const { tokenAssets, refreshTokenAssets } = useWheelAssetTokens();
+  const { tokenAssets } = useWheelAssetTokens();
+  const { mutateAsync: transferToken, isPending: isTransferring } =
+    useTransferToken();
   const form = useForm<z.infer<typeof transferTokenFormSchema>>({
     resolver: zodResolver(transferTokenFormSchema),
     mode: 'onChange',
@@ -104,7 +95,6 @@ export const SendTokenModal = () => {
       ? bigIntToFloat(ledgerCanisterMetadata.fee, selectedTokenAssetDecimals)
       : null;
   const [open, setOpen] = useState(false);
-  const { toast } = useToast();
 
   const handleMaxAmountClick = useCallback(() => {
     if (selectedTokenAsset && ledgerCanisterFee) {
@@ -132,27 +122,13 @@ export const SendTokenModal = () => {
       return;
     }
     const amount = floatToBigInt(data.amount, selectedTokenAssetDecimals);
-    await actor
-      .transfer_token({
-        ledger_canister_id: data.ledger_canister_id,
-        to: data.to,
-        amount,
-      })
-      .then(extractOk)
-      .then(() => {
-        form.reset();
-        setOpen(false);
-      })
-      .then(refreshTokenAssets)
-      .catch((e: Err) => {
-        const title = 'Error sending token';
-        console.error(title, e);
-        toast({
-          title,
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      });
+    await transferToken({
+      ledger_canister_id: data.ledger_canister_id,
+      to: data.to,
+      amount,
+    });
+    form.reset();
+    setOpen(false);
   };
 
   return (
@@ -286,7 +262,7 @@ export const SendTokenModal = () => {
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <Button
                 type="submit"
-                loading={isFormSubmitting}
+                loading={isFormSubmitting || isTransferring}
                 disabled={!isFormValid}
               >
                 Send
