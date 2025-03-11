@@ -2,13 +2,13 @@
 
 import { useAuth } from '@/contexts/auth-context';
 import { extractOk } from '@/lib/api';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type { WheelPrize, Err } from '@/declarations/backend/backend.did';
 import { wheelAssetUrl } from '@/lib/wheel-asset';
 import { type WheelDataType } from 'react-custom-roulette';
-import { useState } from 'react';
 import { useWheelPrizeOrder } from '@/hooks/use-wheel-prize-order';
 import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
+import { atom, Provider, useAtom, useAtomValue } from 'jotai';
 
 const FETCH_WHEEL_PRIZES_INTERVAL_MS = 10_000;
 
@@ -42,37 +42,99 @@ const hasWheelPrizeChanged = (
   );
 };
 
-type UseWheelPrizesReturnType = {
+export const WheelPrizesProvider = Provider;
+
+type WheelPrizesAtomValue = {
   prizes: WheelPrize[];
-  setPrizes: (items: WheelPrize[]) => void;
-  wheelData: WheelDataType[];
   isDirty: boolean;
+};
+
+type CurrentPrizeAtomValue = {
+  prize: WheelPrize;
+  index: number;
+} | null;
+
+const wheelPrizesAtom = atom<WheelPrizesAtomValue>({
+  prizes: [],
+  isDirty: false,
+});
+const wheelDataAtom = atom<WheelDataType[]>(get =>
+  mapPrizesToWheelData(get(wheelPrizesAtom).prizes),
+);
+const currentPrizeAtom = atom<CurrentPrizeAtomValue>(null);
+const wheelModalAtomOpen = atom<boolean>(false);
+
+type UseWheelPrizesReturnType = WheelPrizesAtomValue & {
+  setPrizes: (items: WheelPrize[]) => void;
   savePrizes: () => Promise<void>;
+  savingPrizes: boolean;
   resetChanges: () => void;
   fetchPrizes: () => Promise<void>;
   fetching: boolean;
   spinPrizeByIndex: (index: number) => void;
   spinPrizeByWheelAssetId: (id: string) => void;
   stopSpinning: () => void;
-  currentPrize: {
-    prize: WheelPrize;
-    index: number;
-  } | null;
   resetCurrentPrize: () => void;
+  currentPrize: CurrentPrizeAtomValue;
   isModalOpen: boolean;
 };
 
 export const useWheelPrizes = (): UseWheelPrizesReturnType => {
   const { actor } = useAuth();
+  const [wheelPrizes, setWheelPrizes] = useAtom(wheelPrizesAtom);
+  const [currentPrize, setCurrentPrize] = useAtom(currentPrizeAtom);
+  const [wheelModalOpen, setWheelModalOpen] = useAtom(wheelModalAtomOpen);
   const updateOrderMutation = useWheelPrizeOrder();
   const updateWheelAsset = useUpdateWheelAsset();
-  const [dirtyPrizes, setDirtyPrizes] = useState<{
-    prizes: WheelPrize[];
-    isDirty: boolean;
-  }>({ prizes: [], isDirty: false });
-  const [currentPrize, setCurrentPrize] =
-    useState<UseWheelPrizesReturnType['currentPrize']>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { mutateAsync: savePrizes, isPending: savingPrizes } = useMutation({
+    mutationFn: async () => {
+      if (!wheelPrizes.isDirty) {
+        return;
+      }
+
+      const promises = [];
+
+      // if the order has changed, update it
+      if (
+        !wheelPrizes.prizes.every((item, index) => {
+          const originalIndex = fetchedPrizes.findIndex(
+            (p: WheelPrize) => p.wheel_asset_id === item.wheel_asset_id,
+          );
+          return index === originalIndex;
+        })
+      ) {
+        promises.push(
+          updateOrderMutation.mutateAsync(
+            wheelPrizes.prizes.map(item => item.wheel_asset_id),
+          ),
+        );
+      }
+
+      // for each dirty prize, update the asset if its settings have changed
+      for (const dirtyPrize of wheelPrizes.prizes) {
+        const existingPrize = fetchedPrizes.find(
+          (item: WheelPrize) =>
+            item.wheel_asset_id === dirtyPrize.wheel_asset_id,
+        );
+
+        if (existingPrize && hasWheelPrizeChanged(existingPrize, dirtyPrize)) {
+          promises.push(
+            updateWheelAsset.mutateAsync({
+              id: dirtyPrize.wheel_asset_id,
+              wheel_ui_settings: dirtyPrize.wheel_ui_settings,
+            }),
+          );
+        }
+      }
+
+      // The mutations already invalidate the query, so we don't need to refetch
+      await Promise.all(promises);
+    },
+    onSuccess: () => {
+      setWheelPrizes(prev => ({ ...prev, isDirty: false }));
+    },
+  });
 
   // Query to fetch wheel prizes
   const {
@@ -83,32 +145,27 @@ export const useWheelPrizes = (): UseWheelPrizesReturnType => {
     queryKey: ['wheel-prizes'],
     queryFn: async () => {
       const res = await actor!.list_wheel_prizes().then(extractOk);
-      setDirtyPrizes(prev => {
+      setWheelPrizes(prev => {
         if (prev.isDirty) {
-          // Just replace each prize with the new one without changing the order
-          // Remove prizes that are no longer in the response
-          const newPrizes = prev.prizes
-            .filter(prize =>
-              res.some(p => p.wheel_asset_id === prize.wheel_asset_id),
-            )
-            .map(prize => {
-              const newPrize = res.find(
-                p => p.wheel_asset_id === prize.wheel_asset_id,
-              );
-              return newPrize || prize;
-            });
-          // Add new prizes to the end
-          newPrizes.push(
-            ...res.filter(
-              prize =>
-                !prev.prizes.some(
-                  p => p.wheel_asset_id === prize.wheel_asset_id,
-                ),
-            ),
-          );
-          return { ...prev, prizes: newPrizes };
+          // If there are changes, don't update the prizes.
+          // This will likely return an error when saving the prizes,
+          // as some of the dirty prizes may not be enabled anymore.
+          return prev;
+        } else if (prev.prizes.length > 0) {
+          // Replace the prizes with the new ones
+          // without changing the reference of the wheelPrizes array
+          for (const prize of res) {
+            const originalPrizeIndex = prev.prizes.findIndex(
+              p => p.wheel_asset_id === prize.wheel_asset_id,
+            );
+            if (originalPrizeIndex > -1) {
+              prev.prizes[originalPrizeIndex] = prize;
+            }
+          }
+          return prev;
+        } else {
+          return { prizes: res, isDirty: false };
         }
-        return { prizes: res, isDirty: false };
       });
       return res;
     },
@@ -120,55 +177,14 @@ export const useWheelPrizes = (): UseWheelPrizesReturnType => {
   });
 
   const setPrizes = (newPrizes: WheelPrize[]) => {
-    setDirtyPrizes({ prizes: newPrizes, isDirty: true });
-  };
-
-  const savePrizes = async () => {
-    if (!dirtyPrizes.isDirty) {
-      return;
-    }
-
-    const promises = [];
-
-    // if the order has changed, update it
-    if (
-      !dirtyPrizes.prizes.every((item, index) => {
-        const originalIndex = fetchedPrizes.findIndex(
-          (p: WheelPrize) => p.wheel_asset_id === item.wheel_asset_id,
-        );
-        return index === originalIndex;
-      })
-    ) {
-      promises.push(
-        updateOrderMutation.mutateAsync(
-          dirtyPrizes.prizes.map(item => item.wheel_asset_id),
-        ),
-      );
-    }
-
-    // for each dirty prize, update the asset if its settings have changed
-    for (const dirtyPrize of dirtyPrizes.prizes) {
-      const existingPrize = fetchedPrizes.find(
-        (item: WheelPrize) => item.wheel_asset_id === dirtyPrize.wheel_asset_id,
-      );
-
-      if (existingPrize && hasWheelPrizeChanged(existingPrize, dirtyPrize)) {
-        promises.push(
-          updateWheelAsset.mutateAsync({
-            id: dirtyPrize.wheel_asset_id,
-            wheel_ui_settings: dirtyPrize.wheel_ui_settings,
-          }),
-        );
-      }
-    }
-
-    // The mutations already invalidate the query, so we don't need to refetch
-    await Promise.all(promises);
-    setDirtyPrizes(prev => ({ ...prev, isDirty: false }));
+    setWheelPrizes({ prizes: newPrizes, isDirty: true });
   };
 
   const resetChanges = () => {
-    setDirtyPrizes({ prizes: fetchedPrizes, isDirty: false });
+    setWheelPrizes({
+      prizes: fetchedPrizes,
+      isDirty: false,
+    });
   };
 
   const fetchPrizes = async (): Promise<void> => {
@@ -186,34 +202,35 @@ export const useWheelPrizes = (): UseWheelPrizesReturnType => {
     const prizeIndex = fetchedPrizes.findIndex(
       prize => prize.wheel_asset_id === id,
     );
-    if (prizeIndex > -1) {
-      setCurrentPrize({ prize: fetchedPrizes[prizeIndex], index: prizeIndex });
-    }
+    spinPrizeByIndex(prizeIndex);
   };
 
   const stopSpinning = () => {
-    setIsModalOpen(true);
+    setWheelModalOpen(true);
   };
 
   const resetCurrentPrize = () => {
-    setIsModalOpen(false);
+    setWheelModalOpen(false);
     setCurrentPrize(null);
   };
 
   return {
-    prizes: dirtyPrizes.prizes,
+    prizes: wheelPrizes.prizes,
+    isDirty: wheelPrizes.isDirty,
     setPrizes,
-    wheelData: mapPrizesToWheelData(dirtyPrizes.prizes),
-    isDirty: dirtyPrizes.isDirty,
     savePrizes,
+    savingPrizes,
     resetChanges,
     fetchPrizes,
     fetching,
+    currentPrize,
     spinPrizeByIndex,
     spinPrizeByWheelAssetId,
     stopSpinning,
-    currentPrize,
     resetCurrentPrize,
-    isModalOpen,
+    isModalOpen: wheelModalOpen,
   };
 };
+
+export const useWheelPrizesMapped = (): WheelDataType[] =>
+  useAtomValue(wheelDataAtom);

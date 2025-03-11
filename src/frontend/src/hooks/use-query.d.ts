@@ -10,6 +10,7 @@ type QueryKey = [
     | 'wheel-prizes'
     | 'wheel-assets'
     | 'ledger-canister-metadata'
+    | 'last-wheel-prize-extraction'
   ),
   ...ReadonlyArray<string>,
 ];

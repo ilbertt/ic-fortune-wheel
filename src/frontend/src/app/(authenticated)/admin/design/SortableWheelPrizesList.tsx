@@ -16,7 +16,10 @@ export const SortableWheelPrizesList = () => {
   return (
     <SortableList
       items={prizes}
-      onReorder={setPrizes}
+      // passing the setPrizes function reference directly
+      // makes the component call the function with an empty array,
+      // for an unknown reason.
+      onReorder={items => setPrizes(items)}
       renderItem={(item, index) => (
         <div
           className="flex min-h-8 w-full flex-row items-center justify-between gap-2"

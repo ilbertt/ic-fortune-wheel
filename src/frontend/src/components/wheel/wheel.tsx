@@ -1,7 +1,7 @@
 'use client';
 
 import Pointer from '@/assets/wheel/pointer.png';
-import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
+import { useWheelPrizes, useWheelPrizesMapped } from '@/hooks/use-wheel-prizes';
 import { Wheel } from 'react-custom-roulette';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,8 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
   children,
   ...props
 }) => {
-  const { wheelData, stopSpinning, currentPrize } = useWheelPrizes();
+  const { stopSpinning, currentPrize } = useWheelPrizes();
+  const wheelData = useWheelPrizesMapped();
 
   if (wheelData.length === 0) {
     return (
