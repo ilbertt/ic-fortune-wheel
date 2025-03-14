@@ -27,7 +27,7 @@ pub trait WheelAssetRepository {
 
     fn list_wheel_assets_by_type(
         &self,
-        state: &WheelAssetType,
+        asset_type: &WheelAssetType,
     ) -> Result<Vec<(WheelAssetId, WheelAsset)>, ApiError>;
 
     fn list_wheel_assets(&self) -> Vec<(WheelAssetId, WheelAsset)>;

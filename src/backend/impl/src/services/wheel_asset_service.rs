@@ -170,9 +170,34 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
     ) -> Result<CreateWheelAssetResponse, ApiError> {
         self.validate_create_wheel_asset_request(&request)?;
 
+        let wheel_asset_type = request.asset_type_config.into();
+
+        if let WheelAssetType::Token {
+            ref ledger_config, ..
+        } = wheel_asset_type
+        {
+            if self
+                .wheel_asset_repository
+                .list_wheel_assets_by_type(&wheel_asset_type)?
+                .iter()
+                .any(|(_, asset)| {
+                    asset
+                        .asset_type
+                        .ledger_config()
+                        .map(|config| config.ledger_canister_id == ledger_config.ledger_canister_id)
+                        .unwrap_or(false)
+                })
+            {
+                return Err(ApiError::invalid_argument(&format!(
+                    "Token asset with ledger canister ID {} already exists",
+                    ledger_config.ledger_canister_id
+                )));
+            }
+        }
+
         let wheel_asset = WheelAsset::new_enabled(
             request.name,
-            request.asset_type_config.into(),
+            wheel_asset_type,
             request.total_amount,
             request.wheel_ui_settings.map(Into::into),
         );
