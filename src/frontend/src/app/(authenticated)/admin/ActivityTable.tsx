@@ -1,16 +1,14 @@
 'use client';
 
 import { DataTable } from '@/components/ui/data-table';
-import { useActivity } from '@/contexts/activity-context';
 import { createColumnHelper } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { PrincipalDisplay } from '@/components/principal-display';
 import { UserProfile } from '@/components/user-profile';
-import { useTeamMembers } from '@/contexts/team-members-context';
 import type { WheelPrizeExtraction } from '@/declarations/backend/backend.did';
 import { WheelPrizeExtractionStateBadge } from '@/components/wheel-prize-extraction-state-badge';
 import { renderDatetime, renderUsdValue } from '@/lib/utils';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { useWheelAssets } from '@/hooks/use-wheel-assets';
 import {
   Popover,
   PopoverContent,
@@ -19,11 +17,13 @@ import {
 import { wheelAssetUrl } from '@/lib/wheel-asset';
 import Image from 'next/image';
 import { isWheelPrizeExtractionCompleted } from '@/lib/wheel-prize-extraction';
+import { useTeamMembers } from '@/hooks/use-team-members';
+import { useActivity } from '@/hooks/use-activity';
 
 const columnHelper = createColumnHelper<WheelPrizeExtraction>();
 
 export const ActivityTable: React.FC = () => {
-  const { activity } = useActivity();
+  const { data: activity } = useActivity();
   const { getTeamMember } = useTeamMembers();
   const { getWheelAsset } = useWheelAssets();
 
@@ -105,5 +105,5 @@ export const ActivityTable: React.FC = () => {
     [getTeamMember, getWheelAsset],
   );
 
-  return <DataTable columns={columns} data={activity} />;
+  return <DataTable columns={columns} data={activity || []} />;
 };

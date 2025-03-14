@@ -12,11 +12,7 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { useAuth } from '@/contexts/auth-context';
-import type { Err } from '@/declarations/backend/backend.did';
-import { useToast } from '@/hooks/use-toast';
-import { extractOk } from '@/lib/api';
-import { renderError } from '@/lib/utils';
+import { useDeleteWheelAsset } from '@/hooks/use-delete-wheel-asset';
 import { isWheelAssetToken } from '@/lib/wheel-asset';
 import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
@@ -30,33 +26,15 @@ export const DeleteAssetModal: React.FC<DeleteAssetModalProps> = ({
   onDeleteComplete,
 }) => {
   const asset = useAtomValue(wheelAssetToEdit);
-  const { actor } = useAuth();
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const canDelete = useMemo(() => !isWheelAssetToken(asset!), [asset]);
+  const { mutateAsync: deleteAsset, isPending: isDeleting } =
+    useDeleteWheelAsset();
 
   const onDelete = async () => {
-    setIsDeleting(true);
-    await actor
-      .delete_wheel_asset({ id: asset!.id })
-      .then(extractOk)
-      .then(onDeleteComplete)
-      .then(() => {
-        setOpen(false);
-      })
-      .catch((e: Err) => {
-        const title = 'Error deleting asset';
-        console.error(title, e);
-        toast({
-          title,
-          description: renderError(e),
-          variant: 'destructive',
-        });
-      })
-      .finally(() => {
-        setIsDeleting(false);
-      });
+    await deleteAsset(asset!.id);
+    onDeleteComplete();
+    setOpen(false);
   };
 
   return (

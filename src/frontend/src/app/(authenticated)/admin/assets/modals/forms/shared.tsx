@@ -18,13 +18,6 @@ import { useFormContext } from 'react-hook-form';
 import { CurrencyInput, Input } from '@/components/ui/input';
 import { DialogFooter } from '@/components/ui/dialog';
 import { DeleteAssetModal } from '../Delete';
-import {
-  UpdateWheelAssetImageConfig,
-  WheelAsset,
-} from '@/declarations/backend/backend.did';
-import { type ActorSubclass } from '@dfinity/agent';
-import { type _SERVICE } from '@/declarations/backend/backend.did';
-import { extractOk } from '@/lib/api';
 import { capitalCase } from 'change-case';
 
 const BackButton = () => {
@@ -132,59 +125,6 @@ export const ImagesFormFields = () => {
         </div>
       </div>
     </div>
-  );
-};
-
-export const upsertImages = async <
-  T extends {
-    wheel_image_file?: File | undefined;
-    modal_image_file?: File | undefined;
-  },
->(
-  data: T,
-  actor: ActorSubclass<_SERVICE>,
-  wheelAssetId: string,
-  existingWheelAsset: WheelAsset | null,
-) => {
-  const toUpdate: UpdateWheelAssetImageConfig[] = [];
-  if (
-    data.wheel_image_file instanceof File &&
-    data.wheel_image_file.name !==
-      existingWheelAsset?.wheel_image_path[0]?.split('/').pop()
-  ) {
-    toUpdate.push({
-      wheel: {
-        content_type: data.wheel_image_file.type,
-        content_bytes: new Uint8Array(
-          await data.wheel_image_file.arrayBuffer(),
-        ),
-      },
-    });
-  }
-  if (
-    data.modal_image_file instanceof File &&
-    data.modal_image_file.name !==
-      existingWheelAsset?.modal_image_path[0]?.split('/').pop()
-  ) {
-    toUpdate.push({
-      modal: {
-        content_type: data.modal_image_file.type,
-        content_bytes: new Uint8Array(
-          await data.modal_image_file.arrayBuffer(),
-        ),
-      },
-    });
-  }
-
-  return Promise.all(
-    toUpdate.map(config =>
-      actor
-        .update_wheel_asset_image({
-          id: wheelAssetId,
-          image_config: config,
-        })
-        .then(extractOk),
-    ),
   );
 };
 

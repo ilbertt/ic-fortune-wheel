@@ -17,18 +17,15 @@ import { AssetTokenForm } from './forms/token';
 import { useAtom } from 'jotai';
 import { formAssetTypeAtom } from '../atoms';
 import { AssetGadgetForm } from './forms/gadget';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
 
 export const CreateAssetModal: React.FC = () => {
-  const { fetchAssets } = useWheelAssets();
   const [open, setOpen] = useState(false);
   const [assetType, setAssetType] = useAtom(formAssetTypeAtom);
 
   const handleOnComplete = useCallback(async () => {
-    await fetchAssets();
     setAssetType(null);
     setOpen(false);
-  }, [fetchAssets, setAssetType]);
+  }, [setAssetType]);
 
   const handleOnOpenChange = useCallback(
     (open: boolean) => {

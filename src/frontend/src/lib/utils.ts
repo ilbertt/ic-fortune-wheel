@@ -6,6 +6,7 @@ import type {
   ExtractKeysFromCandidEnum,
 } from '@/lib/types/utils';
 import { formatUnits, parseUnits } from '@ethersproject/units';
+import { toast } from '@/hooks/use-toast';
 
 const DEFAULT_LOCALE = 'en-US';
 const DEFAULT_THOUSAND_SEPARATOR = ',';
@@ -173,4 +174,13 @@ export const renderDatetime = (input: string): string => {
     timeStyle: 'medium',
     hour12: false,
   }).format(date);
+};
+
+export const toastError = (err: ApiError, title: string) => {
+  console.error(title, err);
+  toast({
+    title,
+    description: renderError(err),
+    variant: 'destructive',
+  });
 };

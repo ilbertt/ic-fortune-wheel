@@ -14,11 +14,9 @@ import {
   type WheelAssetGadget,
 } from '@/lib/wheel-asset';
 import { useForm } from 'react-hook-form';
-import { useAuth } from '@/contexts/auth-context';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/hooks/use-toast';
 import { candidOpt, renderError } from '@/lib/utils';
-import { extractOk } from '@/lib/api';
 import {
   Form,
   FormControl,
@@ -28,12 +26,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  FormFooter,
-  ImagesFormFields,
-  PrizeFormFields,
-  upsertImages,
-} from './shared';
+import { FormFooter, ImagesFormFields, PrizeFormFields } from './shared';
+import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
+import { useCreateWheelAsset } from '@/hooks/use-create-wheel-asset';
+import { useUpsertWheelAssetImages } from '@/hooks/use-upsert-wheel-asset-images';
 
 type CreateAssetGadgetFormSchemaType = Omit<
   CreateWheelAssetRequest,
@@ -68,7 +64,6 @@ export const AssetGadgetForm: React.FC<AssetGadgetFormProps> = ({
     () => Boolean(existingWheelAsset),
     [existingWheelAsset],
   );
-  const { actor } = useAuth();
   const form = useForm<z.infer<typeof createAssetGadgetFormSchema>>({
     resolver: zodResolver(createAssetGadgetFormSchema),
     mode: 'onChange',
@@ -87,47 +82,42 @@ export const AssetGadgetForm: React.FC<AssetGadgetFormProps> = ({
       : undefined,
   });
   const { toast } = useToast();
+  const updateWheelAssetMutation = useUpdateWheelAsset();
+  const createWheelAssetMutation = useCreateWheelAsset();
+  const upsertWheelAssetImagesMutation = useUpsertWheelAssetImages();
 
   const onSubmit = async (
     data: z.infer<typeof createAssetGadgetFormSchema>,
   ) => {
     const prom = isEdit
-      ? actor
-          .update_wheel_asset({
-            id: existingWheelAsset!.id,
-            state: [],
-            used_amount: [],
-            name: candidOpt(data.name),
-            total_amount: candidOpt(data.total_amount),
-            asset_type_config: candidOpt({
-              gadget: {
-                article_type: candidOpt(data.article_type),
-              },
-            }),
-            wheel_ui_settings: [],
-          })
-          .then(extractOk)
-      : actor
-          .create_wheel_asset({
-            name: data.name,
-            total_amount: data.total_amount,
-            asset_type_config: {
-              gadget: {
-                article_type: candidOpt(data.article_type),
-              },
+      ? updateWheelAssetMutation.mutateAsync({
+          id: existingWheelAsset!.id,
+          name: data.name,
+          total_amount: data.total_amount,
+          asset_type_config: {
+            gadget: {
+              article_type: candidOpt(data.article_type),
             },
-            wheel_ui_settings: [],
-          })
-          .then(extractOk);
+          },
+        })
+      : createWheelAssetMutation.mutateAsync({
+          name: data.name,
+          total_amount: data.total_amount,
+          asset_type_config: {
+            gadget: {
+              article_type: candidOpt(data.article_type),
+            },
+          },
+        });
 
     await prom
       .then(async res =>
-        upsertImages(
-          data,
-          actor,
-          res ? res.id : existingWheelAsset!.id,
+        upsertWheelAssetImagesMutation.mutateAsync({
+          wheelAssetId: res ? res.id : existingWheelAsset!.id,
           existingWheelAsset,
-        ),
+          wheelImageFile: data.wheel_image_file,
+          modalImageFile: data.modal_image_file,
+        }),
       )
       .then(onComplete)
       .catch((e: Err) => {

@@ -32,11 +32,11 @@ import { useAuth } from '@/contexts/auth-context';
 import { Children, useCallback } from 'react';
 import { GithubIcon } from '@/components/icons';
 import { GITHUB_REPO_URL } from '@/constants';
-import { useUser } from '@/contexts/user-context';
 import { UserIdDisplay } from '@/components/user-id-display';
 import { Loader } from '@/components/loader';
 import { EditUserDialog } from '@/components/edit-user-dialog';
 import { UserRoleBadge } from '@/components/user-role-badge';
+import { useUser } from '@/hooks/use-user';
 
 type HeaderLinkProps = {
   title: string;

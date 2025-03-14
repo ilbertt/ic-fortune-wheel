@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { SortableList } from '@/components/ui/sortable-list';
-import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
+import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import { Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -16,7 +16,10 @@ export const SortableWheelPrizesList = () => {
   return (
     <SortableList
       items={prizes}
-      onReorder={setPrizes}
+      // passing the setPrizes function reference directly
+      // makes the component call the function with an empty array,
+      // for an unknown reason.
+      onReorder={items => setPrizes(items)}
       renderItem={(item, index) => (
         <div
           className="flex min-h-8 w-full flex-row items-center justify-between gap-2"

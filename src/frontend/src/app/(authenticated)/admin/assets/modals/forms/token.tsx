@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DEFAULT_TOKENS, type DefaultTokensKey } from '@/constants/token';
-import { useAuth } from '@/contexts/auth-context';
 import type {
   CreateWheelAssetRequest,
   CreateWheelAssetTypeConfig,
@@ -40,20 +39,17 @@ import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import { wheelAssetToEdit } from '../../atoms';
 import { useToast } from '@/hooks/use-toast';
-import { extractOk } from '@/lib/api';
 import {
   existingWheelAssetImagesFiles,
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
 import { getDefaultToken } from '@/lib/token';
-import {
-  FormFooter,
-  ImagesFormFields,
-  PrizeFormFields,
-  upsertImages,
-} from './shared';
+import { FormFooter, ImagesFormFields, PrizeFormFields } from './shared';
 import { PrincipalSchema } from '@/lib/forms';
 import { useLedgerCanisterMetadata } from '@/hooks/use-ledger-canister-metadata';
+import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
+import { useCreateWheelAsset } from '@/hooks/use-create-wheel-asset';
+import { useUpsertWheelAssetImages } from '@/hooks/use-upsert-wheel-asset-images';
 
 type AvailableTokens = DefaultTokensKey | 'custom';
 
@@ -101,7 +97,6 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
     () => Boolean(existingWheelAsset),
     [existingWheelAsset],
   );
-  const { actor } = useAuth();
   const form = useForm<z.infer<typeof createAssetTokenFormSchema>>({
     resolver: zodResolver(createAssetTokenFormSchema),
     mode: 'onChange',
@@ -164,58 +159,53 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
     },
   });
   const { toast } = useToast();
+  const updateWheelAssetMutation = useUpdateWheelAsset();
+  const createWheelAssetMutation = useCreateWheelAsset();
+  const upsertWheelAssetImagesMutation = useUpsertWheelAssetImages();
 
   const onSubmit = async (data: z.infer<typeof createAssetTokenFormSchema>) => {
     const prom = isEdit
-      ? actor
-          .update_wheel_asset({
-            id: existingWheelAsset!.id,
-            state: [],
-            used_amount: [],
-            name: candidOpt(data.name),
-            total_amount: candidOpt(data.total_amount),
-            asset_type_config: candidOpt({
-              token: {
-                prize_usd_amount: candidOpt(data.prize_usd_amount),
-                exchange_rate_symbol: candidOpt(
-                  data.exchange_rate_symbol || null,
-                ),
-                ledger_config: candidOpt({
-                  decimals: candidOpt(data.decimals),
-                }),
-              },
-            }),
-            wheel_ui_settings: [],
-          })
-          .then(extractOk)
-      : actor
-          .create_wheel_asset({
-            name: data.name,
-            total_amount: data.total_amount,
-            asset_type_config: {
-              token: {
-                ledger_config: {
-                  ledger_canister_id: data.ledger_canister_id,
-                  decimals: data.decimals,
-                },
-                exchange_rate_symbol: candidOpt(
-                  data.exchange_rate_symbol || null,
-                ),
-                prize_usd_amount: data.prize_usd_amount,
-              },
+      ? updateWheelAssetMutation.mutateAsync({
+          id: existingWheelAsset!.id,
+          name: data.name,
+          total_amount: data.total_amount,
+          asset_type_config: {
+            token: {
+              prize_usd_amount: candidOpt(data.prize_usd_amount),
+              exchange_rate_symbol: candidOpt(
+                data.exchange_rate_symbol || null,
+              ),
+              ledger_config: candidOpt({
+                decimals: candidOpt(data.decimals),
+              }),
             },
-            wheel_ui_settings: [],
-          })
-          .then(extractOk);
+          },
+        })
+      : createWheelAssetMutation.mutateAsync({
+          name: data.name,
+          total_amount: data.total_amount,
+          asset_type_config: {
+            token: {
+              ledger_config: {
+                ledger_canister_id: data.ledger_canister_id,
+                decimals: data.decimals,
+              },
+              exchange_rate_symbol: candidOpt(
+                data.exchange_rate_symbol || null,
+              ),
+              prize_usd_amount: data.prize_usd_amount,
+            },
+          },
+        });
 
     await prom
       .then(async res =>
-        upsertImages(
-          data,
-          actor,
-          res ? res.id : existingWheelAsset!.id,
+        upsertWheelAssetImagesMutation.mutateAsync({
+          wheelAssetId: res ? res.id : existingWheelAsset!.id,
           existingWheelAsset,
-        ),
+          wheelImageFile: data.wheel_image_file,
+          modalImageFile: data.modal_image_file,
+        }),
       )
       .then(onComplete)
       .catch((e: Err) => {

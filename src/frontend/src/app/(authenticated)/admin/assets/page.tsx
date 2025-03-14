@@ -22,8 +22,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/contexts/auth-context';
-import { extractOk } from '@/lib/api';
 import { renderNumberWithDigits, renderUsdValue } from '@/lib/utils';
 import {
   wheelAssetBalance,
@@ -33,13 +31,15 @@ import {
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
 import { CircleDollarSign, RefreshCw } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { TopUpModal } from './modals/TopUp';
 import { AssetsTable } from './AssetsTable';
 import { Loader } from '@/components/loader';
 import { CreateAssetModal } from './modals/Create';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
+import { useWheelAssets } from '@/hooks/use-wheel-assets';
 import { SendTokenModal } from './modals/SendToken';
+import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
+import { useCreateDefaultAssets } from '@/hooks/use-create-default-assets';
 
 type TokenRowProps = {
   token: WheelAssetToken;
@@ -80,19 +80,9 @@ const TokenRow: React.FC<TokenRowProps> = ({ token, refreshingTokens }) => {
 };
 
 const EmptyAssets: React.FC = () => {
-  const { actor } = useAuth();
-  const { fetchAssets } = useWheelAssets();
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSetDefaultAssets = useCallback(() => {
-    setIsLoading(true);
-    actor
-      .set_default_wheel_assets()
-      .then(extractOk)
-      .then(fetchAssets)
-      .finally(() => setIsLoading(false));
-  }, [fetchAssets, actor]);
+  const { mutate: createDefaultAssets, isPending: isLoading } =
+    useCreateDefaultAssets();
 
   return (
     <div className="mt-4 flex flex-col items-center gap-4">
@@ -112,7 +102,7 @@ const EmptyAssets: React.FC = () => {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button loading={isLoading} onClick={handleSetDefaultAssets}>
+            <Button loading={isLoading} onClick={() => createDefaultAssets()}>
               Confirm
             </Button>
           </DialogFooter>
@@ -123,14 +113,9 @@ const EmptyAssets: React.FC = () => {
 };
 
 export default function Page() {
-  const {
-    enabledAssets,
-    disabledAssets,
-    tokenAssets,
-    fetchingAssets,
-    refreshingTokens,
-    refreshTokenAssets,
-  } = useWheelAssets();
+  const { enabledAssets, disabledAssets, fetchingAssets } = useWheelAssets();
+  const { tokenAssets, refreshingTokens, refreshTokenAssets } =
+    useWheelAssetTokens();
 
   return (
     <PageLayout>

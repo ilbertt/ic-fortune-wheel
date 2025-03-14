@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import Link from 'next/link';
 import { SortableWheelPrizesList } from './SortableWheelPrizesList';
-import { useWheelPrizes } from '@/contexts/wheel-prizes-context';
+import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import FortuneWheel from '@/components/wheel/wheel';
@@ -22,12 +22,13 @@ import { ROUTES } from '@/lib/routes';
 
 export default function Page() {
   const {
-    wheelData,
+    prizes,
     isDirty,
     savePrizes,
     resetChanges,
     fetchPrizes,
     fetching,
+    savingPrizes,
   } = useWheelPrizes();
 
   return (
@@ -37,7 +38,7 @@ export default function Page() {
         <Card className="col-span-full md:col-span-5">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              Available Prizes ({wheelData.length}){' '}
+              Available Prizes ({prizes.length}){' '}
               <Button
                 size="icon"
                 variant="outline"
@@ -66,11 +67,11 @@ export default function Page() {
               <Button
                 variant="outline"
                 onClick={resetChanges}
-                disabled={fetching}
+                disabled={fetching || savingPrizes}
               >
                 Cancel
               </Button>
-              <Button onClick={savePrizes} loading={fetching}>
+              <Button onClick={savePrizes} loading={fetching || savingPrizes}>
                 Save
               </Button>
             </CardFooter>

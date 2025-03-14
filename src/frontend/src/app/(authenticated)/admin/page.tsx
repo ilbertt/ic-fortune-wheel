@@ -4,9 +4,7 @@ import { Button } from '@/components/ui/button';
 import { PageLayout, PageContent, PageHeader } from '@/components/layouts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreditCard, DollarSign, User, Users } from 'lucide-react';
-import { useUser } from '@/contexts/user-context';
 import { EditUserDialog } from '@/components/edit-user-dialog';
-import { useWheelAssets } from '@/contexts/wheel-assets-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { renderUsdValue } from '@/lib/utils';
 import { wheelAssetsUsdValueSum } from '@/lib/wheel-asset';
@@ -14,15 +12,13 @@ import { ActivityTable } from './ActivityTable';
 import { useWheelPrizeExtractionsStats } from '@/hooks/use-wheel-prize-extractions-stats';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/routes';
-
-const FETCH_WHEEL_PRIZE_EXTRACTIONS_INTERVAL_MS = 2_000;
+import { useUser } from '@/hooks/use-user';
+import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 
 export default function Home() {
   const { isCurrentUserUnassigned } = useUser();
-  const { tokenAssets, fetchingAssets } = useWheelAssets();
-  const { stats } = useWheelPrizeExtractionsStats({
-    refreshIntervalMs: FETCH_WHEEL_PRIZE_EXTRACTIONS_INTERVAL_MS,
-  });
+  const { tokenAssets, refreshingTokens } = useWheelAssetTokens();
+  const { stats } = useWheelPrizeExtractionsStats();
 
   return (
     <PageLayout>
@@ -71,7 +67,7 @@ export default function Home() {
                 <DollarSign className="text-indaco-blue size-4" />
               </CardHeader>
               <CardContent className="text-2xl font-bold">
-                {fetchingAssets ? (
+                {refreshingTokens ? (
                   <Skeleton className="mt-1 h-10 w-48" />
                 ) : (
                   <div className="flex flex-row flex-wrap justify-between gap-2">
