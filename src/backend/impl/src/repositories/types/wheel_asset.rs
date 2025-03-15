@@ -194,6 +194,13 @@ impl WheelAssetType {
             WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
         }
     }
+
+    pub fn ledger_config(&self) -> Option<&WheelAssetTokenLedgerConfig> {
+        match self {
+            WheelAssetType::Token { ledger_config, .. } => Some(ledger_config),
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, CandidType, Deserialize, PartialEq, Eq, PartialOrd, Ord)]

@@ -1,19 +1,21 @@
 'use client';
 
 import Pointer from '@/assets/wheel/pointer.png';
-import { useWheelPrizes, useWheelPrizesMapped } from '@/hooks/use-wheel-prizes';
-import { Wheel } from 'react-custom-roulette';
+import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
+import { Wheel, WheelDataType } from 'react-custom-roulette';
 import { cn } from '@/lib/utils';
 
-type FortuneWheelProps = React.HTMLAttributes<HTMLDivElement>;
+type FortuneWheelProps = React.HTMLAttributes<HTMLDivElement> & {
+  wheelData: WheelDataType[];
+};
 
 const FortuneWheel: React.FC<FortuneWheelProps> = ({
   className,
   children,
+  wheelData,
   ...props
 }) => {
   const { stopSpinning, currentPrize } = useWheelPrizes();
-  const wheelData = useWheelPrizesMapped();
 
   if (wheelData.length === 0) {
     return (

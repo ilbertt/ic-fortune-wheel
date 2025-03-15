@@ -49,7 +49,7 @@ type SortableListProps<T> = Omit<
   items: T[];
   onReorder: (items: T[]) => void;
   renderItem: (item: T, index: number) => React.ReactNode;
-  keyExtractor: (item: T) => string | number;
+  keyExtractor: (item: T, index: number) => string | number;
 };
 
 export function SortableList<T>({
@@ -62,7 +62,7 @@ export function SortableList<T>({
   return (
     <Reorder.Group axis="y" values={items} onReorder={onReorder} {...props}>
       {items.map((item, index) => (
-        <SortableItem key={keyExtractor(item)} item={item}>
+        <SortableItem key={keyExtractor(item, index)} item={item}>
           {renderItem(item, index)}
         </SortableItem>
       ))}

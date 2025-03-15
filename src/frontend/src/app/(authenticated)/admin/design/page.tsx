@@ -19,31 +19,46 @@ import { FortuneWheelContainer } from '@/components/wheel/container';
 import { FortuneWheelLogo } from '@/components/wheel/logo';
 import { FortuneWheelModal } from '@/components/wheel/modal';
 import { ROUTES } from '@/lib/routes';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { WheelPrizeNameWithIcon } from '@/components/wheel-prize-name-with-icon';
+import { useWheelData } from '@/hooks/use-wheel-data';
+import { useWheelPrizesWithProbability } from '@/hooks/use-wheel-prizes-with-probability';
 
 export default function Page() {
   const {
-    prizes,
+    orderedPrizes,
     isDirty,
     savePrizes,
     resetChanges,
-    fetchPrizes,
-    fetching,
+    fetchWheelPrizes,
+    isWheelPrizesFetching,
     savingPrizes,
   } = useWheelPrizes();
+  const wheelData = useWheelData({ prizes: orderedPrizes });
+  const wheelPrizesWithProbability = useWheelPrizesWithProbability({
+    prizes: orderedPrizes,
+  });
 
   return (
     <PageLayout>
       <PageHeader title="Design" />
       <PageContent>
-        <Card className="col-span-full md:col-span-5">
+        <Card className="col-span-full md:col-span-6">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              Available Prizes ({prizes.length}){' '}
+              Available Prizes ({orderedPrizes.length}){' '}
               <Button
                 size="icon"
                 variant="outline"
-                onClick={fetchPrizes}
-                loading={fetching}
+                onClick={fetchWheelPrizes}
+                loading={isWheelPrizesFetching}
               >
                 <RefreshCw />
               </Button>
@@ -67,17 +82,20 @@ export default function Page() {
               <Button
                 variant="outline"
                 onClick={resetChanges}
-                disabled={fetching || savingPrizes}
+                disabled={isWheelPrizesFetching || savingPrizes}
               >
                 Cancel
               </Button>
-              <Button onClick={savePrizes} loading={fetching || savingPrizes}>
+              <Button
+                onClick={savePrizes}
+                loading={isWheelPrizesFetching || savingPrizes}
+              >
                 Save
               </Button>
             </CardFooter>
           )}
         </Card>
-        <Card className="col-span-full md:col-span-7">
+        <Card className="col-span-full md:col-span-6">
           <CardHeader className="flex flex-col justify-between md:flex-row md:items-start">
             <div className="flex flex-col space-y-1.5">
               <CardTitle>Fortune Wheel Preview</CardTitle>
@@ -97,11 +115,37 @@ export default function Page() {
           </CardHeader>
           <CardContent>
             <FortuneWheelContainer className="py-4 md:py-8">
-              <FortuneWheel className="size-[250px] lg:size-[350px] xl:size-[450px]">
+              <FortuneWheel
+                className="size-[250px] lg:size-[350px] xl:size-[450px]"
+                wheelData={wheelData}
+              >
                 <FortuneWheelLogo className="max-w-36 lg:w-1/5 lg:p-4 xl:p-8" />
                 <FortuneWheelModal />
               </FortuneWheel>
             </FortuneWheelContainer>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Prize</TableHead>
+                  <TableHead>Draw Probability</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {wheelPrizesWithProbability.map((prize, index) => (
+                  <TableRow key={`${prize.wheel_asset_id}-${index}`}>
+                    <TableCell>
+                      <WheelPrizeNameWithIcon wheelPrize={prize} />
+                    </TableCell>
+                    <TableCell>
+                      {prize.drawProbability.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                        style: 'percent',
+                      })}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </PageContent>

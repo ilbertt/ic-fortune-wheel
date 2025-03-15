@@ -11,13 +11,14 @@ const LAST_EXTRACTION_POLLING_INTERVAL_MS = 1_500;
 
 export const usePollExtraction = () => {
   const { actor } = useAuth();
-  const { prizes, spinPrizeByWheelAssetId } = useWheelPrizes();
+  const { orderedPrizes, spinPrizeByWheelAssetId } = useWheelPrizes();
+  const hasPrizes = orderedPrizes.length > 0;
   const lastExtractionIdRef = useRef<string | null>(null);
 
   useQuery({
     queryKey: ['last-wheel-prize-extraction'],
     queryFn: async () => {
-      if (prizes.length === 0) {
+      if (!hasPrizes) {
         return null;
       }
 
@@ -49,7 +50,7 @@ export const usePollExtraction = () => {
 
       return newExtraction || null;
     },
-    enabled: !!actor && prizes.length > 0,
+    enabled: !!actor && hasPrizes,
     refetchInterval: LAST_EXTRACTION_POLLING_INTERVAL_MS,
     // Do not notify on any changes, so that we don't re-render the component
     // at every polling iteration

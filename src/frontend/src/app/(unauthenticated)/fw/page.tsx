@@ -6,12 +6,16 @@ import { FortuneWheelModal } from '@/components/wheel/modal';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { usePollExtraction } from '@/hooks/use-poll-extraction';
+import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
+import { useWheelData } from '@/hooks/use-wheel-data';
 
 const FortuneWheel = dynamic(() => import('@/components/wheel/wheel'), {
   ssr: false,
 });
 
 export default function Page() {
+  const { orderedPrizes } = useWheelPrizes();
+  const wheelData = useWheelData({ prizes: orderedPrizes });
   usePollExtraction();
 
   return (
@@ -31,7 +35,7 @@ export default function Page() {
         height={200}
       />
       <FortuneWheelContainer className="app-background h-screen w-screen overflow-hidden">
-        <FortuneWheel>
+        <FortuneWheel wheelData={wheelData}>
           <FortuneWheelLogo className="p-8 lg:w-44 xl:w-48" />
           <FortuneWheelModal />
         </FortuneWheel>

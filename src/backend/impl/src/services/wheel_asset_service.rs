@@ -170,9 +170,34 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
     ) -> Result<CreateWheelAssetResponse, ApiError> {
         self.validate_create_wheel_asset_request(&request)?;
 
+        let wheel_asset_type = request.asset_type_config.into();
+
+        if let WheelAssetType::Token {
+            ref ledger_config, ..
+        } = wheel_asset_type
+        {
+            if self
+                .wheel_asset_repository
+                .list_wheel_assets_by_type(&wheel_asset_type)?
+                .iter()
+                .any(|(_, asset)| {
+                    asset
+                        .asset_type
+                        .ledger_config()
+                        .map(|config| config.ledger_canister_id == ledger_config.ledger_canister_id)
+                        .unwrap_or(false)
+                })
+            {
+                return Err(ApiError::invalid_argument(&format!(
+                    "Token asset with ledger canister ID {} already exists",
+                    ledger_config.ledger_canister_id
+                )));
+            }
+        }
+
         let wheel_asset = WheelAsset::new_enabled(
             request.name,
-            request.asset_type_config.into(),
+            wheel_asset_type,
             request.total_amount,
             request.wheel_ui_settings.map(Into::into),
         );
@@ -352,11 +377,6 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
                 .wheel_asset_repository
                 .list_wheel_assets_by_state(WheelAssetState::Enabled)?;
 
-            if request.wheel_asset_ids.len() != enabled_wheel_assets.len() {
-                return Err(ApiError::invalid_argument(
-                    "The provided wheel asset IDs do not match the existing enabled assets",
-                ));
-            }
             let mut ordered_ids = Vec::new();
             for id in &request.wheel_asset_ids {
                 let id = WheelAssetId::try_from(id.as_str())?;
@@ -365,7 +385,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
                     .any(|(asset_id, _)| *asset_id == id)
                 {
                     return Err(ApiError::invalid_argument(&format!(
-                        "Wheel asset with ID {} does not exist",
+                        "Wheel asset with ID {} does not exist or is not enabled",
                         id
                     )));
                 }
