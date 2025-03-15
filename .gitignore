@@ -46,3 +46,6 @@ target/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# deps
+deps/init.json

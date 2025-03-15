@@ -22,6 +22,18 @@
     "exchange-rate": {
       "type": "pull",
       "id": "uf6dk-hyaaa-aaaaq-qaaaq-cai"
+    },
+    "icp-ledger": {
+      "type": "pull",
+      "id": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+    },
+    "ckbtc-ledger": {
+      "type": "pull",
+      "id": "mxzaz-hqaaa-aaaar-qaada-cai"
+    },
+    "cketh-ledger": {
+      "type": "pull",
+      "id": "ss2fx-dyaaa-aaaar-qacoq-cai"
     }
   },
   "defaults": {
