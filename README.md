@@ -1,61 +1,98 @@
 # `ic-fortune-wheel`
 
-Welcome to your new `ic-fortune-wheel` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+The Fortune Wheel is a simple, fun, and engaging game that allows you to showcase the main features of the Internet Computer while providing a fun and engaging experience for your audience.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+In fact, the Fortune Wheel helps you effectively showcasing the following features:
 
-To learn more before you start working with `ic-fortune-wheel`, see the following documentation available online:
+- Full-stack apps deployed on the Internet Computer ([Web access](https://internetcomputer.org/how-it-works#Web-access))
+- [Onchain randomness](https://internetcomputer.org/docs/building-apps/network-features/randomness/)
+- Multi-chain assets management ([Chain Fusion](https://internetcomputer.org/chainfusion/))
+- Fast and cheap transactions ([Chain Fusion](https://internetcomputer.org/chainfusion/))
+- Frictionless user authentication ([Internet Identity](https://internetcomputer.org/internet-identity))
 
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
-- [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
-- [Rust Canister Development Guide](https://internetcomputer.org/docs/current/developer-docs/backend/rust/)
-- [ic-cdk](https://docs.rs/ic-cdk)
-- [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
-- [Candid Introduction](https://internetcomputer.org/docs/current/developer-docs/backend/candid/)
+Your audience can enjoy the best experience by signing up on [Oisy](https://oisy.com) and using their wallets' principals in the extractions.
 
-If you want to start working on your project right away, you might want to try the following commands:
+Brought to you by [ICP HUB Italy & Ticino](https://github.com/icp-hub-itti).
+
+## Usage as admin
+
+### First time login after deployment
+
+After logging in with your Internet Identity for the first time after the deployment, you can copy your user ID from the dashboard and call the backend canister to give you the admin role:
 
 ```bash
-cd ic-fortune-wheel/
-dfx help
-dfx canister --help
+dfx canister call backend update_user_profile '(record { username = null; role = opt variant { admin }; user_id = "<your-user-id>"; })'
 ```
+
+> Note: Set the `--network ic` flag to use the mainnet backend.
+
+For any other admin that you want to add, you can directly change their role in the UI at the **/team** page after they've logged in with their Internet Identity.
 
 ## Running the project locally
 
-If you want to test your project locally, you can use the following commands:
+### Prerequisites
+
+- [dfx](https://internetcomputer.org/docs/building-apps/getting-started/install)
+- [Node.js](https://nodejs.org/en/download/)
+- [pnpm](https://pnpm.io/installation)
+
+Make sure you have the `minter` identity created and available:
 
 ```bash
-# Starts the replica, running in the background
-dfx start --background
-
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy
+dfx identity new minter
 ```
 
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
+### Initializing the dependencies
 
-If you have made changes to your backend canister, you can generate a new candid interface with
+You must create the `deps/init.json` file before deploying the dependencies. You can copy the [`deps/init.json.template`](./deps/init.json.template) file and change the following values:
+
+- all the occurrences of `49c7466d17db093b0d15b00b189501b0e126141264a38d89d5024d5bf4f863e3` must be replaced with the account id of your `minter` identity:
+  ```bash
+  dfx --identity minter ledger account-id
+  ```
+- all the occurrences of `g5wwd-66hws-uktxg-tpmef-ff2kq-bcz3p-ouyrt-vhqla-bm2rs-4dkwv-aqe` must be replaced with the principal of your `minter` identity:
+  ```bash
+  dfx identity --identity minter get-principal
+  ```
+
+Then, for each entry in the `canisters` JSON object, you must copy the `arg_str` value and run the following command:
 
 ```bash
-npm run generate
+dfx deps init <canister-id-entry> --argument "<arg_str>"
 ```
 
-at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
+> Note: You can skip executing this command for the Internet Identity (`rdmx6-jaaaa-aaaaa-aaadq-cai`) and Exchange Rate (`uf6dk-hyaaa-aaaaq-qaaaq-cai`) canisters.
 
-If you are making frontend changes, you can start a development server with
+This process will create the `deps/init.json` file with the correct values.
+
+### Deploying the dependencies and the backend
 
 ```bash
-npm start
+./scripts/deploy-local-canisters.sh
 ```
 
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
+This script deploys the dependencies, taking care of initializing them properly, and transfers the initial tokens to the backend canister **locally**.
 
-### Note on frontend environment variables
+### Starting the frontend
 
-If you are hosting frontend code somewhere without using DFX, you may need to make one of the following adjustments to ensure your project does not fetch the root key in production:
+```bash
+pnpm dev
+```
 
-- set`DFX_NETWORK` to `ic` if you are using Webpack
-- use your own preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations
-  - Setting `canisters -> {asset_canister_id} -> declarations -> env_override to a string` in `dfx.json` will replace `process.env.DFX_NETWORK` with the string in the autogenerated declarations
-- Write your own `createActor` constructor
+## Development
+
+### Formatting
+
+```bash
+pnpm format
+```
+
+### Linting
+
+```bash
+pnpm lint
+```
+
+## Acknowledgements
+
+The project started in May 2024. The first MVP version can be found at [ilbertt/fortune-wheel-booth](https://github.com/ilbertt/fortune-wheel-booth).
