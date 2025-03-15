@@ -4,7 +4,7 @@ use backend_api::ApiError;
 
 use super::{
     init_wheel_asset_state_index, init_wheel_asset_type_index, init_wheel_assets,
-    init_wheel_prize_index, Timestamped, WheelAsset, WheelAssetId, WheelAssetMemory,
+    init_wheel_prize_order_index, Timestamped, WheelAsset, WheelAssetId, WheelAssetMemory,
     WheelAssetState as WheelAssetStateEnum, WheelAssetStateIndexMemory, WheelAssetStateKey,
     WheelAssetStateRange, WheelAssetType, WheelAssetTypeIndexMemory, WheelAssetTypeKey,
     WheelAssetTypeRange, WheelPrizeOrderMemory,
@@ -61,7 +61,7 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
             s.wheel_asset_type_index.insert(asset_type_key, id);
 
             if asset.is_enabled() {
-                self.add_wheel_prize_to_order(&mut s.wheel_prize_index, id);
+                self.add_wheel_prize_to_order(&mut s.wheel_prize_order_index, id);
             }
 
             Ok(id)
@@ -89,10 +89,10 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
 
             match (&old_asset.state, &asset.state) {
                 (WheelAssetStateEnum::Enabled, WheelAssetStateEnum::Disabled) => {
-                    self.remove_wheel_prize_from_order(&mut s.wheel_prize_index, &id);
+                    self.remove_wheel_prize_from_order(&mut s.wheel_prize_order_index, id);
                 }
                 (WheelAssetStateEnum::Disabled, WheelAssetStateEnum::Enabled) => {
-                    self.add_wheel_prize_to_order(&mut s.wheel_prize_index, id);
+                    self.add_wheel_prize_to_order(&mut s.wheel_prize_order_index, id);
                 }
                 _ => (),
             }
@@ -112,7 +112,7 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
                     s.wheel_asset_type_index.remove(&asset_type_key);
 
                     if asset.is_enabled() {
-                        self.remove_wheel_prize_from_order(&mut s.wheel_prize_index, id);
+                        self.remove_wheel_prize_from_order(&mut s.wheel_prize_order_index, *id);
                     }
                 }
                 None => {
@@ -159,17 +159,12 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
     }
 
     fn get_wheel_prizes_order(&self) -> Vec<WheelAssetId> {
-        STATE.with_borrow(|s| s.wheel_prize_index.values().collect())
+        STATE.with_borrow(|s| s.wheel_prize_order_index.values().collect())
     }
 
     fn update_wheel_prizes_order(&self, order: Vec<WheelAssetId>) -> Result<(), ApiError> {
-        STATE.with_borrow_mut(|s| {
-            s.wheel_prize_index.clear_new();
-            for (i, id) in order.into_iter().enumerate() {
-                s.wheel_prize_index.insert(i as u32, id);
-            }
-            Ok(())
-        })
+        self.update_wheel_prizes_order_internal(order);
+        Ok(())
     }
 }
 
@@ -180,27 +175,41 @@ impl WheelAssetRepositoryImpl {
 
     fn add_wheel_prize_to_order(
         &self,
-        wheel_prize_index: &mut WheelPrizeOrderMemory,
+        wheel_prize_order_index: &mut WheelPrizeOrderMemory,
         id: WheelAssetId,
     ) {
-        let new_index = wheel_prize_index
+        let new_index = wheel_prize_order_index
             .last_key_value()
             .map(|(i, _)| i + 1)
             .unwrap_or(0);
-        wheel_prize_index.insert(new_index, id);
+        wheel_prize_order_index.insert(new_index, id);
+    }
+
+    fn update_wheel_prizes_order_internal(&self, order: Vec<WheelAssetId>) {
+        STATE.with_borrow_mut(|s| {
+            s.wheel_prize_order_index.clear_new();
+            for (i, id) in order.into_iter().enumerate() {
+                s.wheel_prize_order_index.insert(i as u32, id);
+            }
+        })
     }
 
     fn remove_wheel_prize_from_order(
         &self,
-        wheel_prize_index: &mut WheelPrizeOrderMemory,
-        id: &WheelAssetId,
+        wheel_prize_order_index: &mut WheelPrizeOrderMemory,
+        wheel_asset_id: WheelAssetId,
     ) {
-        for (index, prize_id) in wheel_prize_index.iter() {
-            if &prize_id == id {
-                wheel_prize_index.remove(&index);
-                break;
-            }
-        }
+        let new_wheel_prize_order = wheel_prize_order_index
+            .iter()
+            .filter_map(|(_, prize_id)| {
+                if prize_id == wheel_asset_id {
+                    None
+                } else {
+                    Some(prize_id)
+                }
+            })
+            .collect::<Vec<_>>();
+        self.update_wheel_prizes_order_internal(new_wheel_prize_order);
     }
 }
 
@@ -208,7 +217,7 @@ struct WheelAssetState {
     wheel_assets: WheelAssetMemory,
     wheel_asset_state_index: WheelAssetStateIndexMemory,
     wheel_asset_type_index: WheelAssetTypeIndexMemory,
-    wheel_prize_index: WheelPrizeOrderMemory,
+    wheel_prize_order_index: WheelPrizeOrderMemory,
 }
 
 impl Default for WheelAssetState {
@@ -217,7 +226,7 @@ impl Default for WheelAssetState {
             wheel_assets: init_wheel_assets(),
             wheel_asset_state_index: init_wheel_asset_state_index(),
             wheel_asset_type_index: init_wheel_asset_type_index(),
-            wheel_prize_index: init_wheel_prize_index(),
+            wheel_prize_order_index: init_wheel_prize_order_index(),
         }
     }
 }

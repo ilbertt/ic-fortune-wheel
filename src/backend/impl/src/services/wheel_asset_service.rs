@@ -377,11 +377,6 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
                 .wheel_asset_repository
                 .list_wheel_assets_by_state(WheelAssetState::Enabled)?;
 
-            if request.wheel_asset_ids.len() != enabled_wheel_assets.len() {
-                return Err(ApiError::invalid_argument(
-                    "The provided wheel asset IDs do not match the existing enabled assets",
-                ));
-            }
             let mut ordered_ids = Vec::new();
             for id in &request.wheel_asset_ids {
                 let id = WheelAssetId::try_from(id.as_str())?;
@@ -390,7 +385,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
                     .any(|(asset_id, _)| *asset_id == id)
                 {
                     return Err(ApiError::invalid_argument(&format!(
-                        "Wheel asset with ID {} does not exist",
+                        "Wheel asset with ID {} does not exist or is not enabled",
                         id
                     )));
                 }
