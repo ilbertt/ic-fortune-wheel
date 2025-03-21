@@ -1,3 +1,5 @@
+use backend_api::ApiError;
+
 use crate::repositories::{
     WheelAsset, WheelAssetId, WheelAssetState, WheelAssetTokenBalance, WheelAssetTokenLedgerConfig,
     WheelAssetTokenPrice, WheelAssetType, WheelAssetUiSettings,
@@ -77,14 +79,25 @@ impl From<WheelAssetType> for backend_api::WheelAssetType {
             WheelAssetType::Gadget { article_type } => {
                 backend_api::WheelAssetType::Gadget { article_type }
             }
-            WheelAssetType::Jackpot => backend_api::WheelAssetType::Jackpot,
+            WheelAssetType::Jackpot { wheel_asset_ids } => backend_api::WheelAssetType::Jackpot {
+                wheel_asset_ids: wheel_asset_ids.iter().map(|el| el.to_string()).collect(),
+            },
         }
     }
 }
 
-impl From<backend_api::CreateWheelAssetTypeConfig> for WheelAssetType {
-    fn from(value: backend_api::CreateWheelAssetTypeConfig) -> Self {
-        match value {
+pub fn into_wheel_asset_ids(value: Vec<String>) -> Result<Vec<WheelAssetId>, ApiError> {
+    value
+        .iter()
+        .map(|el| WheelAssetId::try_from(el.as_str()))
+        .collect::<Result<Vec<_>, _>>()
+}
+
+impl TryFrom<backend_api::CreateWheelAssetTypeConfig> for WheelAssetType {
+    type Error = ApiError;
+
+    fn try_from(value: backend_api::CreateWheelAssetTypeConfig) -> Result<Self, Self::Error> {
+        let wheel_asset_type = match value {
             backend_api::CreateWheelAssetTypeConfig::Token {
                 ledger_config,
                 exchange_rate_symbol,
@@ -102,8 +115,13 @@ impl From<backend_api::CreateWheelAssetTypeConfig> for WheelAssetType {
             backend_api::CreateWheelAssetTypeConfig::Gadget { article_type } => {
                 WheelAssetType::Gadget { article_type }
             }
-            backend_api::CreateWheelAssetTypeConfig::Jackpot => WheelAssetType::Jackpot,
-        }
+            backend_api::CreateWheelAssetTypeConfig::Jackpot { wheel_asset_ids } => {
+                WheelAssetType::Jackpot {
+                    wheel_asset_ids: into_wheel_asset_ids(wheel_asset_ids)?,
+                }
+            }
+        };
+        Ok(wheel_asset_type)
     }
 }
 

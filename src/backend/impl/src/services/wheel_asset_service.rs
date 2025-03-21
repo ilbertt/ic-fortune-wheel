@@ -1,4 +1,4 @@
-use std::{path::Path, time::Duration};
+use std::{collections::HashSet, path::Path, time::Duration};
 
 use backend_api::{
     ApiError, CreateWheelAssetRequest, CreateWheelAssetResponse, CreateWheelAssetTypeConfig,
@@ -16,7 +16,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 use crate::{
-    mappings::{map_wheel_asset, map_wheel_prize},
+    mappings::{into_wheel_asset_ids, map_wheel_asset, map_wheel_prize},
     repositories::{
         ckbtc_wheel_asset, cketh_wheel_asset, ckusdc_wheel_asset, icp_wheel_asset, HttpAsset,
         HttpAssetRepository, HttpAssetRepositoryImpl, WheelAsset, WheelAssetId,
@@ -36,6 +36,8 @@ lazy_static! {
     static ref WHEEL_ASSET_UI_SETTING_BACKGROUND_COLOR_HEX_REGEX: Regex =
         Regex::new(r"^#(?:[0-9a-fA-F]{3}){1,2}$").unwrap();
 }
+const MINIMUM_WHEEL_ASSET_JACKPOT_ASSET_IDS_COUNT: usize = 1;
+const MAXIMUM_WHEEL_ASSET_JACKPOT_ASSET_IDS_COUNT: usize = 4;
 
 #[cfg_attr(test, mockall::automock)]
 pub trait WheelAssetService {
@@ -170,7 +172,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
     ) -> Result<CreateWheelAssetResponse, ApiError> {
         self.validate_create_wheel_asset_request(&request)?;
 
-        let wheel_asset_type = request.asset_type_config.into();
+        let wheel_asset_type = request.asset_type_config.try_into()?;
 
         if let WheelAssetType::Token {
             ref ledger_config, ..
@@ -270,7 +272,16 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
                 ) => {
                     *existing_article_type = new_article_type;
                 }
-                (UpdateWheelAssetTypeConfig::Jackpot, WheelAssetType::Jackpot) => {}
+                (
+                    UpdateWheelAssetTypeConfig::Jackpot {
+                        wheel_asset_ids: new_wheel_asset_ids,
+                    },
+                    WheelAssetType::Jackpot {
+                        wheel_asset_ids: existing_wheel_asset_ids,
+                    },
+                ) => {
+                    *existing_wheel_asset_ids = into_wheel_asset_ids(new_wheel_asset_ids)?;
+                }
                 _ => {
                     return Err(ApiError::invalid_argument(
                         "Asset type config does not match existing asset type",
@@ -434,7 +445,10 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             CreateWheelAssetTypeConfig::Token {
                 prize_usd_amount, ..
             } => self.validate_wheel_asset_token_prize_usd_amount(prize_usd_amount)?,
-            CreateWheelAssetTypeConfig::Gadget { .. } | CreateWheelAssetTypeConfig::Jackpot => {}
+            CreateWheelAssetTypeConfig::Jackpot { wheel_asset_ids } => {
+                self.validate_wheel_asset_jackpot_asset_ids(wheel_asset_ids)?
+            }
+            CreateWheelAssetTypeConfig::Gadget { .. } => {}
         }
 
         Ok(())
@@ -469,8 +483,10 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
                         self.validate_wheel_asset_token_prize_usd_amount(prize_usd_amount)?;
                     }
                 }
-                UpdateWheelAssetTypeConfig::Gadget { .. } | UpdateWheelAssetTypeConfig::Jackpot => {
+                UpdateWheelAssetTypeConfig::Jackpot { wheel_asset_ids } => {
+                    self.validate_wheel_asset_jackpot_asset_ids(wheel_asset_ids)?
                 }
+                UpdateWheelAssetTypeConfig::Gadget { .. } => {}
             }
         }
 
@@ -536,6 +552,29 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             return Err(ApiError::invalid_argument(&format!(
                 "Prize USD amount must be less than {MAXIMUM_WHEEL_ASSET_TOKEN_PRIZE_USD_AMOUNT}"
             )));
+        }
+        Ok(())
+    }
+
+    fn validate_wheel_asset_jackpot_asset_ids(
+        &self,
+        wheel_asset_ids: &[String],
+    ) -> Result<(), ApiError> {
+        if wheel_asset_ids.len() < MINIMUM_WHEEL_ASSET_JACKPOT_ASSET_IDS_COUNT
+            || wheel_asset_ids.len() > MAXIMUM_WHEEL_ASSET_JACKPOT_ASSET_IDS_COUNT
+        {
+            return Err(ApiError::invalid_argument(&format!(
+                "Jackpot must have between {MINIMUM_WHEEL_ASSET_JACKPOT_ASSET_IDS_COUNT} and {MAXIMUM_WHEEL_ASSET_JACKPOT_ASSET_IDS_COUNT} asset IDs"
+            )));
+        }
+        // Check that there are no duplicates
+        let mut seen = HashSet::new();
+        for id in wheel_asset_ids {
+            if !seen.insert(id) {
+                return Err(ApiError::invalid_argument(
+                    "Jackpot cannot have duplicate asset IDs",
+                ));
+            }
         }
         Ok(())
     }
