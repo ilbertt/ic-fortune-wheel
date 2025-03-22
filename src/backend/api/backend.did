@@ -92,7 +92,9 @@ type WheelAssetType = variant {
   gadget : record {
     article_type : opt text;
   };
-  jackpot;
+  jackpot : record {
+    wheel_asset_ids : vec text;
+  };
 };
 
 type WheelAssetUiSettings = record {
@@ -140,7 +142,9 @@ type CreateWheelAssetTypeConfig = variant {
   gadget : record {
     article_type : opt text;
   };
-  jackpot;
+  jackpot : record {
+    wheel_asset_ids : vec text;
+  };
 };
 
 type CreateWheelAssetRequest = record {
@@ -168,7 +172,9 @@ type UpdateWheelAssetTypeConfig = variant {
   gadget : record {
     article_type : opt text;
   };
-  jackpot;
+  jackpot : record {
+    wheel_asset_ids : vec text;
+  };
 };
 
 type UpdateWheelAssetRequest = record {

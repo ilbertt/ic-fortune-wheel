@@ -83,7 +83,9 @@ pub enum WheelAssetType {
     Gadget {
         article_type: Option<String>,
     },
-    Jackpot,
+    Jackpot {
+        wheel_asset_ids: Vec<WheelAssetId>,
+    },
 }
 
 impl From<&WheelAssetType> for u8 {
@@ -91,7 +93,7 @@ impl From<&WheelAssetType> for u8 {
         match asset_type {
             WheelAssetType::Token { .. } => 1,
             WheelAssetType::Gadget { .. } => 2,
-            WheelAssetType::Jackpot => 3,
+            WheelAssetType::Jackpot { .. } => 3,
         }
     }
 }
@@ -122,7 +124,7 @@ impl WheelAssetType {
                 exchange_rate_symbol,
                 ..
             } => exchange_rate_symbol.is_some(),
-            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => false,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot { .. } => false,
         }
     }
 
@@ -142,7 +144,7 @@ impl WheelAssetType {
                 .as_ref()
                 .map(|el| ((el.balance as f64) / ledger_config.unit_amount_float()))
                 .unwrap_or(0f64),
-            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => 0f64,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot { .. } => 0f64,
         }
     }
 
@@ -152,7 +154,7 @@ impl WheelAssetType {
             WheelAssetType::Token { usd_price, .. } => {
                 usd_price.as_ref().map(|el| balance * el.usd_price)
             }
-            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot { .. } => None,
         }
     }
 
@@ -167,7 +169,7 @@ impl WheelAssetType {
 
                 (total_usd_amount / prize_usd_amount).trunc() as u32
             }),
-            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot { .. } => None,
         }
     }
 
@@ -182,7 +184,7 @@ impl WheelAssetType {
                 let token_amount = prize_usd_amount / p.usd_price;
                 (token_amount * ledger_config.unit_amount_float()).trunc() as u128
             }),
-            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot { .. } => None,
         }
     }
 
@@ -191,14 +193,14 @@ impl WheelAssetType {
             WheelAssetType::Token {
                 prize_usd_amount, ..
             } => Some(*prize_usd_amount),
-            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot { .. } => None,
         }
     }
 
     pub fn ledger_config(&self) -> Option<&WheelAssetTokenLedgerConfig> {
         match self {
             WheelAssetType::Token { ledger_config, .. } => Some(ledger_config),
-            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot { .. } => None,
         }
     }
 }
@@ -281,7 +283,7 @@ impl WheelAsset {
             WheelAssetType::Token {
                 prize_usd_amount, ..
             } => Some(prize_usd_amount),
-            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => None,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot { .. } => None,
         }
     }
 
@@ -292,7 +294,7 @@ impl WheelAsset {
                 let token_qty = self.asset_type.available_token_draws_count().unwrap_or(0);
                 std::cmp::min(token_qty, available_qty)
             }
-            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot => available_qty,
+            WheelAssetType::Gadget { .. } | WheelAssetType::Jackpot { .. } => available_qty,
         }
     }
 

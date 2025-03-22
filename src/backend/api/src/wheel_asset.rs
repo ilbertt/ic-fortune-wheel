@@ -40,7 +40,7 @@ pub enum WheelAssetType {
     #[serde(rename = "gadget")]
     Gadget { article_type: Option<String> },
     #[serde(rename = "jackpot")]
-    Jackpot,
+    Jackpot { wheel_asset_ids: Vec<String> },
 }
 
 #[derive(Debug, CandidType, Deserialize, Clone)]
@@ -73,7 +73,7 @@ pub enum CreateWheelAssetTypeConfig {
     #[serde(rename = "gadget")]
     Gadget { article_type: Option<String> },
     #[serde(rename = "jackpot")]
-    Jackpot,
+    Jackpot { wheel_asset_ids: Vec<String> },
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
@@ -102,7 +102,7 @@ pub enum UpdateWheelAssetTypeConfig {
     #[serde(rename = "gadget")]
     Gadget { article_type: Option<String> },
     #[serde(rename = "jackpot")]
-    Jackpot,
+    Jackpot { wheel_asset_ids: Vec<String> },
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
