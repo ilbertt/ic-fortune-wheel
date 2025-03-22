@@ -12,11 +12,31 @@ export type WheelAssetToken = Omit<WheelAsset, 'asset_type'> & {
 export type WheelAssetGadget = Omit<WheelAsset, 'asset_type'> & {
   asset_type: Extract<WheelAssetType, { gadget: unknown }>;
 };
+export type WheelAssetJackpot = Omit<WheelAsset, 'asset_type'> & {
+  asset_type: Extract<WheelAssetType, { jackpot: unknown }>;
+};
+
+export type WheelAssetTypeJackpot = Extract<
+  WheelAssetType,
+  { jackpot: unknown }
+>;
 
 export const isWheelAssetTypeToken = (
   assetType: WheelAssetType,
 ): assetType is Extract<WheelAssetType, { token: unknown }> => {
   return 'token' in assetType;
+};
+
+export const isWheelAssetTypeGadget = (
+  assetType: WheelAssetType,
+): assetType is Extract<WheelAssetType, { gadget: unknown }> => {
+  return 'gadget' in assetType;
+};
+
+export const isWheelAssetTypeJackpot = (
+  assetType: WheelAssetType,
+): assetType is Extract<WheelAssetType, { jackpot: unknown }> => {
+  return 'jackpot' in assetType;
 };
 
 export const isWheelAssetToken = (
@@ -28,7 +48,13 @@ export const isWheelAssetToken = (
 export const isWheelAssetGadget = (
   asset: WheelAsset,
 ): asset is WheelAssetGadget => {
-  return 'gadget' in asset.asset_type;
+  return isWheelAssetTypeGadget(asset.asset_type);
+};
+
+export const isWheelAssetJackpot = (
+  asset: WheelAsset,
+): asset is WheelAssetJackpot => {
+  return isWheelAssetTypeJackpot(asset.asset_type);
 };
 
 export const wheelAssetBalance = (asset: WheelAssetToken): number => {
@@ -49,6 +75,23 @@ export const wheelAssetTokenTotalUsdValue = (
   return usdPrice ? usdPrice.usd_price * balance : 0;
 };
 
+export const wheelAssetTokensPrizeUsdSum = (
+  assets: WheelAssetToken[],
+): number => {
+  return assets.reduce(
+    (acc, asset) => acc + asset.asset_type.token.prize_usd_amount,
+    0,
+  );
+};
+
+export const wheelAssetJackpotAvailableDrawsCount = (
+  assets: WheelAssetToken[],
+): number => {
+  return Math.min(
+    ...assets.map(asset => asset.asset_type.token.available_draws_count),
+  );
+};
+
 export const wheelAssetsUsdValueSum = (assets: WheelAsset[]): number => {
   return assets.reduce(
     (acc, asset) =>
@@ -56,6 +99,14 @@ export const wheelAssetsUsdValueSum = (assets: WheelAsset[]): number => {
       (isWheelAssetToken(asset) ? wheelAssetTokenTotalUsdValue(asset) : 0),
     0,
   );
+};
+
+export const isWheelAssetEnabled = (
+  asset: WheelAsset,
+): asset is Omit<WheelAsset, 'state'> & {
+  state: Extract<WheelAssetState, { enabled: null }>;
+} => {
+  return enumKey(asset.state) === 'enabled';
 };
 
 export const isWheelAssetDisabled = (

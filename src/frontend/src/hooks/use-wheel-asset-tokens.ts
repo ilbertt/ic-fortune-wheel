@@ -1,11 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/auth-context';
-import {
-  isWheelAssetToken,
-  wheelAssetTokenTotalUsdValue,
-  type WheelAssetToken,
-} from '@/lib/wheel-asset';
+import { type WheelAssetToken } from '@/lib/wheel-asset';
 import { extractOk } from '@/lib/api';
 import { toastError } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
@@ -22,15 +18,7 @@ export const useWheelAssetTokens = (): UseWheelAssetTokensReturnType => {
   const { actor } = useAuth();
   const { isCurrentUserAdmin } = useUser();
   const queryClient = useQueryClient();
-  const { assets, fetchingAssets } = useWheelAssets();
-
-  const tokenAssets = Object.values(assets)
-    .filter(isWheelAssetToken)
-    .sort((a, b) =>
-      wheelAssetTokenTotalUsdValue(a) > wheelAssetTokenTotalUsdValue(b)
-        ? -1
-        : 1,
-    );
+  const { tokenAssets, fetchingAssets } = useWheelAssets();
 
   // Mutation to refresh token assets
   const refreshTokensMutation = useMutation({

@@ -44,8 +44,18 @@ import {
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
 import { getDefaultToken } from '@/lib/token';
-import { FormFooter, ImagesFormFields, PrizeFormFields } from './shared';
-import { PrincipalSchema } from '@/lib/forms';
+import {
+  FormFooter,
+  ImagesFormFields,
+  type ImagesFormFieldsProps,
+  PrizeFormFields,
+} from './shared';
+import {
+  PrincipalSchema,
+  AssetTotalAmountSchema,
+  OptionalFileSchema,
+  AssetNameSchema,
+} from '@/lib/forms';
 import { useLedgerCanisterMetadata } from '@/hooks/use-ledger-canister-metadata';
 import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
 import { useCreateWheelAsset } from '@/hooks/use-create-wheel-asset';
@@ -65,22 +75,20 @@ type CreateAssetTokenFormSchemaType = Omit<
   } & Extract<
     CreateWheelAssetTypeConfig,
     { token: unknown }
-  >['token']['ledger_config'] & {
-    modal_image_file: File | undefined;
-    wheel_image_file: File | undefined;
-  };
+  >['token']['ledger_config'] &
+  ImagesFormFieldsProps;
 
 const createAssetTokenFormSchema = z.object<
   ZodProperties<CreateAssetTokenFormSchemaType>
 >({
-  name: z.string().min(1).max(100),
+  name: AssetNameSchema,
   ledger_canister_id: PrincipalSchema,
   decimals: z.coerce.number().min(0).max(20),
   exchange_rate_symbol: z.string().optional(),
   prize_usd_amount: z.number().min(0.5).max(500),
-  total_amount: z.coerce.number().min(0).max(1_000),
-  modal_image_file: z.instanceof(File).optional(),
-  wheel_image_file: z.instanceof(File).optional(),
+  total_amount: AssetTotalAmountSchema,
+  modal_image_file: OptionalFileSchema,
+  wheel_image_file: OptionalFileSchema,
 });
 
 type AssetTokenFormProps = {

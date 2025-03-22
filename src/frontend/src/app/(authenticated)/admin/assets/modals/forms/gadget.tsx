@@ -26,28 +26,36 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { FormFooter, ImagesFormFields, PrizeFormFields } from './shared';
+import {
+  FormFooter,
+  ImagesFormFields,
+  type ImagesFormFieldsProps,
+  PrizeFormFields,
+} from './shared';
 import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
 import { useCreateWheelAsset } from '@/hooks/use-create-wheel-asset';
 import { useUpsertWheelAssetImages } from '@/hooks/use-upsert-wheel-asset-images';
+import {
+  AssetNameSchema,
+  AssetTotalAmountSchema,
+  OptionalFileSchema,
+} from '@/lib/forms';
 
 type CreateAssetGadgetFormSchemaType = Omit<
   CreateWheelAssetRequest,
   'asset_type_config' | 'wheel_ui_settings'
 > & {
   article_type: string | undefined;
-  modal_image_file: File | undefined;
-  wheel_image_file: File | undefined;
-};
+} & ImagesFormFieldsProps;
 
 const createAssetGadgetFormSchema = z.object<
   ZodProperties<CreateAssetGadgetFormSchemaType>
 >({
-  name: z.string().min(1).max(100),
-  total_amount: z.coerce.number().min(0).max(1_000),
+  name: AssetNameSchema,
+  total_amount: AssetTotalAmountSchema,
   article_type: z.string().optional(),
-  modal_image_file: z.instanceof(File).optional(),
-  wheel_image_file: z.instanceof(File).optional(),
+  modal_image_file: OptionalFileSchema,
+  wheel_image_file: OptionalFileSchema,
 });
 
 type AssetGadgetFormProps = {
