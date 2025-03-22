@@ -163,8 +163,10 @@ impl WheelAssetRepository for WheelAssetRepositoryImpl {
     }
 
     fn update_wheel_prizes_order(&self, order: Vec<WheelAssetId>) -> Result<(), ApiError> {
-        self.update_wheel_prizes_order_internal(order);
-        Ok(())
+        STATE.with_borrow_mut(|s| {
+            self.update_wheel_prizes_order_internal(&mut s.wheel_prize_order_index, order);
+            Ok(())
+        })
     }
 }
 
@@ -185,13 +187,15 @@ impl WheelAssetRepositoryImpl {
         wheel_prize_order_index.insert(new_index, id);
     }
 
-    fn update_wheel_prizes_order_internal(&self, order: Vec<WheelAssetId>) {
-        STATE.with_borrow_mut(|s| {
-            s.wheel_prize_order_index.clear_new();
-            for (i, id) in order.into_iter().enumerate() {
-                s.wheel_prize_order_index.insert(i as u32, id);
-            }
-        })
+    fn update_wheel_prizes_order_internal(
+        &self,
+        wheel_prize_order_index: &mut WheelPrizeOrderMemory,
+        order: Vec<WheelAssetId>,
+    ) {
+        wheel_prize_order_index.clear_new();
+        for (i, id) in order.into_iter().enumerate() {
+            wheel_prize_order_index.insert(i as u32, id);
+        }
     }
 
     fn remove_wheel_prize_from_order(
@@ -209,7 +213,7 @@ impl WheelAssetRepositoryImpl {
                 }
             })
             .collect::<Vec<_>>();
-        self.update_wheel_prizes_order_internal(new_wheel_prize_order);
+        self.update_wheel_prizes_order_internal(wheel_prize_order_index, new_wheel_prize_order);
     }
 }
 
