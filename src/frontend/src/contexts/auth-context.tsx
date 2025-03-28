@@ -2,11 +2,12 @@
 
 import { createContext, useContext, useEffect } from 'react';
 import { useAuthClient } from '@dfinity/use-auth-client';
-import { idlFactory, canisterId } from '@/declarations/backend';
+import { idlFactory } from '@/declarations/backend';
 import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/routes';
 import { type ActorSubclass } from '@dfinity/agent';
 import { type _SERVICE } from '@/declarations/backend/backend.did';
+import { canisterId } from '@/lib/api';
 
 const IS_LOCAL = process.env.DFX_NETWORK === 'local';
 const IS_PRODUCTION = process.env.DFX_NETWORK === 'ic';

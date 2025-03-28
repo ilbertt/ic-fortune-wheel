@@ -1,19 +1,19 @@
 {
   "canisters": {
     "backend": {
+      "type": "custom",
+      "gzip": true,
+      "optimize": "cycles",
+      "wasm": "./target/wasm32-unknown-unknown/release/backend_impl.wasm",
+      "build": [
+        "pnpm build",
+        "cargo build --target wasm32-unknown-unknown --release -p backend_impl --locked"
+      ],
       "candid": "src/backend/api/backend.did",
-      "package": "backend_impl",
-      "type": "rust",
       "declarations": {
         "bindings": ["js", "ts", "did"],
         "output": "./src/declarations/backend"
       }
-    },
-    "frontend": {
-      "dependencies": ["backend"],
-      "source": ["src/frontend/out"],
-      "type": "assets",
-      "build": ["pnpm build"]
     },
     "internet-identity": {
       "type": "pull",

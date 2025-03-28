@@ -4,6 +4,7 @@ use backend_api::*;
 use candid::export_service;
 use ic_cdk::*;
 use ic_http_certification::{HttpRequest, HttpResponse};
+use include_dir::{include_dir, Dir};
 
 mod controllers;
 mod mappings;
@@ -13,6 +14,8 @@ mod system_api;
 
 #[cfg(test)]
 mod fixtures;
+
+static FRONTEND_ASSETS_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../../frontend/out");
 
 export_service!();
 #[query(name = "__get_candid_interface_tmp_hack")]

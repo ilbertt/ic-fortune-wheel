@@ -12,7 +12,7 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { backendCanisterId } from '@/constants/api';
+import { canisterId } from '@/lib/api';
 import { Coins } from 'lucide-react';
 
 export const TopUpModal = () => {
@@ -33,8 +33,8 @@ export const TopUpModal = () => {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex flex-row flex-wrap items-center justify-center gap-2">
-          <pre>{backendCanisterId.toText()}</pre>
-          <CopyToClipboardButton value={backendCanisterId.toText()} />
+          <pre>{canisterId}</pre>
+          <CopyToClipboardButton value={canisterId} />
         </div>
         <AlertDialogFooter>
           <AlertDialogAction>I understand</AlertDialogAction>
