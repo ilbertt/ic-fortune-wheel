@@ -1,2 +1,3 @@
 src/backend/
 pnpm-lock.yaml
+src/my-app/src/routeTree.gen.ts

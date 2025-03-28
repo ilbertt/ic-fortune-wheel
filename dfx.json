@@ -11,7 +11,7 @@
       ],
       "candid": "src/backend/api/backend.did",
       "declarations": {
-        "bindings": ["js", "ts", "did"],
+        "bindings": ["js", "ts"],
         "output": "./src/declarations/backend"
       }
     },

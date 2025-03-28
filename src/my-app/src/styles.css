@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  :root {
+    --infinite: 259 100% 36%; /* #3B00B9 */
+    --dark-infinite: 259 100% 18%;
+    --indaco-blue: 228 83% 68%; /* #6A85F1 */
+
+    --background: 240 10% 3.9%; /* zinc-950 */
+    --foreground: 0 0% 98%; /* zinc-50 */
+    --card: 240 10% 3.9%; /* zinc-950 */
+    --card-foreground: 0 0% 98%; /* zinc-50 */
+    --popover: 240 10% 3.9%; /* zinc-950 */
+    --popover-foreground: 0 0% 98%; /* zinc-50 */
+    --primary: 0 0% 98%; /* zinc-50 */
+    --primary-foreground: 240, 6%, 10%; /* zinc-900 */
+    --secondary: var(--infinite);
+    --secondary-foreground: 0 0% 98%; /* zinc-50 */
+    --muted: 240 4% 16%; /* zinc-800 */
+    --muted-foreground: 240 5% 65%; /* zinc-400 */
+    --accent: 240 4% 16%; /* zinc-800 */
+    --accent-foreground: 0 0% 98%; /* zinc-50 */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%; /* zinc-50 */
+    --border: 240 4% 16%; /* zinc-800 */
+    --input: 240 4% 16%; /* zinc-800 */
+    --ring: 240 4.9% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --radius: 0.5rem;
+  }
+  /*
+    We don't have dark mode, since the default theme is dark
+    .dark {}
+  */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  pre {
+    @apply bg-indaco-blue/20 rounded-md px-2 py-1.5;
+  }
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.prize-name-animation {
+  animation: prizeNameScaleFadeIn 0.7s ease-in forwards;
+  animation-delay: 0.8s;
+  opacity: 0;
+}
+
+@keyframes prizeNameScaleFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-image-animation {
+  animation:
+    rotateScaleIn 0.7s ease-in forwards,
+    bounceRotate 2s infinite ease-in-out 1s;
+}
+
+@keyframes rotateScaleIn {
+  from {
+    opacity: 0;
+    transform: rotate(0deg) scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes bounceRotate {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+.app-background {
+  @apply from-dark-infinite to-dark-infinite/25;
+  background-image: radial-gradient(
+    ellipse at bottom,
+    var(--tw-gradient-stops)
+  );
+}
