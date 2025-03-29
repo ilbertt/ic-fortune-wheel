@@ -123,7 +123,7 @@ export const wheelAssetUrl = (
     | WheelAsset['modal_image_path']
     | undefined,
 ): string | undefined => {
-  if (!imagePath) {
+  if (!imagePath || !imagePath[0]) {
     return undefined;
   }
   let path = imagePath[0];
