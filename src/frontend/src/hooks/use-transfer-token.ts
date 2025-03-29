@@ -1,7 +1,5 @@
-'use client';
-
 import { useMutation } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import type { TransferTokenRequest } from '@/declarations/backend/backend.did';
 import { extractOk } from '@/lib/api';
 import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';

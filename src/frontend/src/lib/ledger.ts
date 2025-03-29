@@ -1,4 +1,4 @@
-import { Agent } from '@dfinity/agent';
+import { type Agent } from '@dfinity/agent';
 import { IcrcLedgerCanister } from '@dfinity/ledger-icrc';
 import { Principal } from '@dfinity/principal';
 

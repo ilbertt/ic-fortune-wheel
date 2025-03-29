@@ -1,19 +1,17 @@
-'use client';
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { UserProfile } from '@/declarations/backend/backend.did';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { enumKey, toastError } from '@/lib/utils';
 import { extractOk } from '@/lib/api';
 
-type UseUserData = {
+type UseUserReturn = {
   user: UserProfile | null;
   isCurrentUserAdmin: boolean;
   isCurrentUserScanner: boolean;
   isCurrentUserUnassigned: boolean;
 };
 
-export function useUser(): UseUserData {
+export function useUser(): UseUserReturn {
   const { actor } = useAuth();
   const queryClient = useQueryClient();
 

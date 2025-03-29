@@ -1,11 +1,15 @@
-import { DEFAULT_TOKENS, DefaultTokensKey } from '@/constants/token';
+import { DEFAULT_TOKENS, type DefaultTokensKey } from '@/constants/token';
 import { Principal } from '@dfinity/principal';
 
 export const getDefaultToken = (
-  ledgerCanisterId: Principal,
+  ledgerCanisterId: Principal | undefined,
 ):
   | [DefaultTokensKey, (typeof DEFAULT_TOKENS)[DefaultTokensKey]]
   | undefined => {
+  if (!ledgerCanisterId) {
+    return undefined;
+  }
+  ledgerCanisterId = Principal.from(ledgerCanisterId);
   const entry = Object.entries(DEFAULT_TOKENS).find(
     ([, token]) =>
       token.ledger_config.ledger_canister_id.compareTo(ledgerCanisterId) ===

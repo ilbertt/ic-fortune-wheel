@@ -1,15 +1,12 @@
-'use client';
-
-import Pointer from '@/assets/wheel/pointer.png';
 import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
-import { Wheel, WheelDataType } from 'react-custom-roulette';
+import { Wheel, type WheelDataType } from 'react-custom-roulette';
 import { cn } from '@/lib/utils';
 
 type FortuneWheelProps = React.HTMLAttributes<HTMLDivElement> & {
   wheelData: WheelDataType[];
 };
 
-const FortuneWheel: React.FC<FortuneWheelProps> = ({
+export const FortuneWheel: React.FC<FortuneWheelProps> = ({
   className,
   children,
   wheelData,
@@ -42,7 +39,7 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
           startingOptionIndex={0}
           data={wheelData}
           pointerProps={{
-            src: Pointer.src,
+            src: '/images/pointer.png',
             style: {
               transform: 'translate(-15%, 15%) rotate(250deg)',
             },
@@ -57,5 +54,3 @@ const FortuneWheel: React.FC<FortuneWheelProps> = ({
     </>
   );
 };
-
-export default FortuneWheel;

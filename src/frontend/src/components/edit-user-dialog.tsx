@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import {
@@ -26,10 +24,10 @@ import {
 import { UserIdDisplay } from '@/components/user-id-display';
 import { Label } from '@/components/ui/label';
 import { UserRoleBadge } from './user-role-badge';
-import { ROUTES } from '@/lib/routes';
-import Link from 'next/link';
 import { useUser } from '@/hooks/use-user';
 import { useUpdateMyUser } from '@/hooks/use-update-my-user';
+import { Route as TeamRoute } from '@/routes/(authenticated)/admin/team';
+import { Link } from '@tanstack/react-router';
 
 const editUserFormSchema = z.object({
   username: z.string().min(1),
@@ -84,7 +82,7 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({
                 <p className="text-muted-foreground text-[0.8rem]">
                   The role can be changed by admins in the{' '}
                   <Link
-                    href={ROUTES.dashboard.team}
+                    to={TeamRoute.to}
                     className="text-indaco-blue underline"
                   >
                     Team

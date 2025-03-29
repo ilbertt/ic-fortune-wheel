@@ -1,6 +1,4 @@
-'use client';
-
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { getLedgerActor } from '@/lib/ledger';
 import { Actor } from '@dfinity/agent';
 import { type IcrcTokenMetadata, mapTokenMetadata } from '@dfinity/ledger-icrc';

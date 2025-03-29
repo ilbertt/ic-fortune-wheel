@@ -1,8 +1,4 @@
-'use client';
-
-import Logo from '@/assets/wheel/fortune-wheel-logo.png';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 
 type FortuneWheelLogoProps = React.HTMLAttributes<HTMLDivElement>;
 
@@ -18,7 +14,11 @@ export const FortuneWheelLogo: React.FC<FortuneWheelLogoProps> = ({
       )}
       {...props}
     >
-      <Image className="w-full" src={Logo} alt="fortune wheel logo" />
+      <img
+        className="w-full"
+        src="/images/fortune-wheel-logo.png"
+        alt="fortune wheel logo"
+      />
     </div>
   );
 };

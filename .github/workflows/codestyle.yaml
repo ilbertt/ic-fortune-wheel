@@ -17,6 +17,11 @@ jobs:
       - name: Setup NodeJS
         uses: ./.github/actions/setup-node
 
+      - name: Create frontend dist directory
+        run: |
+          cd src/frontend
+          mkdir -p dist
+
       - name: Check formatting
         run: pnpm format:check
 

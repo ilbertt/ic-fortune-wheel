@@ -1,6 +1,4 @@
-'use client';
-
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import {
   isWheelAssetToken,
   wheelAssetTokenTotalUsdValue,
