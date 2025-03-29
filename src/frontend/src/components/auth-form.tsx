@@ -4,18 +4,22 @@ import { useCallback, useState } from 'react';
 import { Infinity, LoaderPinwheel } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { ROUTES } from '@/lib/routes';
+import { useRouter } from '@tanstack/react-router';
+import { Route as AdminRoute } from '@/routes/(authenticated)/admin';
 
 type AuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 
 export function AuthForm({ className, ...props }: AuthFormProps) {
+  const router = useRouter();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleLogin = useCallback(async () => {
     setIsLoading(true);
     await login();
-    window.location.reload();
-  }, [login]);
+    await router.invalidate();
+    router.history.push(AdminRoute.to);
+  }, [login, router]);
 
   return (
     <div

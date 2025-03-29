@@ -40,6 +40,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       },
     });
 
+  // Typescript doesn't know that authClient can be null. In this case, the
+  // auth has not been initialized yet, so we don't render the AuthProvider.
+  if (!authClient) {
+    return null;
+  }
+
   return (
     <AuthContext.Provider
       value={{

@@ -33,7 +33,8 @@ import { Loader } from '@/components/loader';
 import { EditUserDialog } from '@/components/edit-user-dialog';
 import { UserRoleBadge } from '@/components/user-role-badge';
 import { useUser } from '@/hooks/use-user';
-import { useRouterState } from '@tanstack/react-router';
+import { useRouter, useRouterState } from '@tanstack/react-router';
+import { Route as HomeRoute } from '@/routes';
 
 type HeaderLinkProps = {
   title: string;
@@ -68,11 +69,13 @@ type UserNavProps = {
 const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
   const { logout } = useAuth();
   const { user } = useUser();
+  const router = useRouter();
 
-  const handleLogout = useCallback(() => {
-    logout();
-    window.location.reload();
-  }, [logout]);
+  const handleLogout = useCallback(async () => {
+    await logout();
+    await router.invalidate();
+    router.history.push(HomeRoute.to);
+  }, [logout, router]);
 
   return (
     <DropdownMenu>

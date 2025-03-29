@@ -1,12 +1,17 @@
 import { AuthForm } from '@/components/auth-form';
 import { Logo } from '@/components/logo';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/(unauthenticated)/login/')({
-  component: AuthenticationPage,
+  beforeLoad: ({ context }) => {
+    if (context.auth.isAuthenticated) {
+      throw redirect({ to: '/admin' });
+    }
+  },
+  component: RouteComponent,
 });
 
-function AuthenticationPage() {
+function RouteComponent() {
   return (
     <div className="container relative flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="left-0 top-0 z-20 flex w-screen items-center justify-center p-5 md:absolute md:justify-start md:p-10">

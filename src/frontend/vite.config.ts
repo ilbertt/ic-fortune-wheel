@@ -40,7 +40,9 @@ export default defineConfig({
   },
   // from https://github.com/vitejs/vite/issues/1973#issuecomment-787571499
   define: {
-    'process.env': {},
+    'process.env': {
+      DFX_NETWORK,
+    },
   },
   server: {
     proxy: {

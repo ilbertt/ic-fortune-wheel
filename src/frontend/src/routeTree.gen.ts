@@ -13,8 +13,10 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as unauthenticatedFwImport } from './routes/(unauthenticated)/fw'
+import { Route as authenticatedAdminImport } from './routes/(authenticated)/admin'
 import { Route as unauthenticatedLoginIndexImport } from './routes/(unauthenticated)/login/index'
 import { Route as unauthenticatedFwIndexImport } from './routes/(unauthenticated)/fw/index'
+import { Route as authenticatedAdminIndexImport } from './routes/(authenticated)/admin/index'
 
 // Create/Update Routes
 
@@ -30,6 +32,12 @@ const unauthenticatedFwRoute = unauthenticatedFwImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const authenticatedAdminRoute = authenticatedAdminImport.update({
+  id: '/(authenticated)/admin',
+  path: '/admin',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const unauthenticatedLoginIndexRoute = unauthenticatedLoginIndexImport.update({
   id: '/(unauthenticated)/login/',
   path: '/login/',
@@ -40,6 +48,12 @@ const unauthenticatedFwIndexRoute = unauthenticatedFwIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => unauthenticatedFwRoute,
+} as any)
+
+const authenticatedAdminIndexRoute = authenticatedAdminIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => authenticatedAdminRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -53,12 +67,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/(authenticated)/admin': {
+      id: '/(authenticated)/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof authenticatedAdminImport
+      parentRoute: typeof rootRoute
+    }
     '/(unauthenticated)/fw': {
       id: '/(unauthenticated)/fw'
       path: '/fw'
       fullPath: '/fw'
       preLoaderRoute: typeof unauthenticatedFwImport
       parentRoute: typeof rootRoute
+    }
+    '/(authenticated)/admin/': {
+      id: '/(authenticated)/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof authenticatedAdminIndexImport
+      parentRoute: typeof authenticatedAdminImport
     }
     '/(unauthenticated)/fw/': {
       id: '/(unauthenticated)/fw/'
@@ -79,6 +107,17 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface authenticatedAdminRouteChildren {
+  authenticatedAdminIndexRoute: typeof authenticatedAdminIndexRoute
+}
+
+const authenticatedAdminRouteChildren: authenticatedAdminRouteChildren = {
+  authenticatedAdminIndexRoute: authenticatedAdminIndexRoute,
+}
+
+const authenticatedAdminRouteWithChildren =
+  authenticatedAdminRoute._addFileChildren(authenticatedAdminRouteChildren)
+
 interface unauthenticatedFwRouteChildren {
   unauthenticatedFwIndexRoute: typeof unauthenticatedFwIndexRoute
 }
@@ -92,13 +131,16 @@ const unauthenticatedFwRouteWithChildren =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof authenticatedAdminRouteWithChildren
   '/fw': typeof unauthenticatedFwRouteWithChildren
+  '/admin/': typeof authenticatedAdminIndexRoute
   '/fw/': typeof unauthenticatedFwIndexRoute
   '/login': typeof unauthenticatedLoginIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof authenticatedAdminIndexRoute
   '/fw': typeof unauthenticatedFwIndexRoute
   '/login': typeof unauthenticatedLoginIndexRoute
 }
@@ -106,20 +148,24 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/(authenticated)/admin': typeof authenticatedAdminRouteWithChildren
   '/(unauthenticated)/fw': typeof unauthenticatedFwRouteWithChildren
+  '/(authenticated)/admin/': typeof authenticatedAdminIndexRoute
   '/(unauthenticated)/fw/': typeof unauthenticatedFwIndexRoute
   '/(unauthenticated)/login/': typeof unauthenticatedLoginIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/fw' | '/fw/' | '/login'
+  fullPaths: '/' | '/admin' | '/fw' | '/admin/' | '/fw/' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/fw' | '/login'
+  to: '/' | '/admin' | '/fw' | '/login'
   id:
     | '__root__'
     | '/'
+    | '/(authenticated)/admin'
     | '/(unauthenticated)/fw'
+    | '/(authenticated)/admin/'
     | '/(unauthenticated)/fw/'
     | '/(unauthenticated)/login/'
   fileRoutesById: FileRoutesById
@@ -127,12 +173,14 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  authenticatedAdminRoute: typeof authenticatedAdminRouteWithChildren
   unauthenticatedFwRoute: typeof unauthenticatedFwRouteWithChildren
   unauthenticatedLoginIndexRoute: typeof unauthenticatedLoginIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  authenticatedAdminRoute: authenticatedAdminRouteWithChildren,
   unauthenticatedFwRoute: unauthenticatedFwRouteWithChildren,
   unauthenticatedLoginIndexRoute: unauthenticatedLoginIndexRoute,
 }
@@ -148,6 +196,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/(authenticated)/admin",
         "/(unauthenticated)/fw",
         "/(unauthenticated)/login/"
       ]
@@ -155,11 +204,21 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
+    "/(authenticated)/admin": {
+      "filePath": "(authenticated)/admin.tsx",
+      "children": [
+        "/(authenticated)/admin/"
+      ]
+    },
     "/(unauthenticated)/fw": {
       "filePath": "(unauthenticated)/fw.tsx",
       "children": [
         "/(unauthenticated)/fw/"
       ]
+    },
+    "/(authenticated)/admin/": {
+      "filePath": "(authenticated)/admin/index.tsx",
+      "parent": "/(authenticated)/admin"
     },
     "/(unauthenticated)/fw/": {
       "filePath": "(unauthenticated)/fw/index.tsx",
