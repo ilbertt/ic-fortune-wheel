@@ -3,9 +3,9 @@ import { Button } from '@/components/ui/button';
 import { useCallback, useState } from 'react';
 import { Infinity, LoaderPinwheel } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import { ROUTES } from '@/lib/routes';
 import { useRouter } from '@tanstack/react-router';
 import { Route as AdminRoute } from '@/routes/(authenticated)/admin';
+import { Route as FwRoute } from '@/routes/(unauthenticated)/fw';
 
 type AuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 
@@ -40,10 +40,10 @@ export function AuthForm({ className, ...props }: AuthFormProps) {
         </div>
       </div>
       <Button variant="secondary" type="button" loading={isLoading} asChild>
-        <a href={ROUTES.fortuneWheel}>
+        <Link to={FwRoute.to}>
           <LoaderPinwheel />
           Fortune Wheel
-        </a>
+        </Link>
       </Button>
     </div>
   );

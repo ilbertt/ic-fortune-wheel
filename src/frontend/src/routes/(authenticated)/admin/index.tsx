@@ -9,9 +9,10 @@ import { renderUsdValue } from '@/lib/utils';
 import { wheelAssetsUsdValueSum } from '@/lib/wheel-asset';
 import { ActivityTable } from '@/components/activity-table';
 import { useWheelPrizeExtractionsStats } from '@/hooks/use-wheel-prize-extractions-stats';
-import { ROUTES } from '@/lib/routes';
 import { useUser } from '@/hooks/use-user';
 import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
+import { Route as AssetsRoute } from '@/routes/(authenticated)/admin/assets';
+import { Link } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/(authenticated)/admin/')({
   component: RouteComponent,
@@ -75,7 +76,7 @@ function RouteComponent() {
                   <div className="flex flex-row flex-wrap justify-between gap-2">
                     {renderUsdValue(wheelAssetsUsdValueSum(tokenAssets))}
                     <Button size="sm" variant="outline" asChild>
-                      <a href={ROUTES.dashboard.assets}>Go to Wallet</a>
+                      <Link to={AssetsRoute.to}>Go to Wallet</Link>
                     </Button>
                   </div>
                 )}
