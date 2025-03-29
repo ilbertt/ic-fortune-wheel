@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import type { WheelPrizeExtractionsStats } from '@/declarations/backend/backend.did';

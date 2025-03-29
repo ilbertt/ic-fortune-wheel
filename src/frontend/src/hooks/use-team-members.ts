@@ -1,5 +1,5 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import type { UserProfile, Err } from '@/declarations/backend/backend.did';
 import { extractOk } from '@/lib/api';
 import { useCallback } from 'react';

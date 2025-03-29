@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import type { Err } from '@/declarations/backend/backend.did';
 import { extractOk } from '@/lib/api';
 import { toastError } from '@/lib/utils';

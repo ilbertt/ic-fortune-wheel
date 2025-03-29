@@ -3,7 +3,7 @@ import type {
   Err,
   WheelPrizeExtraction,
 } from '@/declarations/backend/backend.did';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
 import { useUser } from '@/hooks/use-user';
 

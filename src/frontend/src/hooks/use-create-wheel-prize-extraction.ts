@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { Principal } from '@dfinity/principal';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
 import { useEffect, useRef } from 'react';
 

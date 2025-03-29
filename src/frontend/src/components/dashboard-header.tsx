@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { Children, useCallback } from 'react';
 import { GithubIcon } from '@/components/icons';
 import { GITHUB_REPO_URL } from '@/constants';

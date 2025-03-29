@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { UserProfile } from '@/declarations/backend/backend.did';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { enumKey, toastError } from '@/lib/utils';
 import { extractOk } from '@/lib/api';
 
