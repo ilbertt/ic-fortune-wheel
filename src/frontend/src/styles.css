@@ -2,8 +2,7 @@
 layer(base);
 
 @import 'tailwindcss';
-
-@plugin 'tailwindcss-animate';
+@import 'tw-animate-css';
 
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
