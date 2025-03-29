@@ -43,7 +43,7 @@ import {
   existingWheelAssetImagesFiles,
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
-import { getDefaultToken } from '@/lib/token';
+import { getDefaultToken, isDefaultToken } from '@/lib/token';
 import { FormFooter, ImagesFormFields, PrizeFormFields } from './shared';
 import { PrincipalSchema } from '@/lib/forms';
 import { useLedgerCanisterMetadata } from '@/hooks/use-ledger-canister-metadata';
@@ -136,7 +136,10 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
     name: 'ledger_canister_id',
   });
   const { isFetchingLedgerCanisterMetadata } = useLedgerCanisterMetadata({
-    ledgerCanisterId: !isEdit ? formLedgerCanisterId : undefined,
+    ledgerCanisterId:
+      !isEdit && formLedgerCanisterId && !isDefaultToken(formLedgerCanisterId)
+        ? formLedgerCanisterId
+        : undefined,
     onSuccess: metadata => {
       const validationSettings = {
         shouldValidate: true,
@@ -236,6 +239,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
         // @ts-expect-error The form expects a number
         form.setValue('decimals', '', validationSettings);
         form.setValue('exchange_rate_symbol', '', validationSettings);
+        form.setValue('wheel_image_file', undefined, validationSettings);
       } else {
         const validationSettings = {
           shouldValidate: true,

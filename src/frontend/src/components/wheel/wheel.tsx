@@ -1,4 +1,3 @@
-import Pointer from '@/assets/wheel/pointer.png';
 import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import { Wheel, type WheelDataType } from 'react-custom-roulette';
 import { cn } from '@/lib/utils';
@@ -40,7 +39,7 @@ export const FortuneWheel: React.FC<FortuneWheelProps> = ({
           startingOptionIndex={0}
           data={wheelData}
           pointerProps={{
-            src: Pointer,
+            src: '/images/pointer.png',
             style: {
               transform: 'translate(-15%, 15%) rotate(250deg)',
             },

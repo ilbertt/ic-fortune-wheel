@@ -196,18 +196,6 @@ mod static_assets {
                 encodings: encodings.clone(),
             },
             AssetConfig::Pattern {
-                pattern: "**/*.html".to_string(),
-                content_type: Some("text/html".to_string()),
-                headers: super::get_asset_headers(vec![
-                    (
-                        "cache-control".to_string(),
-                        NO_CACHE_ASSET_CACHE_CONTROL.to_string(),
-                    ),
-                    canister_id_cookie_header,
-                ]),
-                encodings: encodings.clone(),
-            },
-            AssetConfig::Pattern {
                 pattern: "**/*.js".to_string(),
                 content_type: Some("text/javascript".to_string()),
                 headers: super::get_asset_headers(vec![(
