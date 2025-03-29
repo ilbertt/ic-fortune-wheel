@@ -246,15 +246,6 @@ mod static_assets {
                 encodings: encodings.clone(),
             },
             AssetConfig::Pattern {
-                pattern: "**/*.woff2".to_string(),
-                content_type: Some("font/woff2".to_string()),
-                headers: super::get_asset_headers(vec![(
-                    "cache-control".to_string(),
-                    IMMUTABLE_ASSET_CACHE_CONTROL.to_string(),
-                )]),
-                encodings: encodings.clone(),
-            },
-            AssetConfig::Pattern {
                 pattern: "**/*.txt".to_string(),
                 content_type: Some("text/plain".to_string()),
                 headers: super::get_asset_headers(vec![(

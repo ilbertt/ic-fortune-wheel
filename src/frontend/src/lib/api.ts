@@ -2,7 +2,7 @@ import type { Err } from '@/declarations/backend/backend.did';
 
 type GenericResult<T = unknown> = { ok: T } | { err: Err };
 
-export const canisterId =
+export const canisterId: string =
   window.document.cookie
     .split('; ')
     .find(row => row.startsWith('canisterId='))

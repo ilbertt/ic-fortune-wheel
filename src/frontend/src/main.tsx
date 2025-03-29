@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import reportWebVitals from './reportWebVitals.ts';
-import { AuthProvider } from '@/contexts/auth-context';
+import { AuthProvider } from '@/providers/auth-provider';
 import { toast } from '@/hooks/use-toast';
 import { renderError } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';

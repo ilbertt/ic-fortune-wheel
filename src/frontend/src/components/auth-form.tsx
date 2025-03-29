@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useCallback, useState } from 'react';
 import { Infinity, LoaderPinwheel } from 'lucide-react';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { ROUTES } from '@/lib/routes';
 
 type AuthFormProps = React.HTMLAttributes<HTMLDivElement>;

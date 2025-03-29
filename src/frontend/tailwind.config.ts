@@ -4,6 +4,10 @@ export default {
   darkMode: ['class'],
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
+    fontFamily: {
+      sans: ['Geist', 'sans-serif'],
+      mono: ['"Geist Mono"', 'monospace'],
+    },
     extend: {
       colors: {
         background: 'hsl(var(--background))',
