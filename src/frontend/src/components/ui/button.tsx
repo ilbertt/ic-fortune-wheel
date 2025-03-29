@@ -43,39 +43,34 @@ export interface ButtonProps
   loading?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant,
-      size,
-      asChild = false,
-      loading = false,
-      disabled,
-      children,
-      type = 'button',
-      ...props
-    },
-    ref,
-  ) => {
-    const Comp = asChild ? Slot : 'button';
+const Button = ({
+  className,
+  variant,
+  size,
+  asChild = false,
+  loading = false,
+  disabled,
+  children,
+  type = 'button',
+  ...props
+}: ButtonProps) => {
+  const Comp = asChild ? Slot : 'button';
 
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        disabled={disabled || loading}
-        type={type}
-        {...props}
-      >
-        {loading && <Loader />}
-        <Slottable>
-          {loading ? (size !== 'icon' ? 'Loading' : null) : children}
-        </Slottable>
-      </Comp>
-    );
-  },
-);
+  return (
+    <Comp
+      className={cn(buttonVariants({ variant, size, className }))}
+      data-slot="button"
+      disabled={disabled || loading}
+      type={type}
+      {...props}
+    >
+      {loading && <Loader />}
+      <Slottable>
+        {loading ? (size !== 'icon' ? 'Loading' : null) : children}
+      </Slottable>
+    </Comp>
+  );
+};
 Button.displayName = 'Button';
 
 // eslint-disable-next-line react-refresh/only-export-components
