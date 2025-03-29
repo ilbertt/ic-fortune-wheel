@@ -194,9 +194,9 @@ layer(base);
 }
 
 .app-background {
-  @apply from-dark-infinite to-dark-infinite/25;
   background-image: radial-gradient(
     ellipse at bottom,
-    var(--tw-gradient-stops)
+    var(--color-dark-infinite),
+    color-mix(in hsl, var(--color-dark-infinite) 25%, transparent)
   );
 }
