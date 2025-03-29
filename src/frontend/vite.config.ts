@@ -16,12 +16,14 @@ const lastCommitShortSha = execSync('git rev-parse --short HEAD')
 
 // Set environment variables
 process.env.VITE_APP_VERSION = `v${version}+${lastCommitShortSha}`;
+// avoid injecting the canister id unless we are running locally
 process.env.VITE_CANISTER_ID =
-  dfxEnvList.CANISTER_ID || dfxEnvList.CANISTER_ID_BACKEND;
+  DFX_NETWORK === 'local'
+    ? dfxEnvList.CANISTER_ID || dfxEnvList.CANISTER_ID_BACKEND
+    : '';
 process.env.VITE_CANISTER_ID_INTERNET_IDENTITY =
   dfxEnvList.CANISTER_ID_INTERNET_IDENTITY;
 process.env.VITE_DFX_NETWORK = DFX_NETWORK;
-process.env.DFX_NETWORK = DFX_NETWORK;
 
 // https://vitejs.dev/config/
 export default defineConfig({

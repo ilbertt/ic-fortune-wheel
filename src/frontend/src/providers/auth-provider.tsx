@@ -5,7 +5,9 @@ import { canisterId } from '@/lib/api';
 import { AuthContext } from '@/contexts/auth-context';
 
 const IS_LOCAL = import.meta.env.VITE_DFX_NETWORK === 'local';
-const IS_PRODUCTION = import.meta.env.VITE_DFX_NETWORK === 'ic';
+const IS_PRODUCTION =
+  import.meta.env.VITE_DFX_NETWORK === 'ic' ||
+  import.meta.env.VITE_DFX_NETWORK === 'staging';
 const PRODUCTION_FRONTEND_ORIGIN = `https://${canisterId}.icp0.io`;
 const IDENTITY_PROVIDER_URL = IS_LOCAL
   ? `http://${import.meta.env.VITE_CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
