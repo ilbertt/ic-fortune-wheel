@@ -4,6 +4,7 @@ import type {
   WheelAssetType,
 } from '@/declarations/backend/backend.did';
 import { bigIntToFloat, enumKey, fileFromUrl } from '@/lib/utils';
+import { canisterId } from '@/lib/api';
 
 export type WheelAssetToken = Omit<WheelAsset, 'asset_type'> & {
   asset_type: Extract<WheelAssetType, { token: unknown }>;
@@ -125,7 +126,11 @@ export const wheelAssetUrl = (
   if (!imagePath) {
     return undefined;
   }
-  return imagePath[0];
+  let path = imagePath[0];
+  if (import.meta.env.DEV) {
+    path = `http://${canisterId}.localhost:4943${path}`;
+  }
+  return path;
 };
 
 export const existingWheelAssetImagesFiles = async (

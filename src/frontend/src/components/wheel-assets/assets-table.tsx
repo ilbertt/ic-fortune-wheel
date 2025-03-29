@@ -3,13 +3,30 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import type { WheelAsset } from '@/declarations/backend/backend.did';
 import { renderUsdValue } from '@/lib/utils';
-import { isWheelAssetDisabled, isWheelAssetTypeToken } from '@/lib/wheel-asset';
+import {
+  isWheelAssetDisabled,
+  isWheelAssetTypeJackpot,
+  isWheelAssetTypeToken,
+  wheelAssetJackpotAvailableDrawsCount,
+  wheelAssetTokensPrizeUsdSum,
+  type WheelAssetToken,
+  type WheelAssetTypeJackpot,
+} from '@/lib/wheel-asset';
 import { createColumnHelper } from '@tanstack/react-table';
 import { MinusCircle, PlusCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import { EditAssetModal } from './modals/edit';
 import { Loader } from '@/components/loader';
 import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
+import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
+
+const jackpotTokenAssets = (
+  tokenAssets: WheelAssetToken[],
+  assetType: WheelAssetTypeJackpot,
+): WheelAssetToken[] =>
+  tokenAssets.filter(wheelAsset =>
+    assetType.jackpot.wheel_asset_ids.includes(wheelAsset.id),
+  );
 
 type AssetStateToggleProps = {
   asset: WheelAsset;
@@ -51,6 +68,7 @@ type AssetsTableProps = {
 };
 
 export const AssetsTable: React.FC<AssetsTableProps> = ({ data }) => {
+  const { tokenAssets } = useWheelAssetTokens();
   const columns = useMemo(() => {
     return [
       columnHelper.accessor('name', {
@@ -83,7 +101,11 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ data }) => {
         cell: ctx => {
           const assetType = ctx.getValue();
           if (isWheelAssetTypeToken(assetType)) {
-            return assetType.token.available_draws_count;
+            return assetType.token.available_draws_count.toLocaleString();
+          } else if (isWheelAssetTypeJackpot(assetType)) {
+            return wheelAssetJackpotAvailableDrawsCount(
+              jackpotTokenAssets(tokenAssets, assetType),
+            ).toLocaleString();
           }
           return 'N/A';
         },
@@ -95,6 +117,11 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ data }) => {
           const assetType = ctx.getValue();
           if (isWheelAssetTypeToken(assetType)) {
             return renderUsdValue(assetType.token.prize_usd_amount);
+          } else if (isWheelAssetTypeJackpot(assetType)) {
+            const totUsd = wheelAssetTokensPrizeUsdSum(
+              jackpotTokenAssets(tokenAssets, assetType),
+            );
+            return renderUsdValue(totUsd);
           }
           return 'N/A';
         },
@@ -109,7 +136,7 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ data }) => {
         ),
       }),
     ];
-  }, []);
+  }, [tokenAssets]);
 
   return <DataTable columns={columns} data={data} />;
 };

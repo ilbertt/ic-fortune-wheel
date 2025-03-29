@@ -21,6 +21,7 @@ import { AssetTokenForm } from './forms/token';
 import { useAtom } from 'jotai';
 import { formAssetTypeAtom } from '../atoms';
 import { AssetGadgetForm } from './forms/gadget';
+import { AssetJackpotForm } from './forms/jackpot';
 
 export const CreateAssetModal: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -93,6 +94,9 @@ export const CreateAssetModal: React.FC = () => {
         )}
         {assetType === 'gadget' && (
           <AssetGadgetForm onComplete={handleOnComplete} />
+        )}
+        {assetType === 'jackpot' && (
+          <AssetJackpotForm onComplete={handleOnComplete} />
         )}
       </DialogContent>
     </Dialog>
