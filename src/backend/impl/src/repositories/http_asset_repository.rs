@@ -128,8 +128,6 @@ fn get_asset_headers(additional_headers: Vec<HeaderField>) -> Vec<HeaderField> {
         ("content-security-policy".to_string(), "default-src 'self';script-src 'self' 'unsafe-inline' 'unsafe-eval';connect-src 'self' http://localhost:* https://icp0.io https://*.icp0.io https://icp-api.io https://fastly.jsdelivr.net;img-src 'self' https://*.icp0.io data: blob:;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';media-src 'self' data:;base-uri 'self';frame-ancestors 'none';form-action 'self';upgrade-insecure-requests".to_string()),
         ("referrer-policy".to_string(), "same-origin".to_string()),
         ("permissions-policy".to_string(), "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(self), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=(), clipboard-read=(), clipboard-write=(self), gamepad=(), speaker-selection=(), conversion-measurement=(), focus-without-user-activation=(), hid=(), idle-detection=(), interest-cohort=(), serial=(), sync-script=(), trust-token-redemption=(), window-placement=(), vertical-scroll=()".to_string()),
-        ("cross-origin-embedder-policy".to_string(), "require-corp".to_string()),
-        ("cross-origin-opener-policy".to_string(), "same-origin".to_string()),
         ("x-xss-protection".to_string(), "1; mode=block".to_string()),
     ];
     headers.extend(additional_headers);
