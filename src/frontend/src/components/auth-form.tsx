@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useCallback, useState } from 'react';
 import { Infinity, LoaderPinwheel } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from '@tanstack/react-router';
+import { Link, useRouter } from '@tanstack/react-router';
 import { Route as AdminRoute } from '@/routes/(authenticated)/admin';
 import { Route as FwRoute } from '@/routes/(unauthenticated)/fw';
 
