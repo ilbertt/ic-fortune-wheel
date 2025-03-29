@@ -13,7 +13,6 @@ import {
   WalletMinimal,
   type LucideIcon,
 } from 'lucide-react';
-import { ROUTES } from '@/lib/routes';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -33,34 +32,50 @@ import { Loader } from '@/components/loader';
 import { EditUserDialog } from '@/components/edit-user-dialog';
 import { UserRoleBadge } from '@/components/user-role-badge';
 import { useUser } from '@/hooks/use-user';
-import { useRouter, useRouterState } from '@tanstack/react-router';
+import {
+  Link,
+  type RegisteredRouter,
+  useRouter,
+  type ValidateLinkOptions,
+} from '@tanstack/react-router';
 import { Route as HomeRoute } from '@/routes';
+import { Route as FwRoute } from '@/routes/(unauthenticated)/fw';
+import { Route as DashboardRoute } from '@/routes/(authenticated)/admin';
+import { Route as TeamRoute } from '@/routes/(authenticated)/admin/team';
+import { Route as ScannerRoute } from '@/routes/(authenticated)/admin/scanner';
+import { Route as DesignRoute } from '@/routes/(authenticated)/admin/design';
+import { Route as AssetsRoute } from '@/routes/(authenticated)/admin/assets';
 
-type HeaderLinkProps = {
+type HeaderLinkProps<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+> = {
   title: string;
-  href: string;
   icon: LucideIcon;
+  linkOptions: ValidateLinkOptions<TRouter, TOptions>;
 };
 
-const HeaderLink: React.FC<HeaderLinkProps> = ({ title, href, icon: Icon }) => {
-  const pathname = useRouterState({ select: s => s.location.pathname });
-  const isActive = pathname === href;
-
+function HeaderLink<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+>({ title, linkOptions, icon: Icon }: HeaderLinkProps<TRouter, TOptions>) {
   return (
-    <a
-      href={href}
+    <Link
       className={cn(
         '[&>svg]:text-indaco-blue flex flex-row items-center justify-center gap-1.5 p-2 text-sm font-medium text-slate-400 [&>svg]:size-4',
-        {
-          'text-primary': isActive,
-        },
+        linkOptions.className,
       )}
+      activeProps={{
+        className: '!text-primary',
+      }}
+      activeOptions={{ exact: true }}
+      {...linkOptions}
     >
       <Icon />
       <span>{title}</span>
-    </a>
+    </Link>
   );
-};
+}
 
 type UserNavProps = {
   headerLinks: React.ReactNode;
@@ -135,10 +150,10 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
           </>
         )}
         <DropdownMenuItem className="[&>img]:size-4" asChild>
-          <a href={ROUTES.fortuneWheel} target="_blank">
+          <Link to={FwRoute.to} target="_blank">
             <LoaderPinwheel />
             Fortune Wheel
-          </a>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-indaco-blue" onClick={handleLogout}>
@@ -160,6 +175,8 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
   );
 };
 
+console.log(DashboardRoute, TeamRoute);
+
 type DashboardHeaderProps = {
   className?: string;
 };
@@ -175,8 +192,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <HeaderLink
             key="dashboard-header-link-dashboard"
             title="Dashboard"
-            href={ROUTES.dashboard.ROOT}
             icon={LayoutDashboard}
+            linkOptions={{ to: DashboardRoute.to }}
           />,
         ]
       : []),
@@ -185,8 +202,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <HeaderLink
             key="dashboard-header-link-assets"
             title="Assets"
-            href={ROUTES.dashboard.assets}
             icon={WalletMinimal}
+            linkOptions={{ to: AssetsRoute.to }}
           />,
         ]
       : []),
@@ -195,8 +212,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <HeaderLink
             key="dashboard-header-link-team"
             title="Team"
-            href={ROUTES.dashboard.team}
             icon={Users}
+            linkOptions={{ to: TeamRoute.to }}
           />,
         ]
       : []),
@@ -205,8 +222,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <HeaderLink
             key="dashboard-header-link-design"
             title="Design"
-            href={ROUTES.dashboard.design}
             icon={Settings2}
+            linkOptions={{ to: DesignRoute.to }}
           />,
         ]
       : []),
@@ -228,9 +245,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         <div className="flex flex-row items-center justify-end gap-6">
           {!isCurrentUserUnassigned && (
             <Button variant="border-gradient" asChild>
-              <a href={ROUTES.dashboard.scanner}>
+              <Link to={ScannerRoute.to}>
                 <ScanLine /> Scanner
-              </a>
+              </Link>
             </Button>
           )}
           <UserNav headerLinks={headerLinks} />

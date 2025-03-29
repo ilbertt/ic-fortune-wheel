@@ -3,15 +3,21 @@ import { FortuneWheel } from '@/components/wheel/wheel';
 import { FortuneWheelLogo } from '@/components/wheel/logo';
 import { FortuneWheelModal } from '@/components/wheel/modal';
 import { usePollExtraction } from '@/hooks/use-poll-extraction';
-import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
+import { useWheelPrizes, WheelPrizesProvider } from '@/hooks/use-wheel-prizes';
 import { useWheelData } from '@/hooks/use-wheel-data';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/(unauthenticated)/fw/')({
-  component: Page,
+  component: () => {
+    return (
+      <WheelPrizesProvider>
+        <RouteComponent />
+      </WheelPrizesProvider>
+    );
+  },
 });
 
-function Page() {
+function RouteComponent() {
   const { orderedPrizes } = useWheelPrizes();
   const wheelData = useWheelData({ prizes: orderedPrizes });
   usePollExtraction();
