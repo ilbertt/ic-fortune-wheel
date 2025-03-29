@@ -1,5 +1,3 @@
-'use client';
-
 import type { WheelPrize } from '@/declarations/backend/backend.did';
 import { mapPrizesToWheelData } from '@/lib/wheel-prize';
 import { useMemo } from 'react';

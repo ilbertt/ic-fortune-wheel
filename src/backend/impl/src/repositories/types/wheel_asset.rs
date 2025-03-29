@@ -7,6 +7,8 @@ use ic_stable_structures::{
     Storable,
 };
 
+use crate::FRONTEND_ASSETS_DIR;
+
 use super::{get_current_date_time, DateTime, HttpAssetPath, TimestampFields, Timestamped, Uuid};
 
 pub type WheelAssetId = Uuid;
@@ -471,7 +473,11 @@ pub fn icp_wheel_asset() -> (WheelAsset, Vec<u8>) {
             },
             timestamps: TimestampFields::new(),
         },
-        include_bytes!("../../static/images/tokens/icp.png").to_vec(),
+        FRONTEND_ASSETS_DIR
+            .get_file("images/tokens/icp.png")
+            .unwrap()
+            .contents()
+            .to_vec(),
     )
 }
 
@@ -500,7 +506,11 @@ pub fn ckbtc_wheel_asset() -> (WheelAsset, Vec<u8>) {
             },
             timestamps: TimestampFields::new(),
         },
-        include_bytes!("../../static/images/tokens/ckbtc.png").to_vec(),
+        FRONTEND_ASSETS_DIR
+            .get_file("images/tokens/ckbtc.png")
+            .unwrap()
+            .contents()
+            .to_vec(),
     )
 }
 
@@ -529,7 +539,11 @@ pub fn cketh_wheel_asset() -> (WheelAsset, Vec<u8>) {
             },
             timestamps: TimestampFields::new(),
         },
-        include_bytes!("../../static/images/tokens/cketh.png").to_vec(),
+        FRONTEND_ASSETS_DIR
+            .get_file("images/tokens/cketh.png")
+            .unwrap()
+            .contents()
+            .to_vec(),
     )
 }
 
@@ -558,7 +572,11 @@ pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
             },
             timestamps: TimestampFields::new(),
         },
-        include_bytes!("../../static/images/tokens/ckusdc.png").to_vec(),
+        FRONTEND_ASSETS_DIR
+            .get_file("images/tokens/ckusdc.png")
+            .unwrap()
+            .contents()
+            .to_vec(),
     )
 }
 

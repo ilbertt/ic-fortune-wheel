@@ -1,9 +1,6 @@
-'use client';
-
 import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import { cn, renderUsdValue } from '@/lib/utils';
 import { wheelAssetUrl } from '@/lib/wheel-asset';
-import Image from 'next/image';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -46,11 +43,11 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
         size="icon"
         onClick={resetCurrentPrize}
       >
-        <X className="lg:!size-6 xl:!size-8" />
+        <X className="lg:size-6! xl:size-8!" />
       </Button>
       <h1 className="text-center text-5xl font-bold xl:text-[6vw]">YOU WON!</h1>
       {currentPrize.prize.modal_image_path[0] && (
-        <Image
+        <img
           className="modal-image-animation h-2/5 w-auto"
           src={wheelAssetUrl(currentPrize.prize.modal_image_path)!}
           alt="prize modal image"

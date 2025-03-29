@@ -1,6 +1,5 @@
 import type { WheelPrize } from '@/declarations/backend/backend.did';
 import { wheelAssetUrl } from '@/lib/wheel-asset';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 type WheelPrizeNameWithIconProps = {
@@ -20,7 +19,7 @@ export const WheelPrizeNameWithIcon: React.FC<WheelPrizeNameWithIconProps> = ({
       )}
     >
       {wheelPrize.wheel_image_path[0] && (
-        <Image
+        <img
           className="aspect-square max-h-6 max-w-6 object-contain"
           src={wheelAssetUrl(wheelPrize.wheel_image_path)!}
           alt={wheelPrize.name}

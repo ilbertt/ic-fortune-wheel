@@ -1,13 +1,5 @@
-import { WheelAssetToken } from '@/lib/wheel-asset';
+import { type WheelAssetToken } from '@/lib/wheel-asset';
 import { Principal } from '@dfinity/principal';
-
-// Images
-import icp from '@/assets/tokens/icp.png';
-import ckBtc from '@/assets/tokens/ckbtc.png';
-import ckEth from '@/assets/tokens/cketh.png';
-import ckUsdc from '@/assets/tokens/ckusdc.png';
-import ckUsdt from '@/assets/tokens/ckusdt.svg';
-import ckEurc from '@/assets/tokens/ckeurc.svg';
 
 export type DefaultTokensKey =
   | 'icp'
@@ -34,7 +26,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('ryjl3-tyaaa-aaaaa-aaaba-cai'),
       decimals: 8,
     },
-    modalImageFileSrc: icp.src,
+    modalImageFileSrc: '/images/tokens/icp.png',
   },
   ckBtc: {
     name: 'ckBTC',
@@ -43,7 +35,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('mxzaz-hqaaa-aaaar-qaada-cai'),
       decimals: 8,
     },
-    modalImageFileSrc: ckBtc.src,
+    modalImageFileSrc: '/images/tokens/ckbtc.png',
   },
   ckEth: {
     name: 'ckETH',
@@ -52,7 +44,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('ss2fx-dyaaa-aaaar-qacoq-cai'),
       decimals: 18,
     },
-    modalImageFileSrc: ckEth.src,
+    modalImageFileSrc: '/images/tokens/cketh.png',
   },
   ckUsdc: {
     name: 'ckUSDC',
@@ -61,7 +53,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('xevnm-gaaaa-aaaar-qafnq-cai'),
       decimals: 6,
     },
-    modalImageFileSrc: ckUsdc.src,
+    modalImageFileSrc: '/images/tokens/ckusdc.png',
   },
   ckUsdt: {
     name: 'ckUSDT',
@@ -70,7 +62,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('cngnf-vqaaa-aaaar-qag4q-cai'),
       decimals: 6,
     },
-    modalImageFileSrc: ckUsdt.src,
+    modalImageFileSrc: '/images/tokens/ckusdt.svg',
   },
   ckEurc: {
     name: 'ckEURC',
@@ -79,6 +71,6 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('pe5t5-diaaa-aaaar-qahwa-cai'),
       decimals: 6,
     },
-    modalImageFileSrc: ckEurc.src,
+    modalImageFileSrc: '/images/tokens/ckeurc.svg',
   },
 };

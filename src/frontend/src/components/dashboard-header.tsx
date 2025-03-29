@@ -1,5 +1,3 @@
-'use client';
-
 import { appVersion, cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import {
@@ -15,9 +13,6 @@ import {
   WalletMinimal,
   type LucideIcon,
 } from 'lucide-react';
-import Link from 'next/link';
-import { ROUTES } from '@/lib/routes';
-import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -28,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { Children, useCallback } from 'react';
 import { GithubIcon } from '@/components/icons';
 import { GITHUB_REPO_URL } from '@/constants';
@@ -37,32 +32,50 @@ import { Loader } from '@/components/loader';
 import { EditUserDialog } from '@/components/edit-user-dialog';
 import { UserRoleBadge } from '@/components/user-role-badge';
 import { useUser } from '@/hooks/use-user';
+import {
+  Link,
+  type RegisteredRouter,
+  useRouter,
+  type ValidateLinkOptions,
+} from '@tanstack/react-router';
+import { Route as HomeRoute } from '@/routes';
+import { Route as FwRoute } from '@/routes/(unauthenticated)/fw';
+import { Route as DashboardRoute } from '@/routes/(authenticated)/admin';
+import { Route as TeamRoute } from '@/routes/(authenticated)/admin/team';
+import { Route as ScannerRoute } from '@/routes/(authenticated)/admin/scanner';
+import { Route as DesignRoute } from '@/routes/(authenticated)/admin/design';
+import { Route as AssetsRoute } from '@/routes/(authenticated)/admin/assets';
 
-type HeaderLinkProps = {
+type HeaderLinkProps<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+> = {
   title: string;
-  href: string;
   icon: LucideIcon;
+  linkOptions: ValidateLinkOptions<TRouter, TOptions>;
 };
 
-const HeaderLink: React.FC<HeaderLinkProps> = ({ title, href, icon: Icon }) => {
-  const pathname = usePathname();
-  const isActive = pathname === href;
-
+function HeaderLink<
+  TRouter extends RegisteredRouter = RegisteredRouter,
+  TOptions = unknown,
+>({ title, linkOptions, icon: Icon }: HeaderLinkProps<TRouter, TOptions>) {
   return (
     <Link
-      href={href}
       className={cn(
         '[&>svg]:text-indaco-blue flex flex-row items-center justify-center gap-1.5 p-2 text-sm font-medium text-slate-400 [&>svg]:size-4',
-        {
-          'text-primary': isActive,
-        },
+        linkOptions.className,
       )}
+      activeProps={{
+        className: 'text-primary!',
+      }}
+      activeOptions={{ exact: true }}
+      {...linkOptions}
     >
       <Icon />
       <span>{title}</span>
     </Link>
   );
-};
+}
 
 type UserNavProps = {
   headerLinks: React.ReactNode;
@@ -71,23 +84,25 @@ type UserNavProps = {
 const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
   const { logout } = useAuth();
   const { user } = useUser();
+  const router = useRouter();
 
-  const handleLogout = useCallback(() => {
-    logout();
-    window.location.reload();
-  }, [logout]);
+  const handleLogout = useCallback(async () => {
+    await logout();
+    await router.invalidate();
+    router.history.push(HomeRoute.to);
+  }, [logout, router]);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="bg-infinite relative h-8 w-8 rounded-full"
+          className="bg-infinite relative size-8 rounded-full"
           disabled={!user}
         >
-          <Avatar className="h-8 w-8">
+          <Avatar className="size-8">
             <AvatarFallback className="bg-infinite">
-              {Boolean(user) ? <User /> : <Loader />}
+              {user ? <User /> : <Loader />}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -135,7 +150,7 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
           </>
         )}
         <DropdownMenuItem className="[&>img]:size-4" asChild>
-          <Link href={ROUTES.fortuneWheel} target="_blank">
+          <Link to={FwRoute.to} target="_blank">
             <LoaderPinwheel />
             Fortune Wheel
           </Link>
@@ -146,10 +161,10 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="[&>img]:size-4" asChild>
-          <Link href={GITHUB_REPO_URL} target="_blank">
+          <a href={GITHUB_REPO_URL} target="_blank">
             <GithubIcon />
             GitHub
-          </Link>
+          </a>
         </DropdownMenuItem>
         <DropdownMenuItem className="text-xs" disabled>
           <History />
@@ -175,8 +190,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <HeaderLink
             key="dashboard-header-link-dashboard"
             title="Dashboard"
-            href={ROUTES.dashboard.ROOT}
             icon={LayoutDashboard}
+            linkOptions={{ to: DashboardRoute.to }}
           />,
         ]
       : []),
@@ -185,8 +200,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <HeaderLink
             key="dashboard-header-link-assets"
             title="Assets"
-            href={ROUTES.dashboard.assets}
             icon={WalletMinimal}
+            linkOptions={{ to: AssetsRoute.to }}
           />,
         ]
       : []),
@@ -195,8 +210,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <HeaderLink
             key="dashboard-header-link-team"
             title="Team"
-            href={ROUTES.dashboard.team}
             icon={Users}
+            linkOptions={{ to: TeamRoute.to }}
           />,
         ]
       : []),
@@ -205,8 +220,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <HeaderLink
             key="dashboard-header-link-design"
             title="Design"
-            href={ROUTES.dashboard.design}
             icon={Settings2}
+            linkOptions={{ to: DesignRoute.to }}
           />,
         ]
       : []),
@@ -228,7 +243,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         <div className="flex flex-row items-center justify-end gap-6">
           {!isCurrentUserUnassigned && (
             <Button variant="border-gradient" asChild>
-              <Link href={ROUTES.dashboard.scanner}>
+              <Link to={ScannerRoute.to}>
                 <ScanLine /> Scanner
               </Link>
             </Button>
