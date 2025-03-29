@@ -1,5 +1,3 @@
-'use client';
-
 import { useAuth } from '@/contexts/auth-context';
 import type { WheelAsset } from '@/declarations/backend/backend.did';
 import { isWheelAssetDisabled } from '@/lib/wheel-asset';

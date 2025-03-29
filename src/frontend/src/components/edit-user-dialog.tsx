@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import {
@@ -27,7 +25,6 @@ import { UserIdDisplay } from '@/components/user-id-display';
 import { Label } from '@/components/ui/label';
 import { UserRoleBadge } from './user-role-badge';
 import { ROUTES } from '@/lib/routes';
-import Link from 'next/link';
 import { useUser } from '@/hooks/use-user';
 import { useUpdateMyUser } from '@/hooks/use-update-my-user';
 
@@ -83,12 +80,12 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({
                 {user && <UserRoleBadge userRole={user.role} />}
                 <p className="text-muted-foreground text-[0.8rem]">
                   The role can be changed by admins in the{' '}
-                  <Link
+                  <a
                     href={ROUTES.dashboard.team}
                     className="text-indaco-blue underline"
                   >
                     Team
-                  </Link>{' '}
+                  </a>{' '}
                   page.
                 </p>
               </div>

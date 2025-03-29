@@ -3,12 +3,10 @@ import type { Err } from '@/declarations/backend/backend.did';
 type GenericResult<T = unknown> = { ok: T } | { err: Err };
 
 export const canisterId =
-  typeof window === 'undefined'
-    ? ''
-    : window.document.cookie
-        .split('; ')
-        .find(row => row.startsWith('canisterId='))!
-        .split('=')[1];
+  window.document.cookie
+    .split('; ')
+    .find(row => row.startsWith('canisterId='))
+    ?.split('=')[1] ?? import.meta.env.VITE_CANISTER_ID;
 
 /**
  * Extracts the ok value from a generic result.

@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { formatBytes } from '@/lib/utils';
 import { useCallback, useRef, useState } from 'react';

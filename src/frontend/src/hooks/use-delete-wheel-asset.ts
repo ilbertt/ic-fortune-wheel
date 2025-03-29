@@ -1,5 +1,3 @@
-'use client';
-
 import { useAuth } from '@/contexts/auth-context';
 import type { Err } from '@/declarations/backend/backend.did';
 import { extractOk } from '@/lib/api';

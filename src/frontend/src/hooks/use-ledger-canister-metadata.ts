@@ -1,5 +1,3 @@
-'use client';
-
 import { useAuth } from '@/contexts/auth-context';
 import { getLedgerActor } from '@/lib/ledger';
 import { Actor } from '@dfinity/agent';

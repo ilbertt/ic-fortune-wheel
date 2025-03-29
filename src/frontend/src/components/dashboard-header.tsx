@@ -1,5 +1,3 @@
-'use client';
-
 import { appVersion, cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import {
@@ -15,9 +13,7 @@ import {
   WalletMinimal,
   type LucideIcon,
 } from 'lucide-react';
-import Link from 'next/link';
 import { ROUTES } from '@/lib/routes';
-import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -37,6 +33,7 @@ import { Loader } from '@/components/loader';
 import { EditUserDialog } from '@/components/edit-user-dialog';
 import { UserRoleBadge } from '@/components/user-role-badge';
 import { useUser } from '@/hooks/use-user';
+import { useRouterState } from '@tanstack/react-router';
 
 type HeaderLinkProps = {
   title: string;
@@ -45,11 +42,11 @@ type HeaderLinkProps = {
 };
 
 const HeaderLink: React.FC<HeaderLinkProps> = ({ title, href, icon: Icon }) => {
-  const pathname = usePathname();
+  const pathname = useRouterState({ select: s => s.location.pathname });
   const isActive = pathname === href;
 
   return (
-    <Link
+    <a
       href={href}
       className={cn(
         '[&>svg]:text-indaco-blue flex flex-row items-center justify-center gap-1.5 p-2 text-sm font-medium text-slate-400 [&>svg]:size-4',
@@ -60,7 +57,7 @@ const HeaderLink: React.FC<HeaderLinkProps> = ({ title, href, icon: Icon }) => {
     >
       <Icon />
       <span>{title}</span>
-    </Link>
+    </a>
   );
 };
 
@@ -87,7 +84,7 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
         >
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-infinite">
-              {Boolean(user) ? <User /> : <Loader />}
+              {user ? <User /> : <Loader />}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -135,10 +132,10 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
           </>
         )}
         <DropdownMenuItem className="[&>img]:size-4" asChild>
-          <Link href={ROUTES.fortuneWheel} target="_blank">
+          <a href={ROUTES.fortuneWheel} target="_blank">
             <LoaderPinwheel />
             Fortune Wheel
-          </Link>
+          </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="text-indaco-blue" onClick={handleLogout}>
@@ -146,10 +143,10 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="[&>img]:size-4" asChild>
-          <Link href={GITHUB_REPO_URL} target="_blank">
+          <a href={GITHUB_REPO_URL} target="_blank">
             <GithubIcon />
             GitHub
-          </Link>
+          </a>
         </DropdownMenuItem>
         <DropdownMenuItem className="text-xs" disabled>
           <History />
@@ -228,9 +225,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         <div className="flex flex-row items-center justify-end gap-6">
           {!isCurrentUserUnassigned && (
             <Button variant="border-gradient" asChild>
-              <Link href={ROUTES.dashboard.scanner}>
+              <a href={ROUTES.dashboard.scanner}>
                 <ScanLine /> Scanner
-              </Link>
+              </a>
             </Button>
           )}
           <UserNav headerLinks={headerLinks} />

@@ -1,4 +1,4 @@
-import { WheelAssetToken } from '@/lib/wheel-asset';
+import { type WheelAssetToken } from '@/lib/wheel-asset';
 import { Principal } from '@dfinity/principal';
 
 // Images
@@ -34,7 +34,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('ryjl3-tyaaa-aaaaa-aaaba-cai'),
       decimals: 8,
     },
-    modalImageFileSrc: icp.src,
+    modalImageFileSrc: icp,
   },
   ckBtc: {
     name: 'ckBTC',
@@ -43,7 +43,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('mxzaz-hqaaa-aaaar-qaada-cai'),
       decimals: 8,
     },
-    modalImageFileSrc: ckBtc.src,
+    modalImageFileSrc: ckBtc,
   },
   ckEth: {
     name: 'ckETH',
@@ -52,7 +52,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('ss2fx-dyaaa-aaaar-qacoq-cai'),
       decimals: 18,
     },
-    modalImageFileSrc: ckEth.src,
+    modalImageFileSrc: ckEth,
   },
   ckUsdc: {
     name: 'ckUSDC',
@@ -61,7 +61,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('xevnm-gaaaa-aaaar-qafnq-cai'),
       decimals: 6,
     },
-    modalImageFileSrc: ckUsdc.src,
+    modalImageFileSrc: ckUsdc,
   },
   ckUsdt: {
     name: 'ckUSDT',
@@ -70,7 +70,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('cngnf-vqaaa-aaaar-qag4q-cai'),
       decimals: 6,
     },
-    modalImageFileSrc: ckUsdt.src,
+    modalImageFileSrc: ckUsdt,
   },
   ckEurc: {
     name: 'ckEURC',
@@ -79,6 +79,6 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('pe5t5-diaaa-aaaar-qahwa-cai'),
       decimals: 6,
     },
-    modalImageFileSrc: ckEurc.src,
+    modalImageFileSrc: ckEurc,
   },
 };

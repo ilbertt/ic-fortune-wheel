@@ -15,7 +15,7 @@ mod system_api;
 #[cfg(test)]
 mod fixtures;
 
-static FRONTEND_ASSETS_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../../frontend/out");
+static FRONTEND_ASSETS_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../../frontend/dist");
 
 export_service!();
 #[query(name = "__get_candid_interface_tmp_hack")]

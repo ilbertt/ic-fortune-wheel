@@ -1,4 +1,4 @@
-import { DEFAULT_TOKENS, DefaultTokensKey } from '@/constants/token';
+import { DEFAULT_TOKENS, type DefaultTokensKey } from '@/constants/token';
 import { Principal } from '@dfinity/principal';
 
 export const getDefaultToken = (

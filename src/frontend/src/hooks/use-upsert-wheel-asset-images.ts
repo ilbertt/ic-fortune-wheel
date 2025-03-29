@@ -1,5 +1,3 @@
-'use client';
-
 import { useAuth } from '@/contexts/auth-context';
 import { extractOk } from '@/lib/api';
 import { toastError } from '@/lib/utils';

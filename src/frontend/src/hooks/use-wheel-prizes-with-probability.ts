@@ -15,7 +15,7 @@ export const useWheelPrizesWithProbability = <T extends WheelPrize>({
   prizes,
 }: UseWheelPrizesProbabilityParams<T>): UseWheelPrizesProbabilityReturn =>
   useMemo(() => {
-    return prizes
+    const prizesWithProbability = prizes
       .reduce(
         (acc, prize) => {
           const prizeCount = acc.prizesCount.get(prize.wheel_asset_id) || 0;
@@ -35,7 +35,9 @@ export const useWheelPrizesWithProbability = <T extends WheelPrize>({
           prizesCount: Map<string, number>;
         },
       )
-      .prizesWithProbability.values()
-      .toArray()
-      .sort((a, b) => b.drawProbability - a.drawProbability);
+      .prizesWithProbability.values();
+
+    return Array.from(prizesWithProbability).sort(
+      (a, b) => b.drawProbability - a.drawProbability,
+    );
   }, [prizes]);
