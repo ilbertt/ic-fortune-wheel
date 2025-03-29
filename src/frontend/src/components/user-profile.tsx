@@ -18,7 +18,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
   return (
     <div className="flex items-center space-x-4">
-      <Avatar className="h-8 w-8">
+      <Avatar className="size-8">
         <AvatarFallback>{userInitials(user)}</AvatarFallback>
       </Avatar>
       <div>
@@ -29,7 +29,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         {showId && (
           <UserIdDisplay
             userId={user.id}
-            className="[&>p]:whitespace-normal [&>p]:md:whitespace-nowrap"
+            className="[&>p]:whitespace-normal md:[&>p]:whitespace-nowrap"
           />
         )}
       </div>

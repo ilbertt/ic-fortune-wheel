@@ -20,7 +20,7 @@ function RouteComponent() {
       <div className="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r">
         <div className="bg-dark-infinite absolute inset-0" />
         <div className="relative top-1/2 z-20 flex -translate-y-1/2 flex-col gap-5">
-          <h1 className="bg-gradient-to-r from-white to-[#c572ef] bg-clip-text text-4xl font-extrabold text-transparent">
+          <h1 className="bg-linear-to-r from-white to-[#c572ef] bg-clip-text text-4xl font-extrabold text-transparent">
             Try your luck and win great Internet Computer prizes
           </h1>
           <p className="text-base font-normal">

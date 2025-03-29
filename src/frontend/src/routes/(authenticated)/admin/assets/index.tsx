@@ -51,7 +51,7 @@ type TokenRowProps = {
 
 const TokenRow: React.FC<TokenRowProps> = ({ token, refreshingTokens }) => {
   return (
-    <div className='grid grid-cols-[theme("spacing.10")_1fr_auto] items-center gap-4'>
+    <div className="grid grid-cols-[--spacing(10)_1fr_auto] items-center gap-4">
       <Avatar>
         <AvatarImage src={wheelAssetUrl(token.wheel_image_path)} />
         <AvatarFallback>
@@ -131,7 +131,7 @@ function RouteComponent() {
           </CardHeader>
           <CardContent>
             <BorderVerticalGradientContainer className="from-infinite rounded-xl to-[#c572ef]/0 [--border-width:1px]">
-              <div className="bg-card/40 grid bg-gradient-to-b from-[#f8fafc]/10 to-[#f8fafc]/0 pb-1.5 pt-7">
+              <div className="bg-card/40 bg-linear-to-b grid from-[#f8fafc]/10 to-[#f8fafc]/0 pb-1.5 pt-7">
                 <p className="text-center text-xs font-medium">
                   Available Balance
                 </p>
