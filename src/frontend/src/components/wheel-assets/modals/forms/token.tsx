@@ -270,9 +270,9 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
           validationSettings,
         );
 
-        if (tokenData.modalImageFileSrc) {
+        if (tokenData.wheelImageFileSrc) {
           const imageFile =
-            (await fileFromUrl(tokenData.modalImageFileSrc)) || undefined;
+            (await fileFromUrl(tokenData.wheelImageFileSrc)) || undefined;
           form.setValue('wheel_image_file', imageFile, validationSettings);
         }
       }

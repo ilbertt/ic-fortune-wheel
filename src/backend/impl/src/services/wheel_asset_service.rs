@@ -36,7 +36,7 @@ lazy_static! {
     static ref WHEEL_ASSET_UI_SETTING_BACKGROUND_COLOR_HEX_REGEX: Regex =
         Regex::new(r"^#(?:[0-9a-fA-F]{3}){1,2}$").unwrap();
 }
-const MINIMUM_WHEEL_ASSET_JACKPOT_ASSET_IDS_COUNT: usize = 1;
+const MINIMUM_WHEEL_ASSET_JACKPOT_ASSET_IDS_COUNT: usize = 2;
 const MAXIMUM_WHEEL_ASSET_JACKPOT_ASSET_IDS_COUNT: usize = 4;
 
 #[cfg_attr(test, mockall::automock)]

@@ -27,7 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
 import { useCreateWheelAsset } from '@/hooks/use-create-wheel-asset';
 import { useUpsertWheelAssetImages } from '@/hooks/use-upsert-wheel-asset-images';
-import { renderError, renderUsdValue } from '@/lib/utils';
+import { fileFromUrl, renderError, renderUsdValue } from '@/lib/utils';
 import {
   Form,
   FormControl,
@@ -43,6 +43,7 @@ import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CircleDollarSign } from 'lucide-react';
+import { WHEEL_ASSET_DEFAULT_IMAGES } from '@/constants/images';
 
 type CreateAssetJackpotFormSchemaType = Omit<
   CreateWheelAssetRequest,
@@ -60,7 +61,7 @@ const createAssetJackpotFormSchema = z.object<
   total_amount: AssetTotalAmountSchema,
   wheel_asset_ids: z
     .array(z.string().uuid())
-    .min(1, 'At least one token is required'),
+    .min(2, 'At least two tokens are required'),
   modal_image_file: OptionalFileSchema,
   wheel_image_file: OptionalFileSchema,
 });
@@ -82,22 +83,27 @@ export const AssetJackpotForm: React.FC<AssetJackpotFormProps> = ({
   const form = useForm<z.infer<typeof createAssetJackpotFormSchema>>({
     resolver: zodResolver(createAssetJackpotFormSchema),
     mode: 'onChange',
-    defaultValues: existingWheelAsset
-      ? async () => {
-          const { wheelImageFile, modalImageFile } =
-            await existingWheelAssetImagesFiles(existingWheelAsset);
-          return {
-            name: existingWheelAsset.name,
-            total_amount: existingWheelAsset.total_amount,
-            wheel_asset_ids:
-              existingWheelAsset.asset_type.jackpot.wheel_asset_ids ?? [],
-            wheel_image_file: wheelImageFile,
-            modal_image_file: modalImageFile,
-          };
-        }
-      : {
-          wheel_asset_ids: [],
-        },
+    // @ts-expect-error - we don't want to set all the default values for the form if we are creating a new asset
+    defaultValues: async () => {
+      if (existingWheelAsset) {
+        const { wheelImageFile, modalImageFile } =
+          await existingWheelAssetImagesFiles(existingWheelAsset);
+        return {
+          name: existingWheelAsset.name,
+          total_amount: existingWheelAsset.total_amount,
+          wheel_asset_ids:
+            existingWheelAsset.asset_type.jackpot.wheel_asset_ids ?? [],
+          wheel_image_file: wheelImageFile,
+          modal_image_file: modalImageFile,
+        };
+      }
+      return {
+        wheel_asset_ids: [],
+        wheel_image_file:
+          (await fileFromUrl(WHEEL_ASSET_DEFAULT_IMAGES.JACKPOT.WHEEL)) ||
+          undefined,
+      };
+    },
   });
   const wheelAssetIdsFormValue = useWatch({
     control: form.control,
@@ -109,7 +115,6 @@ export const AssetJackpotForm: React.FC<AssetJackpotFormProps> = ({
   const createWheelAssetMutation = useCreateWheelAsset();
   const upsertWheelAssetImagesMutation = useUpsertWheelAssetImages();
   const { tokenAssets } = useWheelAssetTokens();
-  // const tokenAssets = [];
   const enabledTokenAssets = useMemo(
     () => tokenAssets.filter(isWheelAssetEnabled),
     [tokenAssets],
