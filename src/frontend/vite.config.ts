@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { config as dotenvConfig } from 'dotenv';
+import tailwindcss from '@tailwindcss/vite';
 
 const dfxEnvList = dotenvConfig({ path: '../../.env' }).parsed || {};
 const DFX_NETWORK = dfxEnvList.DFX_NETWORK;
@@ -27,7 +28,11 @@ process.env.VITE_DFX_NETWORK = DFX_NETWORK;
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [TanStackRouterVite({ autoCodeSplitting: true }), react()],
+  plugins: [
+    TanStackRouterVite({ autoCodeSplitting: true }),
+    react(),
+    tailwindcss(),
+  ],
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),

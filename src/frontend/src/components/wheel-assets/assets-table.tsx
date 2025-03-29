@@ -28,7 +28,7 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({ asset }) => {
 
   return (
     <Button
-      className="[&>svg]:!size-6"
+      className="[&>svg]:size-6!"
       variant="ghost"
       size="icon"
       onClick={handleToggle}

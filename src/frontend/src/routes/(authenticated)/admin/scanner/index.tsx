@@ -50,7 +50,7 @@ function RouteComponent() {
             onScan={handleScan}
             classNames={{
               container:
-                'rounded-xl overflow-hidden [&_svg]:!border-[16px] [&_svg]:md:!border-[32px]',
+                'rounded-xl overflow-hidden [&_svg]:border-[16px]! md:[&_svg]:border-[32px]!',
             }}
           />
           <Alert>

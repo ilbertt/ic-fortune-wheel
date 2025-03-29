@@ -28,7 +28,7 @@ function SortableItem<T>({
   return (
     <Reorder.Item value={item} dragControls={controls}>
       <motion.div
-        className="bg-card mb-2 flex items-center rounded-lg border px-2 py-4 shadow"
+        className="bg-card mb-2 flex items-center rounded-lg border px-2 py-4 shadow-sm"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >

@@ -1,49 +1,131 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap')
+layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
-body {
-  font-family: 'Geist', sans-serif;
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
 }
 
-@layer base {
-  :root {
-    --infinite: 259 100% 36%; /* #3B00B9 */
-    --dark-infinite: 259 100% 18%;
-    --indaco-blue: 228 83% 68%; /* #6A85F1 */
-
-    --background: 240 10% 3.9%; /* zinc-950 */
-    --foreground: 0 0% 98%; /* zinc-50 */
-    --card: 240 10% 3.9%; /* zinc-950 */
-    --card-foreground: 0 0% 98%; /* zinc-50 */
-    --popover: 240 10% 3.9%; /* zinc-950 */
-    --popover-foreground: 0 0% 98%; /* zinc-50 */
-    --primary: 0 0% 98%; /* zinc-50 */
-    --primary-foreground: 240, 6%, 10%; /* zinc-900 */
-    --secondary: var(--infinite);
-    --secondary-foreground: 0 0% 98%; /* zinc-50 */
-    --muted: 240 4% 16%; /* zinc-800 */
-    --muted-foreground: 240 5% 65%; /* zinc-400 */
-    --accent: 240 4% 16%; /* zinc-800 */
-    --accent-foreground: 0 0% 98%; /* zinc-50 */
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%; /* zinc-50 */
-    --border: 240 4% 16%; /* zinc-800 */
-    --input: 240 4% 16%; /* zinc-800 */
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --radius: 0.5rem;
+@layer utilities {
+  body {
+    font-family: 'Geist', sans-serif;
   }
-  /*
-    We don't have dark mode, since the default theme is dark
-    .dark {}
-  */
+}
+
+:root {
+  --infinite: hsl(259 100% 36%); /* #3B00B9 */
+  --dark-infinite: hsl(259 100% 18%);
+  --indaco-blue: hsl(228 83% 68%); /* #6A85F1 */
+
+  --background: hsl(240 10% 3.9%); /* zinc-950 */
+  --foreground: hsl(0 0% 98%); /* zinc-50 */
+  --card: hsl(240 10% 3.9%); /* zinc-950 */
+  --card-foreground: hsl(0 0% 98%); /* zinc-50 */
+  --popover: hsl(240 10% 3.9%); /* zinc-950 */
+  --popover-foreground: hsl(0 0% 98%); /* zinc-50 */
+  --primary: hsl(0 0% 98%); /* zinc-50 */
+  --primary-foreground: hsl(240, 6%, 10%); /* zinc-900 */
+  --secondary: var(--infinite);
+  --secondary-foreground: hsl(0 0% 98%); /* zinc-50 */
+  --muted: hsl(240 4% 16%); /* zinc-800 */
+  --muted-foreground: hsl(240 5% 65%); /* zinc-400 */
+  --accent: hsl(240 4% 16%); /* zinc-800 */
+  --accent-foreground: hsl(0 0% 98%); /* zinc-50 */
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 98%); /* zinc-50 */
+  --border: hsl(240 4% 16%); /* zinc-800 */
+  --input: hsl(240 4% 16%); /* zinc-800 */
+  --ring: hsl(240 4.9% 83.9%);
+  --chart-1: hsl(220 70% 50%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
+  --radius: 0.5rem;
+}
+
+/*
+  We don't have dark mode, since the default theme is dark
+  .dark {}
+*/
+
+@theme inline {
+  --font-*: initial;
+  --font-sans: Geist, sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-infinite: var(--infinite);
+  --color-dark-infinite: var(--dark-infinite);
+  --color-indaco-blue: var(--indaco-blue);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --background-image-ic-gradient: linear-gradient(
+    to right,
+    #6a85f1,
+    #8282f3,
+    #997ef4,
+    #b078f3,
+    #c572ef
+  );
+
+  @keyframes rotate {
+    to {
+      --angle: 360deg;
+    }
+  }
 }
 
 @layer base {
@@ -112,9 +194,9 @@ body {
 }
 
 .app-background {
-  @apply from-dark-infinite to-dark-infinite/25;
   background-image: radial-gradient(
     ellipse at bottom,
-    var(--tw-gradient-stops)
+    var(--color-dark-infinite),
+    color-mix(in hsl, var(--color-dark-infinite) 25%, transparent)
   );
 }

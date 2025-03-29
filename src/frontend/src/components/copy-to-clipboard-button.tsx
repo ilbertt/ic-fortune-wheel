@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Check, Copy } from 'lucide-react';
-import { forwardRef, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 type CopyToClipboardButtonProps = Omit<
   React.ComponentProps<typeof Button>,
@@ -10,10 +10,11 @@ type CopyToClipboardButtonProps = Omit<
   value: string;
 };
 
-export const CopyToClipboardButton = forwardRef<
-  HTMLButtonElement,
-  CopyToClipboardButtonProps
->(({ className, value, ...props }, ref) => {
+export const CopyToClipboardButton = ({
+  className,
+  value,
+  ...props
+}: CopyToClipboardButtonProps) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
@@ -24,7 +25,6 @@ export const CopyToClipboardButton = forwardRef<
 
   return (
     <Button
-      ref={ref}
       size="icon"
       variant="ghost"
       className={cn('text-muted-foreground size-5', className)}
@@ -34,5 +34,5 @@ export const CopyToClipboardButton = forwardRef<
       {isCopied ? <Check className="text-green-500" /> : <Copy />}
     </Button>
   );
-});
+};
 CopyToClipboardButton.displayName = 'CopyToClipboardButton';

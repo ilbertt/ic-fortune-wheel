@@ -66,7 +66,7 @@ function HeaderLink<
         linkOptions.className,
       )}
       activeProps={{
-        className: '!text-primary',
+        className: 'text-primary!',
       }}
       activeOptions={{ exact: true }}
       {...linkOptions}
@@ -97,10 +97,10 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="bg-infinite relative h-8 w-8 rounded-full"
+          className="bg-infinite relative size-8 rounded-full"
           disabled={!user}
         >
-          <Avatar className="h-8 w-8">
+          <Avatar className="size-8">
             <AvatarFallback className="bg-infinite">
               {user ? <User /> : <Loader />}
             </AvatarFallback>

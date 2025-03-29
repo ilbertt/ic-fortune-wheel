@@ -43,7 +43,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
         size="icon"
         onClick={resetCurrentPrize}
       >
-        <X className="lg:!size-6 xl:!size-8" />
+        <X className="lg:size-6! xl:size-8!" />
       </Button>
       <h1 className="text-center text-5xl font-bold xl:text-[6vw]">YOU WON!</h1>
       {currentPrize.prize.modal_image_path[0] && (

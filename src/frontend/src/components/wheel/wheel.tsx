@@ -27,7 +27,7 @@ export const FortuneWheel: React.FC<FortuneWheelProps> = ({
       <div
         className={cn(
           'relative h-full w-full',
-          'first:[&>div]:absolute first:[&>div]:left-1/2 first:[&>div]:top-1/2 first:[&>div]:h-full first:[&>div]:max-h-[48rem] first:[&>div]:w-full first:[&>div]:max-w-[48rem] first:[&>div]:-translate-x-1/2 first:[&>div]:-translate-y-1/2',
+          '[&>div]:first:h-full! [&>div]:first:max-h-[48rem]! [&>div]:first:w-full! [&>div]:first:max-w-[48rem]! [&>div]:first:left-1/2! [&>div]:first:top-1/2! [&>div]:first:-translate-x-1/2! [&>div]:first:-translate-y-1/2! [&>div]:first:absolute',
           className,
         )}
         {...props}

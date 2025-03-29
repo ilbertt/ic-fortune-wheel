@@ -72,7 +72,7 @@ const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member }) => {
       <UserProfile user={member} showId />
       <div className="flex w-full flex-col flex-wrap gap-2 md:flex-row md:items-center md:justify-end">
         <div className="flex flex-row flex-wrap items-center gap-0.5">
-          {isUpdating && <Loader className="mr-2 h-4 w-4" />}
+          {isUpdating && <Loader className="mr-2 size-4" />}
           <Select
             value={role}
             onValueChange={handleRoleChange}
