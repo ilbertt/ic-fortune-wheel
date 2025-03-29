@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useRef } from 'react';
 
 export function useForwardedRef<T>(ref: React.ForwardedRef<T>) {

@@ -1,5 +1,3 @@
-'use client';
-
 import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import { cn, renderUsdValue } from '@/lib/utils';
 import { wheelAssetUrl } from '@/lib/wheel-asset';

@@ -1,5 +1,3 @@
-'use client';
-
 import Pointer from '@/assets/wheel/pointer.png';
 import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import { Wheel, type WheelDataType } from 'react-custom-roulette';

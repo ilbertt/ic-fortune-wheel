@@ -1,5 +1,3 @@
-'use client';
-
 import { createContext, useContext } from 'react';
 import { useAuthClient } from '@dfinity/use-auth-client';
 import { type ActorSubclass } from '@dfinity/agent';
@@ -67,4 +65,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = (): AuthContextType => useContext(AuthContext);

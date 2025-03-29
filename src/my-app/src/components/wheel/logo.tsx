@@ -1,5 +1,3 @@
-'use client';
-
 import Logo from '@/assets/wheel/fortune-wheel-logo.png';
 import { cn } from '@/lib/utils';
 

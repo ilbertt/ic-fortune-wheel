@@ -1,5 +1,3 @@
-'use client';
-
 import { useAuth } from '@/contexts/auth-context';
 import { useWheelPrizes } from '@/hooks/use-wheel-prizes';
 import { useQuery } from '@tanstack/react-query';

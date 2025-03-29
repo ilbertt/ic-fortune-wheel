@@ -1,5 +1,3 @@
-'use client';
-
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/auth-context';
 import type { TransferTokenRequest } from '@/declarations/backend/backend.did';

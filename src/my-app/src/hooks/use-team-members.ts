@@ -1,5 +1,3 @@
-'use client';
-
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/auth-context';
 import type { UserProfile, Err } from '@/declarations/backend/backend.did';

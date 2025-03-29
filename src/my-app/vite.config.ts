@@ -1,18 +1,16 @@
 import { defineConfig } from 'vite';
-import viteReact from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react';
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
-import childProcess from 'node:child_process';
-import tailwindcss from 'tailwindcss';
-import dotenv from 'dotenv';
+import { execSync } from 'node:child_process';
+import { config as dotenvConfig } from 'dotenv';
 
-const dfxEnvList = dotenv.config({ path: '../../.env' }).parsed || {};
+const dfxEnvList = dotenvConfig({ path: '../../.env' }).parsed || {};
 const DFX_NETWORK = dfxEnvList.DFX_NETWORK;
 
 const { version } = JSON.parse(readFileSync('./package.json').toString());
-const lastCommitShortSha = childProcess
-  .execSync('git rev-parse --short HEAD')
+const lastCommitShortSha = execSync('git rev-parse --short HEAD')
   .toString()
   .trim();
 
@@ -27,15 +25,7 @@ process.env.DFX_NETWORK = DFX_NETWORK;
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    TanStackRouterVite({ autoCodeSplitting: true }),
-    viteReact(),
-    tailwindcss(),
-  ],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-  },
+  plugins: [TanStackRouterVite({ autoCodeSplitting: true }), react()],
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),

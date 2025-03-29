@@ -1,5 +1,3 @@
-'use client';
-
 import { appVersion, cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import {
@@ -86,7 +84,7 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
         >
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-infinite">
-              {Boolean(user) ? <User /> : <Loader />}
+              {user ? <User /> : <Loader />}
             </AvatarFallback>
           </Avatar>
         </Button>
