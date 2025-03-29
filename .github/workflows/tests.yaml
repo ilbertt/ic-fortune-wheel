@@ -14,5 +14,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create frontend dist directory
+        run: |
+          cd src/frontend
+          mkdir -p dist
+
       - name: Cargo test
         run: cargo test
