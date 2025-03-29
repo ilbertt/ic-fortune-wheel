@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useCallback, useState } from 'react';
-import { Infinity, LoaderPinwheel } from 'lucide-react';
+import { InfinityIcon, LoaderPinwheel } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Link, useRouter } from '@tanstack/react-router';
 import { Route as AdminRoute } from '@/routes/(authenticated)/admin';
@@ -27,7 +27,7 @@ export function AuthForm({ className, ...props }: AuthFormProps) {
       {...props}
     >
       <Button loading={isLoading} onClick={handleLogin}>
-        <Infinity /> Sign In with Internet Identity
+        <InfinityIcon /> Sign In with Internet Identity
       </Button>
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
