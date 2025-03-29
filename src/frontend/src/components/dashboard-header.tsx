@@ -175,8 +175,6 @@ const UserNav: React.FC<UserNavProps> = ({ headerLinks }) => {
   );
 };
 
-console.log(DashboardRoute, TeamRoute);
-
 type DashboardHeaderProps = {
   className?: string;
 };
