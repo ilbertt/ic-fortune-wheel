@@ -11,7 +11,7 @@ const IS_PRODUCTION =
 const PRODUCTION_FRONTEND_ORIGIN = `https://${canisterId}.icp0.io`;
 const IDENTITY_PROVIDER_URL = IS_LOCAL
   ? `http://${import.meta.env.VITE_CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
-  : 'https://identity.ic0.app';
+  : 'https://identity.internetcomputer.org';
 
 type AuthProviderProps = {
   children: React.ReactNode;
