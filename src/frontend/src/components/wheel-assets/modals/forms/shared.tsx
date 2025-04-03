@@ -1,5 +1,3 @@
-'use client';
-
 import { useAtom, useAtomValue } from 'jotai';
 import { formAssetTypeAtom } from '../../atoms';
 import { Button } from '@/components/ui/button';
