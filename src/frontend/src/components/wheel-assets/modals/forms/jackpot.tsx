@@ -66,6 +66,8 @@ const createAssetJackpotFormSchema = z.object<
   wheel_image_file: OptionalFileSchema,
 });
 
+type FormSchema = z.infer<typeof createAssetJackpotFormSchema>;
+
 type AssetJackpotFormProps = {
   onComplete: () => Promise<void>;
 };
@@ -80,10 +82,9 @@ export const AssetJackpotForm: React.FC<AssetJackpotFormProps> = ({
     () => Boolean(existingWheelAsset),
     [existingWheelAsset],
   );
-  const form = useForm<z.infer<typeof createAssetJackpotFormSchema>>({
+  const form = useForm<FormSchema>({
     resolver: zodResolver(createAssetJackpotFormSchema),
     mode: 'onChange',
-    // @ts-expect-error - we don't want to set all the default values for the form if we are creating a new asset
     defaultValues: async () => {
       if (existingWheelAsset) {
         const { wheelImageFile, modalImageFile } =
@@ -102,7 +103,8 @@ export const AssetJackpotForm: React.FC<AssetJackpotFormProps> = ({
         wheel_image_file:
           (await fileFromUrl(WHEEL_ASSET_DEFAULT_IMAGES.JACKPOT.WHEEL)) ||
           undefined,
-      };
+        modal_image_file: undefined,
+      } satisfies Partial<FormSchema> as unknown as FormSchema;
     },
   });
   const wheelAssetIdsFormValue = useWatch({
@@ -123,9 +125,7 @@ export const AssetJackpotForm: React.FC<AssetJackpotFormProps> = ({
   const getSelectedTokenAssets = (ids: string[]): WheelAssetToken[] =>
     enabledTokenAssets.filter(t => ids.includes(t.id));
 
-  const onSubmit = async (
-    data: z.infer<typeof createAssetJackpotFormSchema>,
-  ) => {
+  const onSubmit = async (data: FormSchema) => {
     const prom = isEdit
       ? updateWheelAssetMutation.mutateAsync({
           id: existingWheelAsset!.id,
