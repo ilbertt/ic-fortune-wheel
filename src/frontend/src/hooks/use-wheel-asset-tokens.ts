@@ -1,48 +1,30 @@
-import { useAuth } from '@/hooks/use-auth';
-import { type WheelAssetToken } from '@/lib/wheel-asset';
-import { extractOk } from '@/lib/api';
-import { toastError } from '@/lib/utils';
-import { useUser } from '@/hooks/use-user';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  isWheelAssetToken,
+  sortWheelAssetTokensByTotalUsdValue,
+  type WheelAssetToken,
+} from '@/lib/wheel-asset';
 import { useWheelAssets } from '@/hooks/use-wheel-assets';
 import { useMemo } from 'react';
+import type { WheelAsset } from '@/declarations/backend/backend.did';
 
 type UseWheelAssetTokensReturnType = {
   tokenAssets: WheelAssetToken[];
-  refreshingTokens: boolean;
-  refreshTokenAssets: () => Promise<void>;
+  fetchingTokenAssets: boolean;
+};
+
+const selectWheelAssetTokens = (data: Array<WheelAsset>): WheelAssetToken[] => {
+  return data
+    .filter(el => isWheelAssetToken(el))
+    .sort(sortWheelAssetTokensByTotalUsdValue);
 };
 
 export const useWheelAssetTokens = (): UseWheelAssetTokensReturnType => {
-  const { actor } = useAuth();
-  const { isCurrentUserAdmin } = useUser();
-  const queryClient = useQueryClient();
-  const { tokenAssets, fetchingAssets } = useWheelAssets();
-
-  // Mutation to refresh token assets
-  const refreshTokensMutation = useMutation({
-    mutationFn: async () => {
-      if (!isCurrentUserAdmin) {
-        return;
-      }
-      await actor!
-        .fetch_tokens_data()
-        .then(extractOk)
-        // wait for the backend to update the tokens
-        .then(() => new Promise(resolve => setTimeout(resolve, 10_000)));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['wheel-assets'] });
-    },
-    onError: err => toastError(err, 'Error refreshing tokens'),
-  });
-
+  const { data, fetchingAssets } = useWheelAssets(selectWheelAssetTokens);
   return useMemo(
     () => ({
-      tokenAssets,
-      refreshingTokens: fetchingAssets || refreshTokensMutation.isPending,
-      refreshTokenAssets: refreshTokensMutation.mutateAsync,
+      tokenAssets: data || [],
+      fetchingTokenAssets: fetchingAssets,
     }),
-    [tokenAssets, fetchingAssets, refreshTokensMutation],
+    [data, fetchingAssets],
   );
 };

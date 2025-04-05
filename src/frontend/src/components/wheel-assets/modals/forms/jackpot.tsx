@@ -208,6 +208,7 @@ export const AssetJackpotForm: React.FC<AssetJackpotFormProps> = ({
                                       );
                                   if (
                                     newValue.length > 0 &&
+                                    !isEdit &&
                                     !form.getFieldState('name').isDirty
                                   ) {
                                     form.setValue(

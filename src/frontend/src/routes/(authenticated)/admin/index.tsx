@@ -6,13 +6,13 @@ import { CreditCard, DollarSign, User, Users } from 'lucide-react';
 import { EditUserDialog } from '@/components/edit-user-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { renderUsdValue } from '@/lib/utils';
-import { wheelAssetsUsdValueSum } from '@/lib/wheel-asset';
 import { ActivityTable } from '@/components/activity-table';
 import { useWheelPrizeExtractionsStats } from '@/hooks/use-wheel-prize-extractions-stats';
 import { useUser } from '@/hooks/use-user';
 import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 import { Route as AssetsRoute } from '@/routes/(authenticated)/admin/assets';
 import { Link } from '@tanstack/react-router';
+import { useWheelAssetTokensUseValueSum } from '@/hooks/use-wheel-asset-tokens-use-value-sum';
 
 export const Route = createFileRoute('/(authenticated)/admin/')({
   component: RouteComponent,
@@ -20,8 +20,9 @@ export const Route = createFileRoute('/(authenticated)/admin/')({
 
 function RouteComponent() {
   const { isCurrentUserUnassigned } = useUser();
-  const { tokenAssets, refreshingTokens } = useWheelAssetTokens();
+  const { fetchingTokenAssets } = useWheelAssetTokens();
   const { stats } = useWheelPrizeExtractionsStats();
+  const { usdValueSum } = useWheelAssetTokensUseValueSum();
 
   return (
     <PageLayout>
@@ -70,11 +71,11 @@ function RouteComponent() {
                 <DollarSign className="text-indaco-blue size-4" />
               </CardHeader>
               <CardContent className="text-2xl font-bold">
-                {refreshingTokens ? (
+                {fetchingTokenAssets ? (
                   <Skeleton className="mt-1 h-10 w-48" />
                 ) : (
                   <div className="flex flex-row flex-wrap justify-between gap-2">
-                    {renderUsdValue(wheelAssetsUsdValueSum(tokenAssets))}
+                    {renderUsdValue(usdValueSum)}
                     <Button size="sm" variant="outline" asChild>
                       <Link to={AssetsRoute.to}>Go to Wallet</Link>
                     </Button>

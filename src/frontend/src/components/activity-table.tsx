@@ -6,7 +6,6 @@ import { UserProfile } from '@/components/user-profile';
 import type { WheelPrizeExtraction } from '@/declarations/backend/backend.did';
 import { WheelPrizeExtractionStateBadge } from '@/components/wheel-prize-extraction-state-badge';
 import { renderDatetime, renderUsdValue } from '@/lib/utils';
-import { useWheelAssets } from '@/hooks/use-wheel-assets';
 import {
   Popover,
   PopoverContent,
@@ -16,13 +15,56 @@ import { wheelAssetUrl } from '@/lib/wheel-asset';
 import { isWheelPrizeExtractionCompleted } from '@/lib/wheel-prize-extraction';
 import { useTeamMembers } from '@/hooks/use-team-members';
 import { useActivity } from '@/hooks/use-activity';
+import { useWheelAsset } from '@/hooks/use-wheel-asset';
+
+type ActivityTableTypeColumnProps = {
+  wheelPrizeExtraction: WheelPrizeExtraction;
+};
+
+const ActivityTableTypeColumn = ({
+  wheelPrizeExtraction,
+}: ActivityTableTypeColumnProps) => {
+  const { data: wheelAsset } = useWheelAsset(
+    wheelPrizeExtraction.wheel_asset_id[0] || '',
+  );
+
+  return (
+    <div className="flex flex-row items-center gap-2">
+      Wheel Prize Extraction
+      {wheelAsset ? (
+        <Popover>
+          <PopoverTrigger asChild>
+            {wheelAsset.wheel_image_path[0] && (
+              <img
+                className="aspect-square max-h-6 max-w-6 cursor-pointer object-contain"
+                src={wheelAssetUrl(wheelAsset.wheel_image_path)!}
+                alt={wheelAsset.name}
+                width={50}
+                height={50}
+              />
+            )}
+          </PopoverTrigger>
+          <PopoverContent>
+            {wheelAsset.name}
+            {isWheelPrizeExtractionCompleted(wheelPrizeExtraction.state) &&
+            wheelPrizeExtraction.state.completed.prize_usd_amount[0] !==
+              undefined
+              ? ` (${renderUsdValue(
+                  wheelPrizeExtraction.state.completed.prize_usd_amount[0],
+                )})`
+              : null}
+          </PopoverContent>
+        </Popover>
+      ) : null}
+    </div>
+  );
+};
 
 const columnHelper = createColumnHelper<WheelPrizeExtraction>();
 
 export const ActivityTable: React.FC = () => {
   const { data: activity } = useActivity();
   const { getTeamMember } = useTeamMembers();
-  const { getWheelAsset } = useWheelAssets();
 
   const columns = useMemo(
     () => [
@@ -36,45 +78,9 @@ export const ActivityTable: React.FC = () => {
       }),
       columnHelper.display({
         header: 'Type',
-        cell: ctx => {
-          const wheelPrizeExtraction = ctx.row.original;
-          const wheelAsset = wheelPrizeExtraction.wheel_asset_id[0]
-            ? getWheelAsset(wheelPrizeExtraction.wheel_asset_id[0])
-            : null;
-          return (
-            <div className="flex flex-row items-center gap-2">
-              Wheel Prize Extraction
-              {wheelAsset ? (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    {wheelAsset.wheel_image_path[0] && (
-                      <img
-                        className="aspect-square max-h-6 max-w-6 cursor-pointer object-contain"
-                        src={wheelAssetUrl(wheelAsset.wheel_image_path)!}
-                        alt={wheelAsset.name}
-                        width={50}
-                        height={50}
-                      />
-                    )}
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    {wheelAsset.name}
-                    {isWheelPrizeExtractionCompleted(
-                      wheelPrizeExtraction.state,
-                    ) &&
-                    wheelPrizeExtraction.state.completed.prize_usd_amount[0] !==
-                      undefined
-                      ? ` (${renderUsdValue(
-                          wheelPrizeExtraction.state.completed
-                            .prize_usd_amount[0],
-                        )})`
-                      : null}
-                  </PopoverContent>
-                </Popover>
-              ) : null}
-            </div>
-          );
-        },
+        cell: ctx => (
+          <ActivityTableTypeColumn wheelPrizeExtraction={ctx.row.original} />
+        ),
       }),
       columnHelper.accessor('extracted_for_principal', {
         header: 'Extracted For',
@@ -99,7 +105,7 @@ export const ActivityTable: React.FC = () => {
         },
       }),
     ],
-    [getTeamMember, getWheelAsset],
+    [getTeamMember],
   );
 
   return <DataTable columns={columns} data={activity || []} />;

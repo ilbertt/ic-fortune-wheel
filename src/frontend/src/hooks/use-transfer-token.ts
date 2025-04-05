@@ -2,14 +2,14 @@ import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import type { TransferTokenRequest } from '@/declarations/backend/backend.did';
 import { extractOk } from '@/lib/api';
-import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 import { toastError } from '@/lib/utils';
+import { useRefreshTokenAssets } from '@/hooks/use-refresh-token-assets';
 
 export type TransferTokenParams = TransferTokenRequest;
 
 export const useTransferToken = () => {
   const { actor } = useAuth();
-  const { refreshTokenAssets } = useWheelAssetTokens();
+  const { mutateAsync: refreshTokenAssets } = useRefreshTokenAssets();
 
   return useMutation({
     mutationFn: async (params: TransferTokenParams) => {

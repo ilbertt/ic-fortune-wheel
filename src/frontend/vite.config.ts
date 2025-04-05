@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import reactScan from '@react-scan/vite-plugin-react-scan';
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
@@ -31,6 +32,7 @@ export default defineConfig({
   plugins: [
     TanStackRouterVite({ autoCodeSplitting: true }),
     react(),
+    reactScan(),
     tailwindcss(),
   ],
   resolve: {

@@ -15,6 +15,12 @@ export type WheelAssetGadget = Omit<WheelAsset, 'asset_type'> & {
 export type WheelAssetJackpot = Omit<WheelAsset, 'asset_type'> & {
   asset_type: Extract<WheelAssetType, { jackpot: unknown }>;
 };
+export type WheelAssetEnabled = Omit<WheelAsset, 'state'> & {
+  state: Extract<WheelAssetState, { enabled: null }>;
+};
+export type WheelAssetDisabled = Omit<WheelAsset, 'state'> & {
+  state: Extract<WheelAssetState, { disabled: null }>;
+};
 
 export type WheelAssetTypeJackpot = Extract<
   WheelAssetType,
@@ -103,17 +109,13 @@ export const wheelAssetsUsdValueSum = (assets: WheelAsset[]): number => {
 
 export const isWheelAssetEnabled = (
   asset: WheelAsset,
-): asset is Omit<WheelAsset, 'state'> & {
-  state: Extract<WheelAssetState, { enabled: null }>;
-} => {
+): asset is WheelAssetEnabled => {
   return enumKey(asset.state) === 'enabled';
 };
 
 export const isWheelAssetDisabled = (
   asset: WheelAsset,
-): asset is Omit<WheelAsset, 'state'> & {
-  state: Extract<WheelAssetState, { disabled: null }>;
-} => {
+): asset is WheelAssetDisabled => {
   return enumKey(asset.state) === 'disabled';
 };
 
