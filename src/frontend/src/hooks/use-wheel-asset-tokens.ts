@@ -5,6 +5,7 @@ import { toastError } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useWheelAssets } from '@/hooks/use-wheel-assets';
+import { useMemo } from 'react';
 
 type UseWheelAssetTokensReturnType = {
   tokenAssets: WheelAssetToken[];
@@ -36,9 +37,12 @@ export const useWheelAssetTokens = (): UseWheelAssetTokensReturnType => {
     onError: err => toastError(err, 'Error refreshing tokens'),
   });
 
-  return {
-    tokenAssets,
-    refreshingTokens: fetchingAssets || refreshTokensMutation.isPending,
-    refreshTokenAssets: refreshTokensMutation.mutateAsync,
-  };
+  return useMemo(
+    () => ({
+      tokenAssets,
+      refreshingTokens: fetchingAssets || refreshTokensMutation.isPending,
+      refreshTokenAssets: refreshTokensMutation.mutateAsync,
+    }),
+    [tokenAssets, fetchingAssets, refreshTokensMutation],
+  );
 };

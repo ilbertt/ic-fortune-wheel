@@ -3,37 +3,38 @@ import type { WheelAsset } from '@/declarations/backend/backend.did';
 import {
   isWheelAssetDisabled,
   isWheelAssetToken,
+  sortWheelAssetTokensByTotalUsdValue,
   type WheelAssetToken,
 } from '@/lib/wheel-asset';
 import { extractOk } from '@/lib/api';
 import { useUser } from '@/hooks/use-user';
 import { useQuery } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useMemo } from 'react';
 
 type WheelAssetsData = {
   assets: Record<WheelAsset['id'], WheelAsset>;
   tokenAssets: WheelAssetToken[];
-  enabled: WheelAsset[];
-  disabled: WheelAsset[];
+  enabledAssets: WheelAsset[];
+  disabledAssets: WheelAsset[];
 };
 
 // Default values if data is not loaded yet
-const DEFAULT_WHEEL_ASSETS_DATA: WheelAssetsData = {
+const DEFAULT_WHEEL_ASSETS_DATA = {
   assets: {},
   tokenAssets: [],
-  enabled: [],
-  disabled: [],
-};
+  enabledAssets: [],
+  disabledAssets: [],
+} satisfies WheelAssetsData;
 
 // keep it out of the component to maintain a stable reference
 const selectWheelAssets = (data: Array<WheelAsset>): WheelAssetsData => {
-  return data.reduce(
+  const wheelAssets = data.reduce(
     (acc, asset) => {
       acc.assets[asset.id] = asset;
       if (isWheelAssetDisabled(asset)) {
-        acc.disabled.push(asset);
+        acc.disabledAssets.push(asset);
       } else {
-        acc.enabled.push(asset);
+        acc.enabledAssets.push(asset);
       }
       if (isWheelAssetToken(asset)) {
         acc.tokenAssets.push(asset);
@@ -43,17 +44,15 @@ const selectWheelAssets = (data: Array<WheelAsset>): WheelAssetsData => {
     {
       assets: {} as Record<WheelAsset['id'], WheelAsset>,
       tokenAssets: [] as WheelAssetToken[],
-      enabled: [] as WheelAsset[],
-      disabled: [] as WheelAsset[],
+      enabledAssets: [] as WheelAsset[],
+      disabledAssets: [] as WheelAsset[],
     },
   );
+  wheelAssets.tokenAssets.sort(sortWheelAssetTokensByTotalUsdValue);
+  return wheelAssets;
 };
 
-type UseWheelAssetsReturnType = {
-  assets: Record<WheelAsset['id'], WheelAsset>;
-  tokenAssets: WheelAssetToken[];
-  enabledAssets: WheelAsset[];
-  disabledAssets: WheelAsset[];
+type UseWheelAssetsReturnType = WheelAssetsData & {
   fetchingAssets: boolean;
   getWheelAsset: (id: WheelAsset['id']) => WheelAsset | undefined;
 };
@@ -62,32 +61,28 @@ export const useWheelAssets = (): UseWheelAssetsReturnType => {
   const { actor } = useAuth();
   const { isCurrentUserAdmin } = useUser();
 
-  // Query to fetch wheel assets
+  // Query to fetch wheel assets with proper typing and transformation
   const { data, isLoading: fetchingAssets } = useQuery({
     queryKey: ['wheel-assets'],
     queryFn: async () => {
-      return await actor!.list_wheel_assets({ state: [] }).then(extractOk);
+      const response = await actor!.list_wheel_assets({ state: [] });
+      const rawData = extractOk(response);
+      return selectWheelAssets(rawData);
     },
     enabled: !!actor && isCurrentUserAdmin,
-    select: selectWheelAssets,
     meta: {
       errorMessage: 'Error fetching assets',
     },
   });
 
-  const getWheelAsset = useCallback(
-    (id: WheelAsset['id']): WheelAsset | undefined => {
-      return data?.assets[id];
-    },
-    [data],
+  return useMemo(
+    () => ({
+      ...(data || DEFAULT_WHEEL_ASSETS_DATA),
+      fetchingAssets,
+      getWheelAsset: (id): WheelAsset | undefined => {
+        return data?.assets[id];
+      },
+    }),
+    [data, fetchingAssets],
   );
-
-  return {
-    assets: data?.assets || DEFAULT_WHEEL_ASSETS_DATA.assets,
-    tokenAssets: data?.tokenAssets || DEFAULT_WHEEL_ASSETS_DATA.tokenAssets,
-    enabledAssets: data?.enabled || DEFAULT_WHEEL_ASSETS_DATA.enabled,
-    disabledAssets: data?.disabled || DEFAULT_WHEEL_ASSETS_DATA.disabled,
-    fetchingAssets,
-    getWheelAsset,
-  };
 };

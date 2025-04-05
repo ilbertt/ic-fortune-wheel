@@ -152,3 +152,10 @@ export const existingWheelAssetImagesFiles = async (
     modalImageFile,
   };
 };
+
+export const sortWheelAssetTokensByTotalUsdValue = (
+  a: WheelAssetToken,
+  b: WheelAssetToken,
+): number => {
+  return wheelAssetTokenTotalUsdValue(b) - wheelAssetTokenTotalUsdValue(a);
+};
