@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use rstest::*;
 
 use crate::repositories::{
-    HttpAssetPath, TimestampFields, WheelAsset, WheelAssetState, WheelAssetType,
+    HttpAssetPath, TimestampFields, WheelAsset, WheelAssetId, WheelAssetState, WheelAssetType,
     WheelAssetUiSettings,
 };
 
@@ -53,7 +53,14 @@ pub fn wheel_asset_gadget() -> WheelAsset {
 pub fn wheel_asset_jackpot() -> WheelAsset {
     WheelAsset {
         name: "Jackpot1".to_string(),
-        asset_type: WheelAssetType::Jackpot,
+        asset_type: WheelAssetType::Jackpot {
+            wheel_asset_ids: vec![
+                WheelAssetId::try_from("0195aacc-f240-7417-8b63-c38f24401a3f").unwrap(),
+                WheelAssetId::try_from("0195aacd-34a1-7bb2-a325-c4a98b41c287").unwrap(),
+                WheelAssetId::try_from("0195aacd-5bad-7c7b-907a-fbf9e4a46763").unwrap(),
+                WheelAssetId::try_from("0195aace-6362-730a-87b4-074892fff602").unwrap(),
+            ],
+        },
         total_amount: 100,
         used_amount: 0,
         state: WheelAssetState::Disabled,

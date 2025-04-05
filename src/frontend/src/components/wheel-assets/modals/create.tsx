@@ -1,6 +1,3 @@
-'use client';
-
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,12 +8,18 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { capitalCase } from 'change-case';
-import { Coins, PlusCircle, Shirt, Sparkle } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
+import {
+  AssetGadgetIcon,
+  AssetJackpotIcon,
+  AssetTokenIcon,
+} from '@/icons/asset-type';
 import { useCallback, useState } from 'react';
 import { AssetTokenForm } from './forms/token';
 import { useAtom } from 'jotai';
 import { formAssetTypeAtom } from '../atoms';
 import { AssetGadgetForm } from './forms/gadget';
+import { AssetJackpotForm } from './forms/jackpot';
 
 export const CreateAssetModal: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -63,7 +66,7 @@ export const CreateAssetModal: React.FC = () => {
               variant="outline"
               onClick={() => setAssetType('token')}
             >
-              <Coins />
+              <AssetTokenIcon />
               Token
             </Button>
             <Button
@@ -71,13 +74,16 @@ export const CreateAssetModal: React.FC = () => {
               variant="outline"
               onClick={() => setAssetType('gadget')}
             >
-              <Shirt />
+              <AssetGadgetIcon />
               Gadget
             </Button>
-            <Button size="lg" variant="outline" disabled>
-              <Sparkle />
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => setAssetType('jackpot')}
+            >
+              <AssetJackpotIcon />
               Jackpot
-              <Badge>Coming soon</Badge>
             </Button>
           </div>
         )}
@@ -86,6 +92,9 @@ export const CreateAssetModal: React.FC = () => {
         )}
         {assetType === 'gadget' && (
           <AssetGadgetForm onComplete={handleOnComplete} />
+        )}
+        {assetType === 'jackpot' && (
+          <AssetJackpotForm onComplete={handleOnComplete} />
         )}
       </DialogContent>
     </Dialog>

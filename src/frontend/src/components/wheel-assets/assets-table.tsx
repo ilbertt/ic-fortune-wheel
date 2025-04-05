@@ -1,15 +1,35 @@
 import { AssetTypeBadge } from '@/components/asset-type-badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
-import type { WheelAsset } from '@/declarations/backend/backend.did';
+import type {
+  WheelAsset,
+  WheelAssetType,
+} from '@/declarations/backend/backend.did';
 import { renderUsdValue } from '@/lib/utils';
-import { isWheelAssetDisabled, isWheelAssetTypeToken } from '@/lib/wheel-asset';
+import {
+  isWheelAssetDisabled,
+  isWheelAssetTypeJackpot,
+  isWheelAssetTypeToken,
+  wheelAssetJackpotAvailableDrawsCount,
+  wheelAssetTokensPrizeUsdSum,
+  type WheelAssetToken,
+  type WheelAssetTypeJackpot,
+} from '@/lib/wheel-asset';
 import { createColumnHelper } from '@tanstack/react-table';
 import { MinusCircle, PlusCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import { EditAssetModal } from './modals/edit';
 import { Loader } from '@/components/loader';
 import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
+import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
+
+const jackpotTokenAssets = (
+  tokenAssets: WheelAssetToken[],
+  assetType: WheelAssetTypeJackpot,
+): WheelAssetToken[] =>
+  tokenAssets.filter(wheelAsset =>
+    assetType.jackpot.wheel_asset_ids.includes(wheelAsset.id),
+  );
 
 type AssetStateToggleProps = {
   asset: WheelAsset;
@@ -42,6 +62,43 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({ asset }) => {
       )}
     </Button>
   );
+};
+
+type AssetsTableAvailableDrawsColumnProps = {
+  assetType: WheelAssetType;
+};
+
+const AssetsTableAvailableDrawsColumn = ({
+  assetType,
+}: AssetsTableAvailableDrawsColumnProps) => {
+  const { tokenAssets } = useWheelAssetTokens();
+  if (isWheelAssetTypeToken(assetType)) {
+    return assetType.token.available_draws_count.toLocaleString();
+  } else if (isWheelAssetTypeJackpot(assetType)) {
+    return wheelAssetJackpotAvailableDrawsCount(
+      jackpotTokenAssets(tokenAssets, assetType),
+    ).toLocaleString();
+  }
+  return 'N/A';
+};
+
+type AssetsTablePrizeValueColumnProps = {
+  assetType: WheelAssetType;
+};
+
+const AssetsTablePrizeValueColumn = ({
+  assetType,
+}: AssetsTablePrizeValueColumnProps) => {
+  const { tokenAssets } = useWheelAssetTokens();
+  if (isWheelAssetTypeToken(assetType)) {
+    return renderUsdValue(assetType.token.prize_usd_amount);
+  } else if (isWheelAssetTypeJackpot(assetType)) {
+    const totUsd = wheelAssetTokensPrizeUsdSum(
+      jackpotTokenAssets(tokenAssets, assetType),
+    );
+    return renderUsdValue(totUsd);
+  }
+  return 'N/A';
 };
 
 const columnHelper = createColumnHelper<WheelAsset>();
@@ -80,24 +137,14 @@ export const AssetsTable: React.FC<AssetsTableProps> = ({ data }) => {
       columnHelper.accessor(row => row.asset_type, {
         id: 'availableDraws',
         header: 'Avail. Draws',
-        cell: ctx => {
-          const assetType = ctx.getValue();
-          if (isWheelAssetTypeToken(assetType)) {
-            return assetType.token.available_draws_count;
-          }
-          return 'N/A';
-        },
+        cell: ctx => (
+          <AssetsTableAvailableDrawsColumn assetType={ctx.getValue()} />
+        ),
       }),
       columnHelper.accessor(row => row.asset_type, {
         id: 'prizeValue',
         header: 'Prize Value',
-        cell: ctx => {
-          const assetType = ctx.getValue();
-          if (isWheelAssetTypeToken(assetType)) {
-            return renderUsdValue(assetType.token.prize_usd_amount);
-          }
-          return 'N/A';
-        },
+        cell: ctx => <AssetsTablePrizeValueColumn assetType={ctx.getValue()} />,
       }),
       columnHelper.display({
         id: '__actions',

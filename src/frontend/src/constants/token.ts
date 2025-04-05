@@ -1,5 +1,6 @@
 import { type WheelAssetToken } from '@/lib/wheel-asset';
 import { Principal } from '@dfinity/principal';
+import { WHEEL_ASSET_DEFAULT_IMAGES } from '@/constants/images';
 
 export type DefaultTokensKey =
   | 'icp'
@@ -16,7 +17,7 @@ export const DEFAULT_TOKENS: Record<
       WheelAssetToken['asset_type']['token'],
       'exchange_rate_symbol' | 'ledger_config'
     > & {
-      modalImageFileSrc?: string;
+      wheelImageFileSrc?: string;
     }
 > = {
   icp: {
@@ -26,7 +27,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('ryjl3-tyaaa-aaaaa-aaaba-cai'),
       decimals: 8,
     },
-    modalImageFileSrc: '/images/tokens/icp.png',
+    wheelImageFileSrc: WHEEL_ASSET_DEFAULT_IMAGES.ICP_TOKEN.WHEEL,
   },
   ckBtc: {
     name: 'ckBTC',
@@ -35,7 +36,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('mxzaz-hqaaa-aaaar-qaada-cai'),
       decimals: 8,
     },
-    modalImageFileSrc: '/images/tokens/ckbtc.png',
+    wheelImageFileSrc: WHEEL_ASSET_DEFAULT_IMAGES.CKBTC_TOKEN.WHEEL,
   },
   ckEth: {
     name: 'ckETH',
@@ -44,7 +45,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('ss2fx-dyaaa-aaaar-qacoq-cai'),
       decimals: 18,
     },
-    modalImageFileSrc: '/images/tokens/cketh.png',
+    wheelImageFileSrc: WHEEL_ASSET_DEFAULT_IMAGES.CKETH_TOKEN.WHEEL,
   },
   ckUsdc: {
     name: 'ckUSDC',
@@ -53,7 +54,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('xevnm-gaaaa-aaaar-qafnq-cai'),
       decimals: 6,
     },
-    modalImageFileSrc: '/images/tokens/ckusdc.png',
+    wheelImageFileSrc: WHEEL_ASSET_DEFAULT_IMAGES.CKUSDC_TOKEN.WHEEL,
   },
   ckUsdt: {
     name: 'ckUSDT',
@@ -62,7 +63,7 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('cngnf-vqaaa-aaaar-qag4q-cai'),
       decimals: 6,
     },
-    modalImageFileSrc: '/images/tokens/ckusdt.svg',
+    wheelImageFileSrc: WHEEL_ASSET_DEFAULT_IMAGES.CKUSDT_TOKEN.WHEEL,
   },
   ckEurc: {
     name: 'ckEURC',
@@ -71,6 +72,6 @@ export const DEFAULT_TOKENS: Record<
       ledger_canister_id: Principal.fromText('pe5t5-diaaa-aaaar-qahwa-cai'),
       decimals: 6,
     },
-    modalImageFileSrc: '/images/tokens/ckeurc.svg',
+    wheelImageFileSrc: WHEEL_ASSET_DEFAULT_IMAGES.CKEURC_TOKEN.WHEEL,
   },
 };

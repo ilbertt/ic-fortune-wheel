@@ -1,5 +1,3 @@
-'use client';
-
 import { useAtom, useAtomValue } from 'jotai';
 import { formAssetTypeAtom } from '../../atoms';
 import { Button } from '@/components/ui/button';
@@ -41,11 +39,13 @@ const BackButton = () => {
 const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
 const IMAGE_ACCEPT_MIME_TYPES = ['image/png', 'image/svg+xml'];
 
+export type ImagesFormFieldsProps = {
+  wheel_image_file: File | undefined;
+  modal_image_file: File | undefined;
+};
+
 export const ImagesFormFields = () => {
-  const form = useFormContext<{
-    wheel_image_file: File | undefined;
-    modal_image_file: File | undefined;
-  }>();
+  const form = useFormContext<ImagesFormFieldsProps>();
 
   return (
     <div className="space-y-2">
@@ -127,12 +127,14 @@ export const ImagesFormFields = () => {
   );
 };
 
+type PrizeFormFieldsProps = {
+  total_amount: number;
+  prize_usd_amount?: number;
+};
+
 export const PrizeFormFields = () => {
   const assetType = useAtomValue(formAssetTypeAtom);
-  const form = useFormContext<{
-    total_amount: number;
-    prize_usd_amount?: number;
-  }>();
+  const form = useFormContext<PrizeFormFieldsProps>();
 
   return (
     <div className="space-y-2">
