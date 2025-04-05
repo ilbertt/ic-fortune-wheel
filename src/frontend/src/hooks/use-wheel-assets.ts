@@ -4,6 +4,8 @@ import { extractOk } from '@/lib/api';
 import { useUser } from '@/hooks/use-user';
 import { useQuery } from '@tanstack/react-query';
 
+const FETCH_WHEEL_ASSETS_INTERVAL_MS = 30_000;
+
 type UseWheelAssetsReturnType<T> = {
   data: T | undefined;
   fetchingAssets: boolean;
@@ -15,7 +17,6 @@ export const useWheelAssets = <T>(
   const { actor } = useAuth();
   const { isCurrentUserAdmin } = useUser();
 
-  // Query to fetch wheel assets with proper typing and transformation
   const { data, isLoading: fetchingAssets } = useQuery({
     queryKey: ['wheel-assets'],
     queryFn: async () => {
@@ -24,6 +25,7 @@ export const useWheelAssets = <T>(
     },
     enabled: !!actor && isCurrentUserAdmin,
     select: select,
+    refetchInterval: FETCH_WHEEL_ASSETS_INTERVAL_MS,
     meta: {
       errorMessage: 'Error fetching assets',
     },

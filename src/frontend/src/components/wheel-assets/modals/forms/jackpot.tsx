@@ -16,7 +16,6 @@ import { z } from 'zod';
 import { wheelAssetToEdit } from '../../atoms';
 import {
   existingWheelAssetImagesFiles,
-  isWheelAssetEnabled,
   type WheelAssetToken,
   wheelAssetUrl,
   type WheelAssetJackpot,
@@ -117,13 +116,9 @@ export const AssetJackpotForm: React.FC<AssetJackpotFormProps> = ({
   const createWheelAssetMutation = useCreateWheelAsset();
   const upsertWheelAssetImagesMutation = useUpsertWheelAssetImages();
   const { tokenAssets } = useWheelAssetTokens();
-  const enabledTokenAssets = useMemo(
-    () => tokenAssets.filter(isWheelAssetEnabled),
-    [tokenAssets],
-  );
 
   const getSelectedTokenAssets = (ids: string[]): WheelAssetToken[] =>
-    enabledTokenAssets.filter(t => ids.includes(t.id));
+    tokenAssets.filter(t => ids.includes(t.id));
 
   const onSubmit = async (data: FormSchema) => {
     const prom = isEdit
@@ -186,7 +181,7 @@ export const AssetJackpotForm: React.FC<AssetJackpotFormProps> = ({
                       extraction. They are all given away in the same draw.
                     </FormDescription>
                   </div>
-                  {enabledTokenAssets.map(tokenAsset => (
+                  {tokenAssets.map(tokenAsset => (
                     <FormField
                       key={tokenAsset.id}
                       control={form.control}
