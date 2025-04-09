@@ -1,6 +1,7 @@
 use backend_api::{ApiError, TransferTokenRequest};
 use candid::{Nat, Principal};
 use external_canisters::ledger::LedgerCanisterService;
+use ic_cdk::println;
 use ic_stable_structures::Storable;
 use icrc_ledger_types::icrc1::{account::Account, transfer::TransferArg};
 
@@ -41,6 +42,9 @@ impl<U: UserProfileRepository> WalletService for WalletServiceImpl<U> {
                 ))
             })?;
 
+        let display_request = request.to_string();
+        println!("Transferring token. Request: {}", display_request);
+
         let ledger_canister = LedgerCanisterService(request.ledger_canister_id);
 
         match ledger_canister
@@ -57,12 +61,29 @@ impl<U: UserProfileRepository> WalletService for WalletServiceImpl<U> {
             })
             .await
         {
-            Ok(Ok(block_index)) => Ok(block_index),
-            Ok(Err(e)) => Err(ApiError::internal(&format!("Transfer failed: {e}"))),
-            Err(e) => Err(ApiError::internal(&format!(
-                "Call to ledger canister failed: {:?}",
-                e
-            ))),
+            Ok(Ok(block_index)) => {
+                println!(
+                    "Token transferred successfully. Request: {}, Block index: {}",
+                    display_request, block_index
+                );
+                Ok(block_index)
+            }
+            Ok(Err(e)) => {
+                let error_message = format!("Transfer failed: {e}");
+                println!(
+                    "Transfer failed. Request: {}, Error: {}",
+                    display_request, error_message
+                );
+                Err(ApiError::internal(&error_message))
+            }
+            Err(e) => {
+                let error_message = format!("Call to ledger canister failed: {:?}", e);
+                println!(
+                    "Call to ledger canister failed. Request: {}, Error: {}",
+                    display_request, error_message
+                );
+                Err(ApiError::internal(&error_message))
+            }
         }
     }
 }

@@ -1,5 +1,3 @@
-'use client';
-
 import { CopyToClipboardButton } from '@/components/copy-to-clipboard-button';
 import {
   AlertDialog,

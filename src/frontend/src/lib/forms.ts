@@ -15,3 +15,9 @@ export const PrincipalSchema = z.preprocess((val, ctx) => {
     return z.NEVER;
   }
 }, z.custom<Principal>());
+
+export const FileSchema = z.instanceof(File);
+export const OptionalFileSchema = FileSchema.optional();
+
+export const AssetNameSchema = z.string().min(1).max(100);
+export const AssetTotalAmountSchema = z.coerce.number().min(0).max(1_000);

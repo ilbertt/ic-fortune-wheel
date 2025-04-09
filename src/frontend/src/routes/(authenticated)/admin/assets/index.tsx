@@ -23,7 +23,11 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { renderNumberWithDigits, renderUsdValue } from '@/lib/utils';
 import {
+  isWheelAssetDisabled,
+  isWheelAssetEnabled,
   wheelAssetBalance,
+  type WheelAssetDisabled,
+  type WheelAssetEnabled,
   wheelAssetsUsdValueSum,
   wheelAssetTokenTotalUsdValue,
   wheelAssetUrl,
@@ -39,6 +43,8 @@ import { useWheelAssets } from '@/hooks/use-wheel-assets';
 import { SendTokenModal } from '@/components/wheel-assets/modals/send-token';
 import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 import { useCreateDefaultAssets } from '@/hooks/use-create-default-assets';
+import type { WheelAsset } from '@/declarations/backend/backend.did';
+import { useRefreshTokenAssets } from '@/hooks/use-refresh-token-assets';
 
 export const Route = createFileRoute('/(authenticated)/admin/assets/')({
   component: RouteComponent,
@@ -115,10 +121,22 @@ const EmptyAssets: React.FC = () => {
   );
 };
 
+const selectEnabledAssets = (data: Array<WheelAsset>): WheelAssetEnabled[] =>
+  data.filter(el => isWheelAssetEnabled(el));
+
+const selectDisabledAssets = (data: Array<WheelAsset>): WheelAssetDisabled[] =>
+  data.filter(el => isWheelAssetDisabled(el));
+
 function RouteComponent() {
-  const { enabledAssets, disabledAssets, fetchingAssets } = useWheelAssets();
-  const { tokenAssets, refreshingTokens, refreshTokenAssets } =
-    useWheelAssetTokens();
+  const { data: enabledAssets, fetchingAssets: fetchingEnabledAssets } =
+    useWheelAssets(selectEnabledAssets);
+  const { data: disabledAssets, fetchingAssets: fetchingDisabledAssets } =
+    useWheelAssets(selectDisabledAssets);
+  const { tokenAssets, fetchingTokenAssets } = useWheelAssetTokens();
+  const {
+    mutateAsync: refreshTokenAssets,
+    isPending: isRefreshingTokenAssets,
+  } = useRefreshTokenAssets();
 
   return (
     <PageLayout>
@@ -135,7 +153,10 @@ function RouteComponent() {
                 <p className="text-center text-xs font-medium">
                   Available Balance
                 </p>
-                {fetchingAssets || refreshingTokens ? (
+                {fetchingEnabledAssets ||
+                fetchingDisabledAssets ||
+                fetchingTokenAssets ||
+                isRefreshingTokenAssets ? (
                   <div className="flex w-full justify-center">
                     <Skeleton className="mt-1 h-10 w-48" />
                   </div>
@@ -149,8 +170,8 @@ function RouteComponent() {
                   <SendTokenModal />
                   <Button
                     variant="outline"
-                    onClick={refreshTokenAssets}
-                    loading={refreshingTokens}
+                    onClick={() => refreshTokenAssets()}
+                    loading={isRefreshingTokenAssets}
                   >
                     <RefreshCw />
                     Refresh
@@ -159,15 +180,20 @@ function RouteComponent() {
               </div>
             </BorderVerticalGradientContainer>
             <div className="mt-6 flex flex-col gap-6 px-4">
-              {fetchingAssets && <Loader className="self-center" />}
-              {!fetchingAssets && tokenAssets.length === 0 ? (
+              {(fetchingEnabledAssets ||
+                fetchingDisabledAssets ||
+                fetchingTokenAssets) && <Loader className="self-center" />}
+              {!fetchingEnabledAssets &&
+              !fetchingDisabledAssets &&
+              !fetchingTokenAssets &&
+              tokenAssets.length === 0 ? (
                 <p>No tokens found</p>
               ) : (
                 tokenAssets.map(token => (
                   <TokenRow
                     key={token.id}
                     token={token}
-                    refreshingTokens={refreshingTokens}
+                    refreshingTokens={isRefreshingTokenAssets}
                   />
                 ))
               )}
@@ -183,20 +209,21 @@ function RouteComponent() {
             <CreateAssetModal />
           </CardHeader>
           <CardContent>
-            {fetchingAssets && <Loader />}
-            {!fetchingAssets &&
-            enabledAssets.length === 0 &&
-            disabledAssets.length === 0 ? (
+            {(fetchingEnabledAssets || fetchingDisabledAssets) && <Loader />}
+            {!fetchingEnabledAssets &&
+            !fetchingDisabledAssets &&
+            (!enabledAssets || enabledAssets.length === 0) &&
+            (!disabledAssets || disabledAssets.length === 0) ? (
               <EmptyAssets />
             ) : (
               <div className="flex flex-col gap-4">
-                {enabledAssets.length > 0 && (
+                {enabledAssets && enabledAssets.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <CardTitle className="text-sm">Enabled</CardTitle>
                     <AssetsTable data={enabledAssets} />
                   </div>
                 )}
-                {disabledAssets.length > 0 && (
+                {disabledAssets && disabledAssets.length > 0 && (
                   <div className="flex flex-col gap-2">
                     <CardTitle className="text-sm">Disabled</CardTitle>
                     <AssetsTable data={disabledAssets} />

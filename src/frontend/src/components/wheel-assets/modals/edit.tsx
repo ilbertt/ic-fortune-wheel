@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,8 +13,13 @@ import { useCallback, useState } from 'react';
 import { useAtom } from 'jotai';
 import { wheelAssetToEdit } from '../atoms';
 import { AssetTokenForm } from './forms/token';
-import { isWheelAssetGadget, isWheelAssetToken } from '@/lib/wheel-asset';
+import {
+  isWheelAssetGadget,
+  isWheelAssetJackpot,
+  isWheelAssetToken,
+} from '@/lib/wheel-asset';
 import { AssetGadgetForm } from './forms/gadget';
+import { AssetJackpotForm } from './forms/jackpot';
 
 type EditAssetModalProps = {
   asset: WheelAsset;
@@ -62,6 +65,9 @@ export const EditAssetModal: React.FC<EditAssetModalProps> = ({ asset }) => {
         )}
         {selectedAsset && isWheelAssetGadget(selectedAsset) && (
           <AssetGadgetForm onComplete={handleOnComplete} />
+        )}
+        {selectedAsset && isWheelAssetJackpot(selectedAsset) && (
+          <AssetJackpotForm onComplete={handleOnComplete} />
         )}
       </DialogContent>
     </Dialog>

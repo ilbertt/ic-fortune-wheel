@@ -223,38 +223,106 @@ impl<
                 &mut wheel_prize_extraction,
                 Some(extracted_wheel_asset_id),
                 || async {
-                    if let WheelAssetType::Token { ledger_config, .. } =
-                        &extracted_wheel_asset.asset_type
-                    {
-                        println!(
-                            "Wheel prize extraction (id:{}): Transferring token prize",
-                            wheel_prize_extraction_id,
-                        );
+                    let extracted_usd_amount = match &extracted_wheel_asset.asset_type {
+                        WheelAssetType::Token { ledger_config, .. } => {
+                            println!(
+                                "Wheel prize extraction (id:{}): Transferring token prize",
+                                wheel_prize_extraction_id,
+                            );
 
-                        self.wallet_service
-                            .transfer_token(
-                                *calling_principal,
-                                TransferTokenRequest {
-                                    ledger_canister_id: ledger_config.ledger_canister_id,
-                                    to: extracted_for_principal,
-                                    amount: extracted_wheel_asset
+                            self.wallet_service
+                                .transfer_token(
+                                    *calling_principal,
+                                    TransferTokenRequest {
+                                        ledger_canister_id: ledger_config.ledger_canister_id,
+                                        to: extracted_for_principal,
+                                        amount: extracted_wheel_asset
+                                            .asset_type
+                                            .token_prize_amount()
+                                            .unwrap_or(0)
+                                            .into(),
+                                    },
+                                )
+                                .await?;
+                            self.wheel_asset_service.schedule_token_data_fetchers(
+                                extracted_wheel_asset_id,
+                                extracted_wheel_asset.asset_type.clone(),
+                            );
+
+                            println!(
+                                "Wheel prize extraction (id:{}): Completed token transfer",
+                                wheel_prize_extraction_id,
+                            );
+
+                            extracted_wheel_asset.asset_type.token_prize_usd_amount()
+                        }
+                        WheelAssetType::Jackpot {
+                            wheel_asset_ids: jackpot_wheel_asset_ids,
+                        } => {
+                            println!(
+                                "Wheel prize extraction (id:{}): Transferring jackpot prize",
+                                wheel_prize_extraction_id,
+                            );
+
+                            let mut jackpot_usd_amount = 0.0;
+
+                            for jackpot_wheel_asset_id in jackpot_wheel_asset_ids {
+                                let jackpot_wheel_asset = self
+                                    .wheel_asset_repository
+                                    .get_wheel_asset(jackpot_wheel_asset_id)
+                                    .ok_or_else(|| {
+                                        ApiError::not_found(&format!(
+                                            "Wheel asset with id {} not found",
+                                            jackpot_wheel_asset_id
+                                        ))
+                                    })?;
+
+                                if let WheelAssetType::Token { ledger_config, .. } =
+                                    &jackpot_wheel_asset.asset_type
+                                {
+                                    self.wallet_service
+                                        .transfer_token(
+                                            *calling_principal,
+                                            TransferTokenRequest {
+                                                ledger_canister_id: ledger_config
+                                                    .ledger_canister_id,
+                                                to: extracted_for_principal,
+                                                amount: jackpot_wheel_asset
+                                                    .asset_type
+                                                    .token_prize_amount()
+                                                    .unwrap_or(0)
+                                                    .into(),
+                                            },
+                                        )
+                                        .await?;
+
+                                    jackpot_usd_amount += jackpot_wheel_asset
                                         .asset_type
-                                        .token_prize_amount()
-                                        .unwrap_or(0)
-                                        .into(),
-                                },
-                            )
-                            .await?;
-                        self.wheel_asset_service.schedule_token_data_fetchers(
-                            extracted_wheel_asset_id,
-                            extracted_wheel_asset.asset_type.clone(),
-                        );
+                                        .token_prize_usd_amount()
+                                        .unwrap_or(0.0);
+                                } else {
+                                    // should never happen
+                                    return Err(ApiError::internal(&format!(
+                                        "Jackpot wheel asset with id {} is not a token",
+                                        jackpot_wheel_asset_id
+                                    )));
+                                }
 
-                        println!(
-                            "Wheel prize extraction (id:{}): Completed token transfer",
-                            wheel_prize_extraction_id,
-                        );
-                    }
+                                self.wheel_asset_service.schedule_token_data_fetchers(
+                                    *jackpot_wheel_asset_id,
+                                    jackpot_wheel_asset.asset_type.clone(),
+                                );
+                            }
+
+                            println!(
+                                "Wheel prize extraction (id:{}): Completed jackpot transfer",
+                                wheel_prize_extraction_id,
+                            );
+
+                            Some(jackpot_usd_amount)
+                        }
+                        WheelAssetType::Gadget { .. } => None,
+                    };
 
                     extracted_wheel_asset.use_one()?;
 
@@ -263,7 +331,7 @@ impl<
                         extracted_wheel_asset.clone(),
                     )?;
 
-                    Ok(extracted_wheel_asset.asset_type.token_prize_usd_amount())
+                    Ok(extracted_usd_amount)
                 },
             )
             .await?;
