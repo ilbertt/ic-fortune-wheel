@@ -1,7 +1,7 @@
-use common_types::fixtures::principal;
+use common_types::{fixtures::principal, TimestampFields};
 use rstest::*;
 
-use crate::repositories::{TimestampFields, UserProfile, UserRole};
+use crate::repositories::{UserProfile, UserRole};
 
 #[fixture]
 pub fn user_profile() -> UserProfile {

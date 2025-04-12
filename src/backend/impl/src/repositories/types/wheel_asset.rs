@@ -2,7 +2,7 @@ use std::{borrow::Cow, ops::RangeBounds};
 
 use backend_api::ApiError;
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use common_types::{get_current_date_time, DateTime, Uuid};
+use common_types::{get_current_date_time, DateTime, TimestampFields, Timestamped, Uuid};
 use ic_stable_structures::{
     storable::{Blob, Bound},
     Storable,
@@ -10,7 +10,7 @@ use ic_stable_structures::{
 
 use crate::FRONTEND_ASSETS_DIR;
 
-use super::{HttpAssetPath, TimestampFields, Timestamped};
+use super::HttpAssetPath;
 
 pub type WheelAssetId = Uuid;
 

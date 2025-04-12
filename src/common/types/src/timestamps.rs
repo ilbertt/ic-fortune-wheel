@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
+use crate::{get_current_date_time, DateTime};
 use candid::{CandidType, Decode, Deserialize, Encode};
-use common_types::{get_current_date_time, DateTime};
 use ic_stable_structures::{storable::Bound, Storable};
 
 pub trait Timestamped {

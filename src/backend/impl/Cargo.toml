@@ -21,7 +21,7 @@ ic-cdk.workspace = true
 ic-cdk-timers = "0.11"
 ic-stable-structures.workspace = true
 ic-asset-certification = "3.0"
-ic-http-certification = "3.0"
+ic-http-certification.workspace = true
 
 serde.workspace = true
 

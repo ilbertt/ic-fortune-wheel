@@ -1,10 +1,11 @@
 use std::cell::RefCell;
 
 use backend_api::ApiError;
+use common_types::Timestamped;
 
 use super::{
     init_wheel_asset_state_index, init_wheel_asset_type_index, init_wheel_assets,
-    init_wheel_prize_order_index, Timestamped, WheelAsset, WheelAssetId, WheelAssetMemory,
+    init_wheel_prize_order_index, WheelAsset, WheelAssetId, WheelAssetMemory,
     WheelAssetState as WheelAssetStateEnum, WheelAssetStateIndexMemory, WheelAssetStateKey,
     WheelAssetStateRange, WheelAssetType, WheelAssetTypeIndexMemory, WheelAssetTypeKey,
     WheelAssetTypeRange, WheelPrizeOrderMemory,

@@ -1,10 +1,10 @@
 use std::path::PathBuf;
 
+use common_types::TimestampFields;
 use rstest::*;
 
 use crate::repositories::{
-    HttpAssetPath, TimestampFields, WheelAsset, WheelAssetId, WheelAssetState, WheelAssetType,
-    WheelAssetUiSettings,
+    HttpAssetPath, WheelAsset, WheelAssetId, WheelAssetState, WheelAssetType, WheelAssetUiSettings,
 };
 
 #[fixture]

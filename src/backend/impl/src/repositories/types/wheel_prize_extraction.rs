@@ -2,13 +2,13 @@ use std::{borrow::Cow, fmt::Display, ops::RangeBounds};
 
 use backend_api::ApiError;
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use common_types::Uuid;
+use common_types::{TimestampFields, Timestamped, Uuid};
 use ic_stable_structures::{
     storable::{Blob, Bound},
     Storable,
 };
 
-use super::{TimestampFields, Timestamped, UserId, WheelAssetId};
+use super::{UserId, WheelAssetId};
 
 pub type WheelPrizeExtractionId = Uuid;
 

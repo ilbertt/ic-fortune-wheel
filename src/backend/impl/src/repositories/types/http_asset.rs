@@ -6,10 +6,8 @@ use std::{
 
 use backend_api::ApiError;
 use candid::{CandidType, Decode, Deserialize, Encode};
-use common_types::Uuid;
+use common_types::{TimestampFields, Timestamped, Uuid};
 use ic_stable_structures::{storable::Bound, Storable};
-
-use super::{TimestampFields, Timestamped};
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct HttpAssetPath(pub PathBuf);
