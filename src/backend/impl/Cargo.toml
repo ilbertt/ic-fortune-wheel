@@ -36,6 +36,6 @@ include_dir = "0.7"
 
 [dev-dependencies]
 candid_parser.workspace = true
-mockall = "0.13"
+mockall.workspace = true
 rstest.workspace = true
-async-std = { version = "1.13", features = ["attributes"] }
+async-std.workspace = true
