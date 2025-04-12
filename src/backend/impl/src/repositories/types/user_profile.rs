@@ -1,8 +1,8 @@
-use super::{TimestampFields, Timestamped, Uuid};
+use super::{TimestampFields, Timestamped};
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use ic_stable_structures::{storable::Bound, Storable};
 use std::borrow::Cow;
-
+use types::Uuid;
 pub type UserId = Uuid;
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq)]

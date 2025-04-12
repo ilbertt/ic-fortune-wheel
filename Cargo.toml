@@ -6,6 +6,7 @@ members = [
   "src/common/macros",
   "src/common/external_canisters",
   "src/common/system_api",
+  "src/common/types",
   "src/orchestrator/impl",
   "src/orchestrator/api",
 ]
@@ -15,6 +16,7 @@ resolver = "2"
 candid = "0.10"
 candid_parser = "0.2.0-beta.4"
 ic-cdk = "0.17"
+ic-stable-structures = "0.6"
 
 serde = "1.0"
 
@@ -22,8 +24,12 @@ rand = { version = "0.8", default-features = false }
 rand_chacha = { version = "0.3", default-features = false }
 
 chrono = { version = "0.4", default-features = false, features = ["std"] }
+uuid = "1.11"
 
 external_canisters = { path = "./src/common/external_canisters" }
 common_macros = { path = "./src/common/macros" }
 common_api = { path = "./src/common/api" }
 system_api = { path = "./src/common/system_api" }
+types = { path = "./src/common/types" }
+
+rstest = "0.23"

@@ -14,11 +14,12 @@ common_api.workspace = true
 common_macros.workspace = true
 external_canisters.workspace = true
 system_api.workspace = true
+types.workspace = true
 
 candid.workspace = true
 ic-cdk.workspace = true
 ic-cdk-timers = "0.11"
-ic-stable-structures = "0.6"
+ic-stable-structures.workspace = true
 ic-asset-certification = "3.0"
 ic-http-certification = "3.0"
 
@@ -28,7 +29,7 @@ rand.workspace = true
 rand_chacha.workspace = true
 
 chrono.workspace = true
-uuid = "1.11"
+uuid.workspace = true
 regex = "1.11"
 lazy_static = "1.5"
 include_dir = "0.7"
@@ -36,5 +37,5 @@ include_dir = "0.7"
 [dev-dependencies]
 candid_parser.workspace = true
 mockall = "0.13"
-rstest = "0.23"
+rstest.workspace = true
 async-std = { version = "1.13", features = ["attributes"] }

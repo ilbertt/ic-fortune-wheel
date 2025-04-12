@@ -1,12 +1,11 @@
 use backend_api::ApiError;
 use rstest::*;
+use types::fixtures::{principal, uuid};
 
 use crate::repositories::{
     TimestampFields, WheelPrizeExtraction, WheelPrizeExtractionOld, WheelPrizeExtractionState,
     WheelPrizeExtractionStateOld,
 };
-
-use super::{principal, uuid};
 
 #[fixture]
 pub fn wheel_prize_extraction() -> WheelPrizeExtraction {

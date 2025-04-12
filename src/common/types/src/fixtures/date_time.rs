@@ -1,4 +1,4 @@
-use crate::repositories::DateTime;
+use crate::DateTime;
 use chrono::{FixedOffset, NaiveDate, TimeZone, Utc};
 use rstest::*;
 

@@ -1,8 +1,8 @@
-use backend_api::ApiError;
 use candid::{
     types::{Serializer, Type, TypeInner},
     CandidType, Deserialize,
 };
+use common_api::ApiError;
 use ic_stable_structures::{storable::Bound, Storable};
 use std::{borrow::Cow, fmt::Display};
 use system_api::{get_unix_timestamp_millis, with_random_bytes};

@@ -6,10 +6,11 @@ use ic_stable_structures::{
     storable::{Blob, Bound},
     Storable,
 };
+use types::{get_current_date_time, DateTime, Uuid};
 
 use crate::FRONTEND_ASSETS_DIR;
 
-use super::{get_current_date_time, DateTime, HttpAssetPath, TimestampFields, Timestamped, Uuid};
+use super::{HttpAssetPath, TimestampFields, Timestamped};
 
 pub type WheelAssetId = Uuid;
 
@@ -583,14 +584,14 @@ pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fixtures;
-    use fixtures::{wheel_asset_gadget, wheel_asset_jackpot, wheel_asset_token};
+    use crate::fixtures::{wheel_asset_gadget, wheel_asset_jackpot, wheel_asset_token};
     use rstest::*;
+    use types::fixtures::uuid;
 
     #[rstest]
-    #[case::token(fixtures::wheel_asset_token())]
-    #[case::gadget(fixtures::wheel_asset_gadget())]
-    #[case::jackpot(fixtures::wheel_asset_jackpot())]
+    #[case::token(wheel_asset_token())]
+    #[case::gadget(wheel_asset_gadget())]
+    #[case::jackpot(wheel_asset_jackpot())]
     fn storable_impl(#[case] wheel_asset: WheelAsset) {
         let serialized_wheel_asset = wheel_asset.to_bytes();
         let deserialized_wheel_asset = WheelAsset::from_bytes(serialized_wheel_asset);
@@ -601,7 +602,7 @@ mod tests {
     #[rstest]
     fn wheel_asset_state_key_storable_impl() {
         let state = WheelAssetState::Enabled;
-        let wheel_asset_id = fixtures::uuid();
+        let wheel_asset_id = uuid();
 
         let key = WheelAssetStateKey::new(state, wheel_asset_id).unwrap();
 
@@ -612,12 +613,12 @@ mod tests {
     }
 
     #[rstest]
-    #[case::token(fixtures::wheel_asset_token())]
-    #[case::gadget(fixtures::wheel_asset_gadget())]
-    #[case::jackpot(fixtures::wheel_asset_jackpot())]
+    #[case::token(wheel_asset_token())]
+    #[case::gadget(wheel_asset_gadget())]
+    #[case::jackpot(wheel_asset_jackpot())]
     fn wheel_asset_type_key_storable_impl(#[case] wheel_asset: WheelAsset) {
         let asset_type = wheel_asset.asset_type;
-        let wheel_asset_id = fixtures::uuid();
+        let wheel_asset_id = uuid();
 
         let key = WheelAssetTypeKey::new(&asset_type, wheel_asset_id).unwrap();
 
@@ -832,8 +833,8 @@ mod tests {
     }
 
     #[rstest]
-    #[case::gadget(fixtures::wheel_asset_gadget())]
-    #[case::jackpot(fixtures::wheel_asset_jackpot())]
+    #[case::gadget(wheel_asset_gadget())]
+    #[case::jackpot(wheel_asset_jackpot())]
     fn use_one_others(#[case] mut wheel_asset: WheelAsset) {
         const TOTAL_AMOUNT: u32 = 2;
         wheel_asset.total_amount = TOTAL_AMOUNT;

@@ -1,0 +1,18 @@
+[package]
+name = "types"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+common_api.workspace = true
+system_api.workspace = true
+
+candid.workspace = true
+ic-cdk.workspace = true
+ic-stable-structures.workspace = true
+
+serde.workspace = true
+
+chrono.workspace = true
+uuid.workspace = true
+rstest.workspace = true

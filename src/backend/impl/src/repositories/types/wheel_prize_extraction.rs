@@ -6,8 +6,9 @@ use ic_stable_structures::{
     storable::{Blob, Bound},
     Storable,
 };
+use types::Uuid;
 
-use super::{TimestampFields, Timestamped, UserId, Uuid, WheelAssetId};
+use super::{TimestampFields, Timestamped, UserId, WheelAssetId};
 
 pub type WheelPrizeExtractionId = Uuid;
 
@@ -350,6 +351,7 @@ mod tests {
     use super::*;
     use crate::fixtures;
     use rstest::*;
+    use types::fixtures::uuid;
 
     #[rstest]
     #[case(fixtures::wheel_prize_extraction())]
@@ -422,7 +424,7 @@ mod tests {
     #[case::completed(WheelPrizeExtractionState::Completed { prize_usd_amount: Some(1.5) })]
     #[case::failed(WheelPrizeExtractionState::Failed { error: ApiError::internal("error") })]
     fn wheel_prize_extraction_state_key_storable_impl(#[case] state: WheelPrizeExtractionState) {
-        let wheel_prize_extraction_id = fixtures::uuid();
+        let wheel_prize_extraction_id = uuid();
         let key = WheelPrizeExtractionStateKey::new(&state, wheel_prize_extraction_id).unwrap();
         let serialized_key = key.to_bytes();
         let deserialized_key = WheelPrizeExtractionStateKey::from_bytes(serialized_key);
@@ -432,8 +434,8 @@ mod tests {
 
     #[rstest]
     fn wheel_prize_extraction_asset_id_key_storable_impl() {
-        let wheel_asset_id = fixtures::uuid();
-        let wheel_prize_extraction_id = fixtures::uuid();
+        let wheel_asset_id = uuid();
+        let wheel_prize_extraction_id = uuid();
         let key =
             WheelPrizeExtractionAssetIdKey::new(wheel_asset_id, wheel_prize_extraction_id).unwrap();
         let serialized_key = key.to_bytes();
@@ -444,8 +446,8 @@ mod tests {
 
     #[rstest]
     fn wheel_prize_extraction_user_id_key_storable_impl() {
-        let user_id = fixtures::uuid();
-        let wheel_prize_extraction_id = fixtures::uuid();
+        let user_id = uuid();
+        let wheel_prize_extraction_id = uuid();
         let key = WheelPrizeExtractionUserIdKey::new(user_id, wheel_prize_extraction_id).unwrap();
         let serialized_key = key.to_bytes();
         let deserialized_key = WheelPrizeExtractionUserIdKey::from_bytes(serialized_key);
