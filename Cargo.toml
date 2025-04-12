@@ -2,8 +2,11 @@
 members = [
   "src/backend/impl",
   "src/backend/api",
-  "src/backend/macros",
-  "src/backend/external_canisters",
+  "src/common/api",
+  "src/common/macros",
+  "src/common/external_canisters",
+  "src/orchestrator/impl",
+  "src/orchestrator/api",
 ]
 resolver = "2"
 
@@ -16,3 +19,7 @@ ic-xrc-types = "1.2"
 icrc-ledger-types = "0.1"
 
 serde = "1.0"
+
+external_canisters = { path = "./src/common/external_canisters" }
+common_macros = { path = "./src/common/macros" }
+common_api = { path = "./src/common/api" }

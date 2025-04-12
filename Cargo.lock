@@ -185,6 +185,7 @@ name = "backend_api"
 version = "0.1.0"
 dependencies = [
  "candid",
+ "common_api",
  "serde",
 ]
 
@@ -194,10 +195,11 @@ version = "0.1.0"
 dependencies = [
  "async-std",
  "backend_api",
- "backend_macros",
  "candid",
  "candid_parser",
  "chrono",
+ "common_api",
+ "common_macros",
  "external_canisters",
  "fastrand",
  "ic-asset-certification",
@@ -216,16 +218,6 @@ dependencies = [
  "rstest",
  "serde",
  "uuid",
-]
-
-[[package]]
-name = "backend_macros"
-version = "0.1.0"
-dependencies = [
- "backend_api",
- "ic-cdk",
- "quote",
- "syn 2.0.90",
 ]
 
 [[package]]
@@ -426,6 +418,24 @@ checksum = "3538270d33cc669650c4b093848450d380def10c331d38c768e34cac80576e6e"
 dependencies = [
  "termcolor",
  "unicode-width",
+]
+
+[[package]]
+name = "common_api"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "serde",
+]
+
+[[package]]
+name = "common_macros"
+version = "0.1.0"
+dependencies = [
+ "common_api",
+ "ic-cdk",
+ "quote",
+ "syn 2.0.90",
 ]
 
 [[package]]
@@ -1259,6 +1269,28 @@ name = "once_cell"
 version = "1.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1261fe7e33c73b354eab43b1273a57c8f967d0391e80353e51f764ac02cf6775"
+
+[[package]]
+name = "orchestrator_api"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "serde",
+]
+
+[[package]]
+name = "orchestrator_impl"
+version = "0.1.0"
+dependencies = [
+ "async-std",
+ "candid",
+ "candid_parser",
+ "external_canisters",
+ "ic-cdk",
+ "mockall",
+ "orchestrator_api",
+ "rstest",
+]
 
 [[package]]
 name = "parking"

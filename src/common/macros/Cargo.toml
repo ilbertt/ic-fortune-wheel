@@ -1,5 +1,5 @@
 [package]
-name = "backend_macros"
+name = "common_macros"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,7 +7,7 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-backend_api = { path = "../api" }
+common_api.workspace = true
 
 ic-cdk.workspace = true
 

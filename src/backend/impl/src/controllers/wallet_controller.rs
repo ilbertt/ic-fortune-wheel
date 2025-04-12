@@ -1,6 +1,6 @@
 use backend_api::{ApiError, ApiResult, TransferTokenRequest, TransferTokenResponse};
-use backend_macros::log_errors;
 use candid::{Nat, Principal};
+use common_macros::log_errors;
 use ic_cdk::{caller, update};
 
 use crate::{

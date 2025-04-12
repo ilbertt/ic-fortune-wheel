@@ -3,8 +3,8 @@ use backend_api::{
     GetMyUserProfileResponse, ListUsersResponse, UpdateMyUserProfileRequest,
     UpdateUserProfileRequest,
 };
-use backend_macros::log_errors;
 use candid::Principal;
+use common_macros::log_errors;
 use ic_cdk::{caller, query, update};
 
 use crate::{
