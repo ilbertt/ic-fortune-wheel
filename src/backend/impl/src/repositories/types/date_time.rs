@@ -6,8 +6,7 @@ use candid::{
 use chrono::{Datelike, Timelike};
 use ic_stable_structures::{storable::Bound, Storable};
 use std::{borrow::Cow, fmt::Display, str::FromStr};
-
-use crate::system_api::get_date_time;
+use system_api::get_date_time;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct DateTime(chrono::DateTime<chrono::Utc>);

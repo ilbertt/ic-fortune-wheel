@@ -5,6 +5,7 @@ members = [
   "src/common/api",
   "src/common/macros",
   "src/common/external_canisters",
+  "src/common/system_api",
   "src/orchestrator/impl",
   "src/orchestrator/api",
 ]
@@ -17,6 +18,12 @@ ic-cdk = "0.17"
 
 serde = "1.0"
 
+rand = { version = "0.8", default-features = false }
+rand_chacha = { version = "0.3", default-features = false }
+
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+
 external_canisters = { path = "./src/common/external_canisters" }
 common_macros = { path = "./src/common/macros" }
 common_api = { path = "./src/common/api" }
+system_api = { path = "./src/common/system_api" }

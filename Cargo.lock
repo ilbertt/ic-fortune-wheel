@@ -201,7 +201,6 @@ dependencies = [
  "common_api",
  "common_macros",
  "external_canisters",
- "fastrand",
  "ic-asset-certification",
  "ic-cdk 0.17.0",
  "ic-cdk-timers",
@@ -215,6 +214,7 @@ dependencies = [
  "regex",
  "rstest",
  "serde",
+ "system_api",
  "uuid",
 ]
 
@@ -2178,6 +2178,20 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "system_api"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "chrono",
+ "common_api",
+ "fastrand",
+ "ic-cdk 0.17.0",
+ "rand",
+ "rand_chacha",
+ "serde",
 ]
 
 [[package]]

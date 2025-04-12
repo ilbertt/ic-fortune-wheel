@@ -13,6 +13,7 @@ backend_api = { path = "../api" }
 common_api.workspace = true
 common_macros.workspace = true
 external_canisters.workspace = true
+system_api.workspace = true
 
 candid.workspace = true
 ic-cdk.workspace = true
@@ -23,11 +24,10 @@ ic-http-certification = "3.0"
 
 serde.workspace = true
 
-rand = { version = "0.8", default-features = false }
-rand_chacha = { version = "0.3", default-features = false }
-fastrand = "2.3"
+rand.workspace = true
+rand_chacha.workspace = true
 
-chrono = { version = "0.4", default-features = false, features = ["std"] }
+chrono.workspace = true
 uuid = "1.11"
 regex = "1.11"
 lazy_static = "1.5"

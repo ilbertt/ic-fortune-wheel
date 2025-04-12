@@ -8,6 +8,7 @@ use backend_api::{
 use candid::Principal;
 use ic_cdk::println;
 use rand::{distributions::Uniform, prelude::*};
+use system_api::chacha20_rng;
 
 use crate::{
     mappings::map_wheel_prize_extraction,
@@ -19,7 +20,6 @@ use crate::{
         WheelPrizeExtractionState,
     },
     services::{WalletService, WalletServiceImpl, WheelAssetService, WheelAssetServiceImpl},
-    system_api::chacha20_rng,
 };
 
 /// The minimum time duration to wait before enabling a new extraction for the same principal,
