@@ -12,9 +12,9 @@ crate-type = ["cdylib"]
 backend_api = { path = "../api" }
 common_api.workspace = true
 common_macros.workspace = true
+common_types.workspace = true
 external_canisters.workspace = true
 system_api.workspace = true
-types.workspace = true
 
 candid.workspace = true
 ic-cdk.workspace = true

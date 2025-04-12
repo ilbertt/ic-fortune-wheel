@@ -6,8 +6,8 @@ use std::{
 
 use backend_api::ApiError;
 use candid::{CandidType, Decode, Deserialize, Encode};
+use common_types::Uuid;
 use ic_stable_structures::{storable::Bound, Storable};
-use types::Uuid;
 
 use super::{TimestampFields, Timestamped};
 

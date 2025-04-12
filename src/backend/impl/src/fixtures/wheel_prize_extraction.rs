@@ -1,6 +1,6 @@
 use backend_api::ApiError;
+use common_types::fixtures::{principal, uuid};
 use rstest::*;
-use types::fixtures::{principal, uuid};
 
 use crate::repositories::{
     TimestampFields, WheelPrizeExtraction, WheelPrizeExtractionOld, WheelPrizeExtractionState,

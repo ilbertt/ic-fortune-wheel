@@ -2,11 +2,11 @@ use std::{borrow::Cow, fmt::Display, ops::RangeBounds};
 
 use backend_api::ApiError;
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
+use common_types::Uuid;
 use ic_stable_structures::{
     storable::{Blob, Bound},
     Storable,
 };
-use types::Uuid;
 
 use super::{TimestampFields, Timestamped, UserId, WheelAssetId};
 
@@ -350,8 +350,8 @@ impl Storable for WheelPrizeExtractionUserIdKey {
 mod tests {
     use super::*;
     use crate::fixtures;
+    use common_types::fixtures::uuid;
     use rstest::*;
-    use types::fixtures::uuid;
 
     #[rstest]
     #[case(fixtures::wheel_prize_extraction())]

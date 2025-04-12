@@ -1,8 +1,8 @@
 use std::borrow::Cow;
 
 use candid::{CandidType, Decode, Deserialize, Encode};
+use common_types::{get_current_date_time, DateTime};
 use ic_stable_structures::{storable::Bound, Storable};
-use types::{get_current_date_time, DateTime};
 
 pub trait Timestamped {
     fn update_timestamp(&mut self);

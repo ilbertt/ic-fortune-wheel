@@ -2,11 +2,11 @@ use std::{borrow::Cow, ops::RangeBounds};
 
 use backend_api::ApiError;
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
+use common_types::{get_current_date_time, DateTime, Uuid};
 use ic_stable_structures::{
     storable::{Blob, Bound},
     Storable,
 };
-use types::{get_current_date_time, DateTime, Uuid};
 
 use crate::FRONTEND_ASSETS_DIR;
 
@@ -585,8 +585,8 @@ pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
 mod tests {
     use super::*;
     use crate::fixtures::{wheel_asset_gadget, wheel_asset_jackpot, wheel_asset_token};
+    use common_types::fixtures::uuid;
     use rstest::*;
-    use types::fixtures::uuid;
 
     #[rstest]
     #[case::token(wheel_asset_token())]

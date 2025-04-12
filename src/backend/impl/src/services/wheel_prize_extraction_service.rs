@@ -6,10 +6,10 @@ use backend_api::{
     GetWheelPrizeExtractionsStatsResponse, ListWheelPrizeExtractionsResponse, TransferTokenRequest,
 };
 use candid::Principal;
+use common_types::elapsed_since;
 use ic_cdk::println;
 use rand::{distributions::Uniform, prelude::*};
 use system_api::chacha20_rng;
-use types::elapsed_since;
 
 use crate::{
     mappings::map_wheel_prize_extraction,

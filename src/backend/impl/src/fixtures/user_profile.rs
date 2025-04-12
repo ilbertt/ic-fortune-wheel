@@ -1,5 +1,5 @@
+use common_types::fixtures::principal;
 use rstest::*;
-use types::fixtures::principal;
 
 use crate::repositories::{TimestampFields, UserProfile, UserRole};
 
