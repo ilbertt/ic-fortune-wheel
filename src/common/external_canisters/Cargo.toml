@@ -12,7 +12,7 @@ serde_bytes = "0.11"
 
 ic-xrc-types = "1.2"
 icrc-ledger-types = "0.1"
-# The `station-api` is imported just to generate the `src/orbit_station/orbit_station_spec.rs` file.
+# The `station-api` is imported just to generate the `src/orbit_station/spec.rs` file.
 # See the `build.rs` file for more details.
 station-api = { git = "https://github.com/dfinity/orbit", tag = "@orbit/station-v0.5.0" }
 
