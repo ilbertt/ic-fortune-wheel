@@ -17,6 +17,7 @@ candid = "0.10"
 candid_parser = "0.2.0-beta.4"
 ic-cdk = "0.17"
 ic-stable-structures = "0.6"
+ic-http-certification = "3.0"
 
 serde = "1.0"
 
