@@ -14,6 +14,12 @@ pub struct TimestampFields {
     pub updated_at: DateTime,
 }
 
+impl Default for TimestampFields {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TimestampFields {
     pub fn new() -> Self {
         let now = get_current_date_time();
@@ -47,7 +53,7 @@ mod tests {
 
     #[rstest]
     fn storable_impl() {
-        let timestamps = TimestampFields::new();
+        let timestamps = TimestampFields::default();
         let serialized_user_timestamps = timestamps.to_bytes();
         let deserialized_user_timestamps = TimestampFields::from_bytes(serialized_user_timestamps);
 

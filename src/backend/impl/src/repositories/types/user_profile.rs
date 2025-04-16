@@ -24,7 +24,7 @@ impl UserProfile {
     pub fn new_unassigned(principal: Principal) -> Self {
         Self {
             username: "member".to_string(),
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
             role: UserRole::Unassigned,
             principal,
         }
@@ -33,7 +33,7 @@ impl UserProfile {
     pub fn new_admin(principal: Principal) -> Self {
         Self {
             username: "admin".to_string(),
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
             role: UserRole::Admin,
             principal,
         }

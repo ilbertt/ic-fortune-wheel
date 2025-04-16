@@ -7,7 +7,7 @@ use crate::repositories::{UserProfile, UserRole};
 pub fn user_profile() -> UserProfile {
     UserProfile {
         username: "ZurichExplorer2023".to_string(),
-        timestamps: TimestampFields::new(),
+        timestamps: TimestampFields::default(),
         role: UserRole::Scanner,
         principal: principal(),
     }

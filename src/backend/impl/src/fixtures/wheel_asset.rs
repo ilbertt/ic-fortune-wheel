@@ -24,7 +24,7 @@ pub fn wheel_asset_token() -> WheelAsset {
         wheel_ui_settings: WheelAssetUiSettings {
             background_color_hex: "#ffffff".to_string(),
         },
-        timestamps: TimestampFields::new(),
+        timestamps: TimestampFields::default(),
     }
 }
 
@@ -45,7 +45,7 @@ pub fn wheel_asset_gadget() -> WheelAsset {
         wheel_ui_settings: WheelAssetUiSettings {
             background_color_hex: "#ffffff".to_string(),
         },
-        timestamps: TimestampFields::new(),
+        timestamps: TimestampFields::default(),
     }
 }
 
@@ -71,6 +71,6 @@ pub fn wheel_asset_jackpot() -> WheelAsset {
         wheel_ui_settings: WheelAssetUiSettings {
             background_color_hex: "#ffffff".to_string(),
         },
-        timestamps: TimestampFields::new(),
+        timestamps: TimestampFields::default(),
     }
 }

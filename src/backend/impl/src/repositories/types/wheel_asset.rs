@@ -261,7 +261,7 @@ impl WheelAsset {
                 // default to light blue
                 background_color_hex: "#29ABE2".to_string(),
             }),
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
         }
     }
 
@@ -472,7 +472,7 @@ pub fn icp_wheel_asset() -> (WheelAsset, Vec<u8>) {
             wheel_ui_settings: WheelAssetUiSettings {
                 background_color_hex: "#29ABE2".to_string(),
             },
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
         },
         FRONTEND_ASSETS_DIR
             .get_file("images/tokens/icp.png")
@@ -505,7 +505,7 @@ pub fn ckbtc_wheel_asset() -> (WheelAsset, Vec<u8>) {
             wheel_ui_settings: WheelAssetUiSettings {
                 background_color_hex: "#F15A24".to_string(),
             },
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
         },
         FRONTEND_ASSETS_DIR
             .get_file("images/tokens/ckbtc.png")
@@ -538,7 +538,7 @@ pub fn cketh_wheel_asset() -> (WheelAsset, Vec<u8>) {
             wheel_ui_settings: WheelAssetUiSettings {
                 background_color_hex: "#ED1E79".to_string(),
             },
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
         },
         FRONTEND_ASSETS_DIR
             .get_file("images/tokens/cketh.png")
@@ -571,7 +571,7 @@ pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
             wheel_ui_settings: WheelAssetUiSettings {
                 background_color_hex: "#522785".to_string(),
             },
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
         },
         FRONTEND_ASSETS_DIR
             .get_file("images/tokens/ckusdc.png")

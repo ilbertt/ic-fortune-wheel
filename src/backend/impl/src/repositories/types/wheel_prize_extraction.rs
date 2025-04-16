@@ -131,7 +131,7 @@ impl WheelPrizeExtraction {
             extracted_for_principal,
             state: WheelPrizeExtractionState::Processing,
             extracted_by_user_id,
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
             wheel_asset_id: None,
         }
     }
