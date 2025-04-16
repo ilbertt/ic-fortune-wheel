@@ -24,7 +24,7 @@ pub fn log_errors(_attr: TokenStream, item: TokenStream) -> TokenStream {
             quote! {
                 #fn_async fn #fn_name(#fn_args) #fn_return_type {
                     let result = #block;
-                    if let backend_api::ApiResult::Err(ref e) = result {
+                    if let common_api::ApiResult::Err(ref e) = result {
                         ic_cdk::println!("Error: {}: {}", stringify!(#fn_name), e);
                     }
                     result

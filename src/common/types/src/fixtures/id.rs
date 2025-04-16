@@ -1,4 +1,4 @@
-use crate::repositories::Uuid;
+use crate::Uuid;
 use candid::Principal;
 use rstest::*;
 

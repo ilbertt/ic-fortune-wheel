@@ -1,0 +1,4 @@
+type Err = record {
+  code : nat16;
+  message : text;
+};

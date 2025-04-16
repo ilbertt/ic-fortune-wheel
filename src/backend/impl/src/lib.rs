@@ -10,7 +10,6 @@ mod controllers;
 mod mappings;
 mod repositories;
 mod services;
-mod system_api;
 
 #[cfg(test)]
 mod fixtures;

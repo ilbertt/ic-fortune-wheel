@@ -2,17 +2,37 @@
 members = [
   "src/backend/impl",
   "src/backend/api",
-  "src/backend/macros",
-  "src/backend/external_canisters",
+  "src/common/api",
+  "src/common/macros",
+  "src/common/external_canisters",
+  "src/common/system_api",
+  "src/common/types",
+  "src/orchestrator/impl",
+  "src/orchestrator/api",
 ]
 resolver = "2"
 
 [workspace.dependencies]
 candid = "0.10"
-candid_parser = "0.1"
+candid_parser = "0.2.0-beta.4"
 ic-cdk = "0.17"
-
-ic-xrc-types = "1.2"
-icrc-ledger-types = "0.1"
+ic-stable-structures = "0.6"
+ic-http-certification = "3.0"
 
 serde = "1.0"
+
+rand = { version = "0.8", default-features = false }
+rand_chacha = { version = "0.3", default-features = false }
+
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+uuid = "1.11"
+
+external_canisters = { path = "./src/common/external_canisters" }
+common_api = { path = "./src/common/api" }
+common_macros = { path = "./src/common/macros" }
+common_types = { path = "./src/common/types" }
+system_api = { path = "./src/common/system_api" }
+
+mockall = "0.13"
+rstest = "0.23"
+async-std = { version = "1.13", features = ["attributes"] }

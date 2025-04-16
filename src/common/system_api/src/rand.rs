@@ -1,4 +1,4 @@
-use backend_api::ApiError;
+use common_api::ApiError;
 use fastrand::Rng;
 use ic_cdk::api::management_canister::main::raw_rand;
 use rand::prelude::*;

@@ -1,10 +1,11 @@
 use backend_api::ApiError;
 use candid::Principal;
+use common_types::Timestamped;
 use std::cell::RefCell;
 
 use super::{
-    init_user_profile_principal_index, init_user_profiles, Timestamped, UserId, UserProfile,
-    UserProfileMemory, UserProfilePrincipalIndexMemory,
+    init_user_profile_principal_index, init_user_profiles, UserId, UserProfile, UserProfileMemory,
+    UserProfilePrincipalIndexMemory,
 };
 
 #[cfg_attr(test, mockall::automock)]

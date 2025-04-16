@@ -1,5 +1,5 @@
-use super::{TimestampFields, Timestamped, Uuid};
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
+use common_types::{TimestampFields, Timestamped, Uuid};
 use ic_stable_structures::{storable::Bound, Storable};
 use std::borrow::Cow;
 
@@ -24,7 +24,7 @@ impl UserProfile {
     pub fn new_unassigned(principal: Principal) -> Self {
         Self {
             username: "member".to_string(),
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
             role: UserRole::Unassigned,
             principal,
         }
@@ -33,7 +33,7 @@ impl UserProfile {
     pub fn new_admin(principal: Principal) -> Self {
         Self {
             username: "admin".to_string(),
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
             role: UserRole::Admin,
             principal,
         }

@@ -2,13 +2,14 @@ use std::cell::RefCell;
 
 use backend_api::ApiError;
 use candid::Principal;
+use common_types::Timestamped;
 
 use super::{
     init_wheel_prize_extraction_asset_id_index, init_wheel_prize_extraction_principal_index,
     init_wheel_prize_extraction_state_index, init_wheel_prize_extraction_user_id_index,
-    init_wheel_prize_extractions, Timestamped, WheelPrizeExtraction,
-    WheelPrizeExtractionAssetIdIndexMemory, WheelPrizeExtractionAssetIdKey, WheelPrizeExtractionId,
-    WheelPrizeExtractionMemory, WheelPrizeExtractionPrincipalIndexMemory,
+    init_wheel_prize_extractions, WheelPrizeExtraction, WheelPrizeExtractionAssetIdIndexMemory,
+    WheelPrizeExtractionAssetIdKey, WheelPrizeExtractionId, WheelPrizeExtractionMemory,
+    WheelPrizeExtractionPrincipalIndexMemory,
     WheelPrizeExtractionState as WheelPrizeExtractionStateEnum,
     WheelPrizeExtractionStateIndexMemory, WheelPrizeExtractionStateKey,
     WheelPrizeExtractionStateRange, WheelPrizeExtractionUserIdIndexMemory,

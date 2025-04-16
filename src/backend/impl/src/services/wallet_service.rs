@@ -1,9 +1,8 @@
 use backend_api::{ApiError, TransferTokenRequest};
 use candid::{Nat, Principal};
-use external_canisters::ledger::LedgerCanisterService;
+use external_canisters::ledger::{Account, LedgerCanisterService, TransferArg};
 use ic_cdk::println;
 use ic_stable_structures::Storable;
-use icrc_ledger_types::icrc1::{account::Account, transfer::TransferArg};
 
 use crate::repositories::{UserProfileRepository, UserProfileRepositoryImpl};
 

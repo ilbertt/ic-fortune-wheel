@@ -1,6 +1,7 @@
 use candid::Principal;
 use ic_cdk::{api::call::CallResult, call};
-use icrc_ledger_types::icrc1::{
+
+pub use icrc_ledger_types::icrc1::{
     account::Account,
     transfer::{BlockIndex, TransferArg, TransferError},
 };

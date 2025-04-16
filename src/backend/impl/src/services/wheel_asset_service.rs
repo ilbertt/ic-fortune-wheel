@@ -7,11 +7,12 @@ use backend_api::{
     UpdateWheelAssetRequest, UpdateWheelAssetTypeConfig, UpdateWheelPrizesOrderRequest,
     WheelAssetImageConfig, WheelAssetUiSettings,
 };
-use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
+use external_canisters::{
+    ledger::{Account, LedgerCanisterService},
+    xrc::{Asset, AssetClass, ExchangeRateCanisterService, GetExchangeRateRequest},
+};
 use ic_cdk::{println, spawn};
 use ic_cdk_timers::set_timer;
-use ic_xrc_types::{Asset, AssetClass, GetExchangeRateRequest};
-use icrc_ledger_types::icrc1::account::Account;
 use lazy_static::lazy_static;
 use regex::Regex;
 

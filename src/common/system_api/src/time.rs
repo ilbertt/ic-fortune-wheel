@@ -1,4 +1,4 @@
-use backend_api::ApiError;
+use common_api::ApiError;
 
 pub fn get_unix_timestamp_millis() -> u64 {
     #[cfg(target_family = "wasm")]

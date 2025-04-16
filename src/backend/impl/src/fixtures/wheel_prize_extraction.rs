@@ -1,12 +1,14 @@
 use backend_api::ApiError;
+use common_types::{
+    fixtures::{principal, uuid},
+    TimestampFields,
+};
 use rstest::*;
 
 use crate::repositories::{
-    TimestampFields, WheelPrizeExtraction, WheelPrizeExtractionOld, WheelPrizeExtractionState,
+    WheelPrizeExtraction, WheelPrizeExtractionOld, WheelPrizeExtractionState,
     WheelPrizeExtractionStateOld,
 };
-
-use super::{principal, uuid};
 
 #[fixture]
 pub fn wheel_prize_extraction() -> WheelPrizeExtraction {
@@ -16,7 +18,7 @@ pub fn wheel_prize_extraction() -> WheelPrizeExtraction {
             prize_usd_amount: Some(2.3),
         },
         extracted_by_user_id: uuid(),
-        timestamps: TimestampFields::new(),
+        timestamps: TimestampFields::default(),
         wheel_asset_id: Some(uuid()),
     }
 }
@@ -30,7 +32,7 @@ pub fn old_wheel_prize_extraction_completed() -> WheelPrizeExtractionOld {
             prize_usd_amount: Some(2.3),
         },
         extracted_by_user_id: uuid(),
-        timestamps: TimestampFields::new(),
+        timestamps: TimestampFields::default(),
     }
 }
 
@@ -43,7 +45,7 @@ pub fn old_wheel_prize_extraction_pending() -> WheelPrizeExtractionOld {
             prize_usd_amount: Some(2.3),
         },
         extracted_by_user_id: uuid(),
-        timestamps: TimestampFields::new(),
+        timestamps: TimestampFields::default(),
     }
 }
 
@@ -55,6 +57,6 @@ pub fn old_wheel_prize_extraction_failed() -> WheelPrizeExtractionOld {
             error: ApiError::internal("error"),
         },
         extracted_by_user_id: uuid(),
-        timestamps: TimestampFields::new(),
+        timestamps: TimestampFields::default(),
     }
 }

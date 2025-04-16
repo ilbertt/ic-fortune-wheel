@@ -10,32 +10,32 @@ crate-type = ["cdylib"]
 
 [dependencies]
 backend_api = { path = "../api" }
-backend_macros = { path = "../macros" }
-external_canisters = { path = "../external_canisters" }
+common_api.workspace = true
+common_macros.workspace = true
+common_types.workspace = true
+external_canisters.workspace = true
+system_api.workspace = true
 
 candid.workspace = true
 ic-cdk.workspace = true
 ic-cdk-timers = "0.11"
-ic-stable-structures = "0.6"
+ic-stable-structures.workspace = true
 ic-asset-certification = "3.0"
-ic-http-certification = "3.0"
-ic-xrc-types.workspace = true
-icrc-ledger-types.workspace = true
+ic-http-certification.workspace = true
 
 serde.workspace = true
 
-rand = { version = "0.8", default-features = false }
-rand_chacha = { version = "0.3", default-features = false }
-fastrand = "2.3"
+rand.workspace = true
+rand_chacha.workspace = true
 
-chrono = { version = "0.4", default-features = false, features = ["std"] }
-uuid = "1.11"
+chrono.workspace = true
+uuid.workspace = true
 regex = "1.11"
 lazy_static = "1.5"
 include_dir = "0.7"
 
 [dev-dependencies]
 candid_parser.workspace = true
-mockall = "0.13"
-rstest = "0.23"
-async-std = { version = "1.13", features = ["attributes"] }
+mockall.workspace = true
+rstest.workspace = true
+async-std.workspace = true

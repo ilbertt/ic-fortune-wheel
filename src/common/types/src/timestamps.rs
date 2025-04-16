@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use super::{get_current_date_time, DateTime};
+use crate::{get_current_date_time, DateTime};
 use candid::{CandidType, Decode, Deserialize, Encode};
 use ic_stable_structures::{storable::Bound, Storable};
 
@@ -12,6 +12,12 @@ pub trait Timestamped {
 pub struct TimestampFields {
     pub created_at: DateTime,
     pub updated_at: DateTime,
+}
+
+impl Default for TimestampFields {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TimestampFields {
@@ -47,7 +53,7 @@ mod tests {
 
     #[rstest]
     fn storable_impl() {
-        let timestamps = TimestampFields::new();
+        let timestamps = TimestampFields::default();
         let serialized_user_timestamps = timestamps.to_bytes();
         let deserialized_user_timestamps = TimestampFields::from_bytes(serialized_user_timestamps);
 

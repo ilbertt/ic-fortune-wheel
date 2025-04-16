@@ -2,7 +2,10 @@ use std::str::FromStr;
 
 use candid::Principal;
 use ic_cdk::{api::call::call_with_payment, println};
-use ic_xrc_types::{ExchangeRateError, GetExchangeRateRequest, GetExchangeRateResult, OtherError};
+
+pub use ic_xrc_types::{
+    Asset, AssetClass, ExchangeRateError, GetExchangeRateRequest, GetExchangeRateResult, OtherError,
+};
 
 const XRC_API_CYCLES_COST: u64 = 1_000_000_000;
 

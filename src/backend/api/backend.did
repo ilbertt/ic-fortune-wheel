@@ -1,7 +1,4 @@
-type Err = record {
-  code : nat16;
-  message : text;
-};
+import "../../common/api/common.did";
 
 type UserRole = variant {
   admin;

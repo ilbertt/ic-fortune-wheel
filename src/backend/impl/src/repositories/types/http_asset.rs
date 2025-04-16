@@ -6,9 +6,8 @@ use std::{
 
 use backend_api::ApiError;
 use candid::{CandidType, Decode, Deserialize, Encode};
+use common_types::{TimestampFields, Timestamped, Uuid};
 use ic_stable_structures::{storable::Bound, Storable};
-
-use super::{TimestampFields, Timestamped, Uuid};
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct HttpAssetPath(pub PathBuf);
@@ -61,7 +60,7 @@ impl HttpAsset {
         content_bytes: Vec<u8>,
     ) -> Result<(HttpAssetPath, Self), ApiError> {
         let path = parent_path.join(Uuid::new().to_string());
-        let timestamps = TimestampFields::new();
+        let timestamps = TimestampFields::default();
         let http_asset = HttpAsset {
             content_type,
             content_bytes,
@@ -100,7 +99,7 @@ mod tests {
         let http_asset = HttpAsset {
             content_type: "text/plain".to_string(),
             content_bytes: vec![1, 2, 3],
-            timestamps: TimestampFields::new(),
+            timestamps: TimestampFields::default(),
         };
         let serialized_http_asset = http_asset.to_bytes();
         let deserialized_http_asset = HttpAsset::from_bytes(serialized_http_asset);

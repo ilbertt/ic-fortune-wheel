@@ -1,0 +1,22 @@
+[package]
+name = "external_canisters"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+candid.workspace = true
+ic-cdk.workspace = true
+
+serde.workspace = true
+serde_bytes = "0.11"
+
+ic-xrc-types = "1.2"
+icrc-ledger-types = "0.1"
+
+[build-dependencies]
+candid_parser.workspace = true
+# The `station-api` is imported just to generate the `src/orbit_station/spec.rs` file.
+# See the `build.rs` file for more details.
+station-api = { git = "https://github.com/dfinity/orbit", tag = "@orbit/station-v0.5.0" }
+
+cargo_metadata = "0.19"
