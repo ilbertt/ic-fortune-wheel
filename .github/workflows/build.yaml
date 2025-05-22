@@ -1,0 +1,39 @@
+name: Build Canister
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Canister
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS
+        uses: ./.github/actions/setup-node
+
+      - name: Setup DFX
+        uses: dfinity/setup-dfx@main
+        with:
+          dfx-version: 'auto'
+
+      - name: Prepare dfx environment
+        run: |
+          dfx start --background --clean
+          dfx canister create --all --no-wallet
+
+      - name: Build canister
+        run: dfx build backend
+
+      - name: Upload Canister Wasm
+        uses: actions/upload-artifact@v4
+        with:
+          name: ic-fortune-wheel-canister-wasm
+          path: |
+            target/wasm32-unknown-unknown/release/backend_impl.wasm
+            .dfx/local/canisters/backend/backend.wasm.gz
