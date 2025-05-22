@@ -30,10 +30,15 @@ jobs:
       - name: Build canister
         run: dfx build backend
 
-      - name: Upload Canister Wasm
+      - name: Prepare canister Wasm files
+        run: |
+          cp ./target/wasm32-unknown-unknown/release/backend_impl.wasm backend.wasm
+          cp ./.dfx/local/canisters/backend/backend.wasm.gz backend.wasm.gz
+
+      - name: Upload canister Wasm
         uses: actions/upload-artifact@v4
         with:
-          name: ic-fortune-wheel-canister-wasm
+          name: ic-fortune-wheel-wasm-binaries
           path: |
-            target/wasm32-unknown-unknown/release/backend_impl.wasm
-            .dfx/local/canisters/backend/backend.wasm.gz
+            backend.wasm
+            backend.wasm.gz
