@@ -139,19 +139,29 @@ thread_local! {
     static STATE: RefCell<HttpAssetState<'static>> = RefCell::new(HttpAssetState::default());
 }
 
-mod static_assets {
+pub mod static_assets {
+    use std::path::{Path, PathBuf};
+
+    use backend_api::ApiError;
     use ic_asset_certification::{
         Asset, AssetConfig, AssetEncoding, AssetFallbackConfig, AssetRouter,
     };
     use ic_http_certification::{HeaderField, StatusCode};
     use include_dir::Dir;
 
+    use crate::repositories::{HttpAsset, HttpAssetPath};
+
     fn collect_assets<'content, 'path>(
         dir: &'content Dir<'path>,
         assets: &mut Vec<Asset<'content, 'path>>,
     ) {
         for file in dir.files() {
-            assets.push(Asset::new(file.path().to_string_lossy(), file.contents()));
+            let file_path = file.path();
+            if file_path.ends_with(".gitkeep") {
+                // do not expose .gitkeep files
+                continue;
+            }
+            assets.push(Asset::new(file_path.to_string_lossy(), file.contents()));
         }
 
         for dir in dir.dirs() {
@@ -162,7 +172,14 @@ mod static_assets {
     const IMMUTABLE_ASSET_CACHE_CONTROL: &str = "public, max-age=31536000, immutable";
     const NO_CACHE_ASSET_CACHE_CONTROL: &str = "public, no-cache, no-store";
 
-    pub fn certify_all_assets(asset_router: &mut AssetRouter<'static>) {
+    const WELL_KNOWN_PATH: &str = ".well-known";
+    const IC_DOMAINS_FILE_NAME: &str = "ic-domains";
+    const II_ALTERNATIVE_ORIGINS_FILE_NAME: &str = "ii-alternative-origins";
+
+    const CONTENT_TYPE_TEXT_PLAIN: &str = "text/plain";
+    const CONTENT_TYPE_APPLICATION_JSON: &str = "application/json";
+
+    pub(super) fn certify_all_assets(asset_router: &mut AssetRouter<'static>) {
         // 1. Define the asset certification configurations.
         let encodings = vec![
             AssetEncoding::Brotli.default_config(),
@@ -250,7 +267,7 @@ mod static_assets {
                 encodings: vec![],
             },
             AssetConfig::Pattern {
-                pattern: ".well-known/*".to_string(),
+                pattern: format!("{WELL_KNOWN_PATH}/*"),
                 content_type: None,
                 headers: super::get_asset_headers(vec![
                     access_control_allow_all_origins_header.clone()
@@ -258,8 +275,8 @@ mod static_assets {
                 encodings: vec![],
             },
             AssetConfig::File {
-                path: ".well-known/ii-alternative-origins".to_string(),
-                content_type: Some("application/json".to_string()),
+                path: well_known_ii_alternative_origins_path().to_string(),
+                content_type: Some(CONTENT_TYPE_APPLICATION_JSON.to_string()),
                 headers: super::get_asset_headers(vec![access_control_allow_all_origins_header]),
                 fallback_for: vec![],
                 aliased_by: vec![],
@@ -274,5 +291,42 @@ mod static_assets {
         if let Err(err) = asset_router.certify_assets(assets, asset_configs) {
             ic_cdk::trap(&format!("Failed to certify assets: {}", err));
         }
+    }
+
+    pub fn well_known_ic_domains_path() -> HttpAssetPath {
+        HttpAssetPath::new(PathBuf::from(WELL_KNOWN_PATH).join(IC_DOMAINS_FILE_NAME))
+    }
+
+    pub fn well_known_ii_alternative_origins_path() -> HttpAssetPath {
+        HttpAssetPath::new(PathBuf::from(WELL_KNOWN_PATH).join(II_ALTERNATIVE_ORIGINS_FILE_NAME))
+    }
+
+    pub fn create_well_known_ic_domains_file(
+        domain_name: &str,
+    ) -> Result<(HttpAssetPath, HttpAsset), ApiError> {
+        HttpAsset::new_at_path(
+            Path::new(WELL_KNOWN_PATH),
+            CONTENT_TYPE_TEXT_PLAIN.to_string(),
+            domain_name.as_bytes().to_vec(),
+            Some(IC_DOMAINS_FILE_NAME.to_string()),
+        )
+    }
+
+    pub fn create_well_known_ii_alternative_origins_file(
+        domain_name: &str,
+    ) -> Result<(HttpAssetPath, HttpAsset), ApiError> {
+        let ii_alternative_origins_content = format!(
+            r#"{{
+                "alternativeOrigins": ["{}"]
+            }}"#,
+            domain_name
+        );
+
+        HttpAsset::new_at_path(
+            Path::new(WELL_KNOWN_PATH),
+            CONTENT_TYPE_APPLICATION_JSON.to_string(),
+            ii_alternative_origins_content.as_bytes().to_vec(),
+            Some(II_ALTERNATIVE_ORIGINS_FILE_NAME.to_string()),
+        )
     }
 }

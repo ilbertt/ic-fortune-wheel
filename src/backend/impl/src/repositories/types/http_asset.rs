@@ -59,8 +59,9 @@ impl HttpAsset {
         parent_path: &Path,
         content_type: String,
         content_bytes: Vec<u8>,
+        file_name: Option<String>,
     ) -> Result<(HttpAssetPath, Self), ApiError> {
-        let path = parent_path.join(Uuid::new().to_string());
+        let path = parent_path.join(file_name.unwrap_or_else(|| Uuid::new().to_string()));
         let timestamps = TimestampFields::new();
         let http_asset = HttpAsset {
             content_type,
@@ -129,9 +130,13 @@ mod tests {
         let content_type = "text/plain".to_string();
         let content_bytes = vec![1, 2, 3];
 
-        let (path, http_asset) =
-            HttpAsset::new_at_path(&parent_path, content_type.clone(), content_bytes.clone())
-                .unwrap();
+        let (path, http_asset) = HttpAsset::new_at_path(
+            &parent_path,
+            content_type.clone(),
+            content_bytes.clone(),
+            None,
+        )
+        .unwrap();
 
         assert_eq!(http_asset.content_type, content_type);
         assert_eq!(http_asset.content_bytes, content_bytes);
@@ -142,5 +147,28 @@ mod tests {
         assert_eq!(uuid.len(), 36);
         let parsed_uuid = Uuid::parse_str(uuid).unwrap();
         assert!(!parsed_uuid.is_nil());
+    }
+
+    #[rstest]
+    fn http_asset_new_at_path_with_file_name() {
+        let parent_path = PathBuf::from("/tmp");
+        let content_type = "text/plain".to_string();
+        let content_bytes = vec![1, 2, 3];
+
+        let (path, http_asset) = HttpAsset::new_at_path(
+            &parent_path,
+            content_type.clone(),
+            content_bytes.clone(),
+            Some("test.txt".to_string()),
+        )
+        .unwrap();
+
+        assert_eq!(http_asset.content_type, content_type);
+        assert_eq!(http_asset.content_bytes, content_bytes);
+        assert!(path.as_path_buf().starts_with("/tmp/"));
+
+        // check that the generated uuid generated is valid and not empty
+        let file_name = path.as_path_buf().file_name().unwrap().to_str().unwrap();
+        assert_eq!(file_name, "test.txt");
     }
 }

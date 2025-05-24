@@ -78,8 +78,8 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
                 let state_range = WheelPrizeExtractionStateRange::new(state).unwrap();
                 s.wheel_prize_extraction_state_index
                     .range(state_range)
-                    .last()
-                    // SAFETY: wheel prize extraction with this id should always exist
+                    .next_back()
+                    // wheel prize extraction with this id should always exist
                     .map(|(_, id)| (id, s.wheel_prize_extractions.get(&id).unwrap()))
             }
             None => s.wheel_prize_extractions.last_key_value(),
@@ -93,7 +93,7 @@ impl WheelPrizeExtractionRepository for WheelPrizeExtractionRepositoryImpl {
         STATE.with_borrow(|s| {
             s.wheel_prize_extraction_principal_index
                 .get(principal)
-                // SAFETY: wheel prize extraction with this id should always exist
+                // wheel prize extraction with this id should always exist
                 .map(|id| (id, s.wheel_prize_extractions.get(&id).unwrap()))
         })
     }
