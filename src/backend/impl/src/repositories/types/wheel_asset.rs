@@ -584,7 +584,6 @@ pub fn ckusdc_wheel_asset() -> (WheelAsset, Vec<u8>) {
 mod tests {
     use super::*;
     use crate::fixtures;
-    use fixtures::{wheel_asset_gadget, wheel_asset_jackpot, wheel_asset_token};
     use rstest::*;
 
     #[rstest]
@@ -628,11 +627,8 @@ mod tests {
     }
 
     #[rstest]
-    #[case::icp(icp_wheel_asset())]
-    #[case::ckbtc(ckbtc_wheel_asset())]
-    #[case::cketh(cketh_wheel_asset())]
-    #[case::ckusdc(ckusdc_wheel_asset())]
-    fn wheel_asset_type_set_latest_price(#[case] (mut wheel_asset, _): (WheelAsset, Vec<u8>)) {
+    fn wheel_asset_type_set_latest_price() {
+        let mut wheel_asset = fixtures::wheel_asset_token();
         let usd_price = WheelAssetTokenPrice::new(42.42);
         wheel_asset.set_latest_price(usd_price.clone());
         let new_usd_price = match wheel_asset.asset_type {
@@ -643,11 +639,8 @@ mod tests {
     }
 
     #[rstest]
-    #[case::icp(icp_wheel_asset())]
-    #[case::ckbtc(ckbtc_wheel_asset())]
-    #[case::cketh(cketh_wheel_asset())]
-    #[case::ckusdc(ckusdc_wheel_asset())]
-    fn wheel_asset_type_set_latest_balance(#[case] (mut wheel_asset, _): (WheelAsset, Vec<u8>)) {
+    fn wheel_asset_type_set_latest_balance() {
+        let mut wheel_asset = fixtures::wheel_asset_token();
         let balance = WheelAssetTokenBalance::new(42);
         wheel_asset.set_latest_balance(balance.clone());
         let new_balance = match wheel_asset.asset_type {
@@ -658,9 +651,9 @@ mod tests {
     }
 
     #[rstest]
-    #[case::token((wheel_asset_token(), true))]
-    #[case::gadget((wheel_asset_gadget(), false))]
-    #[case::jackpot((wheel_asset_jackpot(), false))]
+    #[case::token((fixtures::wheel_asset_token(), true))]
+    #[case::gadget((fixtures::wheel_asset_gadget(), false))]
+    #[case::jackpot((fixtures::wheel_asset_jackpot(), false))]
     fn wheel_asset_is_token(#[case] (wheel_asset, expected_is_token): (WheelAsset, bool)) {
         assert_eq!(wheel_asset.is_token(), expected_is_token);
     }
@@ -682,7 +675,7 @@ mod tests {
             expected_draws,
         ): (u128, u8, f64, f64, u32),
     ) {
-        let mut wheel_asset = wheel_asset_token();
+        let mut wheel_asset = fixtures::wheel_asset_token();
         wheel_asset.set_latest_balance(WheelAssetTokenBalance::new(initial_balance));
         wheel_asset.set_latest_price(WheelAssetTokenPrice::new(initial_usd_price));
         match &mut wheel_asset.asset_type {
@@ -706,8 +699,8 @@ mod tests {
     }
 
     #[rstest]
-    #[case::gadget(wheel_asset_gadget())]
-    #[case::jackpot(wheel_asset_jackpot())]
+    #[case::gadget(fixtures::wheel_asset_gadget())]
+    #[case::jackpot(fixtures::wheel_asset_jackpot())]
     fn available_token_draws_count_others(#[case] wheel_asset: WheelAsset) {
         assert_eq!(wheel_asset.asset_type.available_token_draws_count(), None);
     }
@@ -732,7 +725,7 @@ mod tests {
         const PRIZE_USD_AMOUNT: f64 = PRICE_USD_AMOUNT;
         let balance = avail_token_draws * 10u128.pow(DECIMALS as u32);
 
-        let mut wheel_asset = wheel_asset_token();
+        let mut wheel_asset = fixtures::wheel_asset_token();
         wheel_asset.total_amount = total_amount;
         wheel_asset.used_amount = used_amount;
         wheel_asset.set_latest_balance(WheelAssetTokenBalance::new(balance));
@@ -759,12 +752,12 @@ mod tests {
     }
 
     #[rstest]
-    #[case::gadget((wheel_asset_gadget(), 100, 0, 100))]
-    #[case::gadget((wheel_asset_gadget(), 100, 101, 0))]
-    #[case::gadget((wheel_asset_gadget(), 100, 80, 20))]
-    #[case::jackpot((wheel_asset_jackpot(), 100, 0, 100))]
-    #[case::jackpot((wheel_asset_jackpot(), 100, 101, 0))]
-    #[case::jackpot((wheel_asset_jackpot(), 100, 80, 20))]
+    #[case::gadget((fixtures::wheel_asset_gadget(), 100, 0, 100))]
+    #[case::gadget((fixtures::wheel_asset_gadget(), 100, 101, 0))]
+    #[case::gadget((fixtures::wheel_asset_gadget(), 100, 80, 20))]
+    #[case::jackpot((fixtures::wheel_asset_jackpot(), 100, 0, 100))]
+    #[case::jackpot((fixtures::wheel_asset_jackpot(), 100, 101, 0))]
+    #[case::jackpot((fixtures::wheel_asset_jackpot(), 100, 80, 20))]
     fn available_quantity_others(
         #[case] (mut wheel_asset, total_amount, used_amount, expected_quantity): (
             WheelAsset,
@@ -798,7 +791,7 @@ mod tests {
         const PRIZE_USD_AMOUNT: f64 = PRICE_USD_AMOUNT;
         let balance = avail_token_draws * 10u128.pow(DECIMALS as u32);
 
-        let mut wheel_asset = wheel_asset_token();
+        let mut wheel_asset = fixtures::wheel_asset_token();
         wheel_asset.total_amount = total_amount;
         wheel_asset.used_amount = used_amount;
         wheel_asset.set_latest_balance(WheelAssetTokenBalance::new(balance));

@@ -341,6 +341,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
             Path::new(WHEEL_ASSET_IMAGES_HTTP_PATH),
             content_type,
             content_bytes,
+            None,
         )?;
         self.http_asset_repository
             .create_http_asset(http_asset_path.clone(), http_asset)?;
