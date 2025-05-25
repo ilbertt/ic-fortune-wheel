@@ -263,6 +263,20 @@ pub mod static_assets {
                 )]),
                 encodings: vec![],
             },
+            AssetConfig::Pattern {
+                pattern: format!("{WELL_KNOWN_PATH}/*"),
+                content_type: None,
+                headers: well_known_asset_headers(),
+                encodings: vec![],
+            },
+            AssetConfig::File {
+                path: format!("{WELL_KNOWN_PATH}/{II_ALTERNATIVE_ORIGINS_FILE_NAME}"),
+                content_type: Some("application/json".to_string()),
+                headers: well_known_asset_headers(),
+                fallback_for: vec![],
+                aliased_by: vec![],
+                encodings: vec![],
+            },
         ];
 
         // 2. Collect all assets from the frontend build directory.
@@ -298,10 +312,12 @@ pub mod static_assets {
     pub fn create_well_known_ic_domains_file(
         domain_name: &str,
     ) -> Result<(HttpAssetPath, HttpAsset), ApiError> {
+        let ic_domains_content = format!("{domain_name}\n");
+
         HttpAsset::new_at_path(
             Path::new(WELL_KNOWN_PATH),
             CONTENT_TYPE_TEXT_PLAIN.to_string(),
-            format!("{domain_name}\n").as_bytes().to_vec(),
+            ic_domains_content.as_bytes().to_vec(),
             well_known_asset_headers(),
             Some(IC_DOMAINS_FILE_NAME.to_string()),
         )
