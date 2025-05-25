@@ -27,7 +27,17 @@ function RouteComponent() {
           <CardHeader>
             <CardTitle>Custom Domain</CardTitle>
             <CardDescription>
-              Assign a custom domain to your wheel
+              Assign a custom domain to your wheel. For more information about
+              custom domains and how to configure your DNS, refer to the{' '}
+              <a
+                href="https://internetcomputer.org/docs/building-apps/frontends/custom-domains/using-custom-domains"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="clickable-link"
+              >
+                documentation
+              </a>
+              .
             </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-6 lg:grid-cols-3 2xl:grid-cols-4">

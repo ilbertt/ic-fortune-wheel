@@ -25,6 +25,11 @@ import { usePollAndUpdateCustomDomainRecord } from '@/hooks/use-poll-and-update-
 import { useCreateBnRegistration } from '@/hooks/use-create-bn-registration';
 import { useUpdateCustomDomainRecord } from '@/hooks/use-update-custom-domain-record';
 
+const ALTERNATIVE_URL =
+  import.meta.env.VITE_DFX_NETWORK === 'local'
+    ? `http://${canisterId}.localhost:4943`
+    : `https://${canisterId}.icp0.io`;
+
 const customDomainWebPage = (domainName: string): string =>
   `https://${domainName}`;
 
@@ -96,6 +101,16 @@ export const CustomDomainRecordRow: React.FC<{
         </Badge>
         <DeleteCustomDomainRecordModal record={record} />
       </div>
+      {state === 'registered' && (
+        <div>
+          <p className="text-muted-foreground text-sm">
+            Alternative URL:{' '}
+            <a href={ALTERNATIVE_URL} className="clickable-link font-mono">
+              {ALTERNATIVE_URL}
+            </a>
+          </p>
+        </div>
+      )}
       {state === 'not_started' && (
         <div className="mt-4">
           <p className="text-muted-foreground text-sm">

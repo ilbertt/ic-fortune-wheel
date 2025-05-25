@@ -7,6 +7,8 @@ import { isErr } from '@/lib/api';
 
 const BN_REGISTRATION_URL = 'https://icp0.io/registrations';
 
+const MOCK_API_ENABLED =
+  import.meta.env.DEV || import.meta.env.VITE_DFX_NETWORK === 'local';
 const MOCK_API_LATENCY_MS = 1_000;
 
 type CustomDomainRegistrationState =
@@ -44,7 +46,7 @@ export type GetBnRegistrationResponse = CustomDomainRegistration;
 export async function getBnRegistration(
   params: GetBnRegistrationRequestParams,
 ): Promise<GetBnRegistrationResponse> {
-  if (import.meta.env.DEV) {
+  if (MOCK_API_ENABLED) {
     return await mockGetBnRegistration(params);
   }
   try {
@@ -76,8 +78,8 @@ async function mockGetBnRegistration(
       resolve({
         name: 'mock-domain.com',
         canister: 'mock-canister',
-        state: 'PendingOrder',
         // uncomment to test other states
+        state: 'PendingOrder',
         // state: 'Available',
         // state: 'Failed',
         // state: 'PendingAcmeApproval',
@@ -111,7 +113,7 @@ export type CreateBnRegistrationResponse = {
 export async function createBnRegistration(
   params: CreateBnRegistrationRequestParams,
 ): Promise<CreateBnRegistrationResponse> {
-  if (import.meta.env.DEV) {
+  if (MOCK_API_ENABLED) {
     return await mockCreateBnRegistration(params);
   }
   try {
@@ -173,7 +175,7 @@ export type DeleteBnRegistrationRequestParams = {
 export async function deleteBnRegistration(
   params: DeleteBnRegistrationRequestParams,
 ): Promise<void> {
-  if (import.meta.env.DEV) {
+  if (MOCK_API_ENABLED) {
     return await mockDeleteBnRegistration(params);
   }
   try {
