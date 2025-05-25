@@ -11,7 +11,7 @@ import tailwindcss from '@tailwindcss/vite';
 const dfxEnvList = dotenvConfig({ path: '../../.env' }).parsed || {};
 const DFX_NETWORK = dfxEnvList.DFX_NETWORK;
 
-const { version } = JSON.parse(readFileSync('./package.json').toString());
+const { version } = JSON.parse(readFileSync('../../package.json').toString());
 const lastCommitShortSha = execSync('git rev-parse --short HEAD')
   .toString()
   .trim();
