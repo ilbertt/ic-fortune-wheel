@@ -81,10 +81,7 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({
                 {user && <UserRoleBadge userRole={user.role} />}
                 <p className="text-muted-foreground text-[0.8rem]">
                   The role can be changed by admins in the{' '}
-                  <Link
-                    to={TeamRoute.to}
-                    className="text-indaco-blue underline"
-                  >
+                  <Link to={TeamRoute.to} className="clickable-link">
                     Team
                   </Link>{' '}
                   page.

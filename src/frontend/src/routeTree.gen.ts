@@ -18,6 +18,7 @@ import { Route as authenticatedAdminImport } from './routes/(authenticated)/admi
 import { Route as authenticatedAdminIndexImport } from './routes/(authenticated)/admin/index'
 import { Route as authenticatedAdminUnassignedImport } from './routes/(authenticated)/admin/unassigned'
 import { Route as authenticatedAdminTeamImport } from './routes/(authenticated)/admin/team'
+import { Route as authenticatedAdminSettingsImport } from './routes/(authenticated)/admin/settings'
 import { Route as authenticatedAdminScannerImport } from './routes/(authenticated)/admin/scanner'
 import { Route as authenticatedAdminDesignImport } from './routes/(authenticated)/admin/design'
 import { Route as authenticatedAdminAssetsImport } from './routes/(authenticated)/admin/assets'
@@ -66,6 +67,14 @@ const authenticatedAdminTeamRoute = authenticatedAdminTeamImport.update({
   path: '/team',
   getParentRoute: () => authenticatedAdminRoute,
 } as any)
+
+const authenticatedAdminSettingsRoute = authenticatedAdminSettingsImport.update(
+  {
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => authenticatedAdminRoute,
+  } as any,
+)
 
 const authenticatedAdminScannerRoute = authenticatedAdminScannerImport.update({
   id: '/scanner',
@@ -138,6 +147,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authenticatedAdminScannerImport
       parentRoute: typeof authenticatedAdminImport
     }
+    '/(authenticated)/admin/settings': {
+      id: '/(authenticated)/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof authenticatedAdminSettingsImport
+      parentRoute: typeof authenticatedAdminImport
+    }
     '/(authenticated)/admin/team': {
       id: '/(authenticated)/admin/team'
       path: '/team'
@@ -168,6 +184,7 @@ interface authenticatedAdminRouteChildren {
   authenticatedAdminAssetsRoute: typeof authenticatedAdminAssetsRoute
   authenticatedAdminDesignRoute: typeof authenticatedAdminDesignRoute
   authenticatedAdminScannerRoute: typeof authenticatedAdminScannerRoute
+  authenticatedAdminSettingsRoute: typeof authenticatedAdminSettingsRoute
   authenticatedAdminTeamRoute: typeof authenticatedAdminTeamRoute
   authenticatedAdminUnassignedRoute: typeof authenticatedAdminUnassignedRoute
   authenticatedAdminIndexRoute: typeof authenticatedAdminIndexRoute
@@ -177,6 +194,7 @@ const authenticatedAdminRouteChildren: authenticatedAdminRouteChildren = {
   authenticatedAdminAssetsRoute: authenticatedAdminAssetsRoute,
   authenticatedAdminDesignRoute: authenticatedAdminDesignRoute,
   authenticatedAdminScannerRoute: authenticatedAdminScannerRoute,
+  authenticatedAdminSettingsRoute: authenticatedAdminSettingsRoute,
   authenticatedAdminTeamRoute: authenticatedAdminTeamRoute,
   authenticatedAdminUnassignedRoute: authenticatedAdminUnassignedRoute,
   authenticatedAdminIndexRoute: authenticatedAdminIndexRoute,
@@ -193,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/admin/assets': typeof authenticatedAdminAssetsRoute
   '/admin/design': typeof authenticatedAdminDesignRoute
   '/admin/scanner': typeof authenticatedAdminScannerRoute
+  '/admin/settings': typeof authenticatedAdminSettingsRoute
   '/admin/team': typeof authenticatedAdminTeamRoute
   '/admin/unassigned': typeof authenticatedAdminUnassignedRoute
   '/admin/': typeof authenticatedAdminIndexRoute
@@ -205,6 +224,7 @@ export interface FileRoutesByTo {
   '/admin/assets': typeof authenticatedAdminAssetsRoute
   '/admin/design': typeof authenticatedAdminDesignRoute
   '/admin/scanner': typeof authenticatedAdminScannerRoute
+  '/admin/settings': typeof authenticatedAdminSettingsRoute
   '/admin/team': typeof authenticatedAdminTeamRoute
   '/admin/unassigned': typeof authenticatedAdminUnassignedRoute
   '/admin': typeof authenticatedAdminIndexRoute
@@ -219,6 +239,7 @@ export interface FileRoutesById {
   '/(authenticated)/admin/assets': typeof authenticatedAdminAssetsRoute
   '/(authenticated)/admin/design': typeof authenticatedAdminDesignRoute
   '/(authenticated)/admin/scanner': typeof authenticatedAdminScannerRoute
+  '/(authenticated)/admin/settings': typeof authenticatedAdminSettingsRoute
   '/(authenticated)/admin/team': typeof authenticatedAdminTeamRoute
   '/(authenticated)/admin/unassigned': typeof authenticatedAdminUnassignedRoute
   '/(authenticated)/admin/': typeof authenticatedAdminIndexRoute
@@ -234,6 +255,7 @@ export interface FileRouteTypes {
     | '/admin/assets'
     | '/admin/design'
     | '/admin/scanner'
+    | '/admin/settings'
     | '/admin/team'
     | '/admin/unassigned'
     | '/admin/'
@@ -245,6 +267,7 @@ export interface FileRouteTypes {
     | '/admin/assets'
     | '/admin/design'
     | '/admin/scanner'
+    | '/admin/settings'
     | '/admin/team'
     | '/admin/unassigned'
     | '/admin'
@@ -257,6 +280,7 @@ export interface FileRouteTypes {
     | '/(authenticated)/admin/assets'
     | '/(authenticated)/admin/design'
     | '/(authenticated)/admin/scanner'
+    | '/(authenticated)/admin/settings'
     | '/(authenticated)/admin/team'
     | '/(authenticated)/admin/unassigned'
     | '/(authenticated)/admin/'
@@ -302,6 +326,7 @@ export const routeTree = rootRoute
         "/(authenticated)/admin/assets",
         "/(authenticated)/admin/design",
         "/(authenticated)/admin/scanner",
+        "/(authenticated)/admin/settings",
         "/(authenticated)/admin/team",
         "/(authenticated)/admin/unassigned",
         "/(authenticated)/admin/"
@@ -323,6 +348,10 @@ export const routeTree = rootRoute
     },
     "/(authenticated)/admin/scanner": {
       "filePath": "(authenticated)/admin/scanner.tsx",
+      "parent": "/(authenticated)/admin"
+    },
+    "/(authenticated)/admin/settings": {
+      "filePath": "(authenticated)/admin/settings.tsx",
       "parent": "/(authenticated)/admin"
     },
     "/(authenticated)/admin/team": {

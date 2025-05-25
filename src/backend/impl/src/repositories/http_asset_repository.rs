@@ -191,8 +191,6 @@ pub mod static_assets {
             // can be a session cookie, as we set it on every request
             format!("canisterId={}", ic_cdk::id().to_text()),
         );
-        let access_control_allow_all_origins_header: HeaderField =
-            ("access-control-allow-origin".to_string(), "*".to_string());
 
         let asset_configs = vec![
             AssetConfig::File {
@@ -269,15 +267,13 @@ pub mod static_assets {
             AssetConfig::Pattern {
                 pattern: format!("{WELL_KNOWN_PATH}/*"),
                 content_type: None,
-                headers: super::get_asset_headers(vec![
-                    access_control_allow_all_origins_header.clone()
-                ]),
+                headers: well_known_asset_headers(),
                 encodings: vec![],
             },
             AssetConfig::File {
                 path: well_known_ii_alternative_origins_path().to_string(),
                 content_type: Some(CONTENT_TYPE_APPLICATION_JSON.to_string()),
-                headers: super::get_asset_headers(vec![access_control_allow_all_origins_header]),
+                headers: well_known_asset_headers(),
                 fallback_for: vec![],
                 aliased_by: vec![],
                 encodings: vec![],
@@ -291,6 +287,16 @@ pub mod static_assets {
         if let Err(err) = asset_router.certify_assets(assets, asset_configs) {
             ic_cdk::trap(&format!("Failed to certify assets: {}", err));
         }
+    }
+
+    fn well_known_asset_headers() -> Vec<HeaderField> {
+        super::get_asset_headers(vec![
+            (
+                "cache-control".to_string(),
+                NO_CACHE_ASSET_CACHE_CONTROL.to_string(),
+            ),
+            ("access-control-allow-origin".to_string(), "*".to_string()),
+        ])
     }
 
     pub fn well_known_ic_domains_path() -> HttpAssetPath {
@@ -315,12 +321,8 @@ pub mod static_assets {
     pub fn create_well_known_ii_alternative_origins_file(
         domain_name: &str,
     ) -> Result<(HttpAssetPath, HttpAsset), ApiError> {
-        let ii_alternative_origins_content = format!(
-            r#"{{
-                "alternativeOrigins": ["{}"]
-            }}"#,
-            domain_name
-        );
+        let ii_alternative_origins_content =
+            format!("{{\"alternativeOrigins\": [\"https://{}\"]}}", domain_name);
 
         HttpAsset::new_at_path(
             Path::new(WELL_KNOWN_PATH),

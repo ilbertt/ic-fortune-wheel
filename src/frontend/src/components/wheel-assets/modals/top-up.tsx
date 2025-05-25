@@ -1,4 +1,4 @@
-import { CopyToClipboardButton } from '@/components/copy-to-clipboard-button';
+import { CopyToClipboardPre } from '@/components/copy-to-clipboard-pre';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -30,10 +30,10 @@ export const TopUpModal = () => {
             backend&apos;s canister principal:
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex flex-row flex-wrap items-center justify-center gap-2">
-          <pre>{canisterId}</pre>
-          <CopyToClipboardButton value={canisterId} />
-        </div>
+        <CopyToClipboardPre
+          value={canisterId}
+          className="flex-wrap justify-center"
+        />
         <AlertDialogFooter>
           <AlertDialogAction>I understand</AlertDialogAction>
         </AlertDialogFooter>

@@ -2,6 +2,9 @@ import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
+export interface CreateCustomDomainRecordRequest { 'domain_name' : string }
+export type CreateCustomDomainRecordResponse = { 'ok' : CustomDomainRecord } |
+  { 'err' : Err };
 export type CreateMyUserProfileResponse = { 'ok' : UserProfile } |
   { 'err' : Err };
 export interface CreateWheelAssetRequest {
@@ -25,6 +28,22 @@ export interface CreateWheelPrizeExtractionRequest {
   'extract_for_principal' : Principal,
 }
 export type CreateWheelPrizeExtractionResponse = { 'ok' : null } |
+  { 'err' : Err };
+export interface CustomDomainRecord {
+  'id' : string,
+  'updated_at' : string,
+  'domain_name' : string,
+  'created_at' : string,
+  'bn_registration_state' : CustomDomainRecordBnRegistrationState,
+}
+export type CustomDomainRecordBnRegistrationState = {
+    'pending' : { 'bn_registration_id' : string }
+  } |
+  { 'not_started' : null } |
+  { 'failed' : { 'bn_registration_id' : string, 'error_message' : string } } |
+  { 'registered' : { 'bn_registration_id' : string } };
+export interface DeleteCustomDomainRecordRequest { 'id' : string }
+export type DeleteCustomDomainRecordResponse = { 'ok' : null } |
   { 'err' : Err };
 export interface DeleteUserProfileRequest { 'user_id' : string }
 export type DeleteUserProfileResponse = { 'ok' : null } |
@@ -63,6 +82,10 @@ export interface HttpResponse {
   'headers' : Array<HeaderField>,
   'status_code' : number,
 }
+export type ListCustomDomainRecordsResponse = {
+    'ok' : Array<CustomDomainRecord>
+  } |
+  { 'err' : Err };
 export type ListUsersResponse = { 'ok' : Array<UserProfile> } |
   { 'err' : Err };
 export interface ListWheelAssetsRequest { 'state' : [] | [WheelAssetState] }
@@ -82,6 +105,12 @@ export interface TransferTokenRequest {
   'amount' : bigint,
 }
 export type TransferTokenResponse = { 'ok' : bigint } |
+  { 'err' : Err };
+export interface UpdateCustomDomainRecordRequest {
+  'id' : string,
+  'bn_registration_state' : CustomDomainRecordBnRegistrationState,
+}
+export type UpdateCustomDomainRecordResponse = { 'ok' : null } |
   { 'err' : Err };
 export interface UpdateMyUserProfileRequest { 'username' : [] | [string] }
 export type UpdateMyUserProfileResponse = { 'ok' : null } |
@@ -212,6 +241,10 @@ export interface WheelPrizeExtractionsStats {
   'total_spent_usd' : number,
 }
 export interface _SERVICE {
+  'create_custom_domain_record' : ActorMethod<
+    [CreateCustomDomainRecordRequest],
+    CreateCustomDomainRecordResponse
+  >,
   'create_my_user_profile' : ActorMethod<[], CreateMyUserProfileResponse>,
   'create_wheel_asset' : ActorMethod<
     [CreateWheelAssetRequest],
@@ -220,6 +253,10 @@ export interface _SERVICE {
   'create_wheel_prize_extraction' : ActorMethod<
     [CreateWheelPrizeExtractionRequest],
     CreateWheelPrizeExtractionResponse
+  >,
+  'delete_custom_domain_record' : ActorMethod<
+    [DeleteCustomDomainRecordRequest],
+    DeleteCustomDomainRecordResponse
   >,
   'delete_user_profile' : ActorMethod<
     [DeleteUserProfileRequest],
@@ -244,6 +281,10 @@ export interface _SERVICE {
     GetWheelPrizeExtractionsStatsResponse
   >,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
+  'list_custom_domain_records' : ActorMethod<
+    [],
+    ListCustomDomainRecordsResponse
+  >,
   'list_users' : ActorMethod<[], ListUsersResponse>,
   'list_wheel_assets' : ActorMethod<
     [ListWheelAssetsRequest],
@@ -256,6 +297,10 @@ export interface _SERVICE {
   'list_wheel_prizes' : ActorMethod<[], ListWheelPrizesResponse>,
   'set_default_wheel_assets' : ActorMethod<[], SetDefaultWheelAssetsResponse>,
   'transfer_token' : ActorMethod<[TransferTokenRequest], TransferTokenResponse>,
+  'update_custom_domain_record' : ActorMethod<
+    [UpdateCustomDomainRecordRequest],
+    UpdateCustomDomainRecordResponse
+  >,
   'update_my_user_profile' : ActorMethod<
     [UpdateMyUserProfileRequest],
     UpdateMyUserProfileResponse

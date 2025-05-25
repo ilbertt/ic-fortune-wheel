@@ -74,7 +74,7 @@ function RouteComponent() {
             </CardTitle>
             <CardDescription>
               You can change them in the{' '}
-              <Link to={AssetsRoute.to} className="text-indaco-blue underline">
+              <Link to={AssetsRoute.to} className="clickable-link">
                 Assets
               </Link>{' '}
               page. Drag and drop to reorder.
@@ -111,7 +111,7 @@ function RouteComponent() {
                 <Link
                   to={FwRoute.to}
                   target="_blank"
-                  className="text-indaco-blue underline"
+                  className="clickable-link"
                 >
                   here
                 </Link>

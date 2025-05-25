@@ -7,6 +7,7 @@ import {
   LogOut,
   PenLine,
   ScanLine,
+  Settings,
   Settings2,
   User,
   Users,
@@ -45,6 +46,7 @@ import { Route as TeamRoute } from '@/routes/(authenticated)/admin/team';
 import { Route as ScannerRoute } from '@/routes/(authenticated)/admin/scanner';
 import { Route as DesignRoute } from '@/routes/(authenticated)/admin/design';
 import { Route as AssetsRoute } from '@/routes/(authenticated)/admin/assets';
+import { Route as SettingsRoute } from '@/routes/(authenticated)/admin/settings';
 
 type HeaderLinkProps<
   TRouter extends RegisteredRouter = RegisteredRouter,
@@ -222,6 +224,16 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             title="Design"
             icon={Settings2}
             linkOptions={{ to: DesignRoute.to }}
+          />,
+        ]
+      : []),
+    ...(user?.isAdmin
+      ? [
+          <HeaderLink
+            key="dashboard-header-link-settings"
+            title="Settings"
+            icon={Settings}
+            linkOptions={{ to: SettingsRoute.to }}
           />,
         ]
       : []),
