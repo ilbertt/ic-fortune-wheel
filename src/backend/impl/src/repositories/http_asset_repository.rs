@@ -8,9 +8,6 @@ use ic_http_certification::{HeaderField, HttpRequest, HttpResponse};
 
 use super::{init_http_assets, HttpAsset, HttpAssetMemory, HttpAssetPath};
 
-/// 1 week public cache
-const ONE_HOUR_CACHE_CONTROL: &str = "public, max-age=604800, immutable";
-
 #[cfg_attr(test, mockall::automock)]
 pub trait HttpAssetRepository {
     fn certify_all_assets(&self) -> Result<(), ApiError>;
@@ -34,19 +31,20 @@ impl Default for HttpAssetRepositoryImpl {
 impl HttpAssetRepository for HttpAssetRepositoryImpl {
     fn certify_all_assets(&self) -> Result<(), ApiError> {
         STATE.with_borrow_mut(|s| {
-            // To avoid memory leaks, we delete all assets before re-certifying them.
+            // To avoid conflicts, we delete all assets before re-certifying them.
             s.router.delete_all_assets();
+
+            // First, we certify the static assets, so that if there are dynamic assets with the same path,
+            // the static assets will be overridden.
+            static_assets::certify_all_assets(&mut s.router);
 
             for (path, item) in s.http_assets.iter() {
                 let path = path.into_path_buf().to_string_lossy().to_string();
-                let asset = Asset::new(path.clone(), item.content_bytes.clone());
+                let asset = Asset::new(path.clone(), item.content_bytes);
                 let asset_config = AssetConfig::File {
                     path,
-                    content_type: Some(item.content_type.clone()),
-                    headers: get_asset_headers(vec![(
-                        "cache-control".to_string(),
-                        ONE_HOUR_CACHE_CONTROL.to_string(),
-                    )]),
+                    content_type: Some(item.content_type),
+                    headers: get_asset_headers(item.headers),
                     aliased_by: vec![],
                     fallback_for: vec![],
                     encodings: vec![AssetEncoding::Identity.default_config()],
@@ -56,8 +54,6 @@ impl HttpAssetRepository for HttpAssetRepositoryImpl {
                     .certify_assets(vec![asset], vec![asset_config])
                     .map_err(|e| ApiError::internal(&e.to_string()))?;
             }
-
-            static_assets::certify_all_assets(&mut s.router);
 
             set_certified_data(&s.router.root_hash());
 
@@ -149,7 +145,10 @@ pub mod static_assets {
     use ic_http_certification::{HeaderField, StatusCode};
     use include_dir::Dir;
 
-    use crate::repositories::{HttpAsset, HttpAssetPath};
+    use crate::repositories::{
+        HttpAsset, HttpAssetPath, ACCESS_CONTROL_ALLOW_ORIGIN_HEADER_NAME,
+        CACHE_CONTROL_HEADER_NAME,
+    };
 
     fn collect_assets<'content, 'path>(
         dir: &'content Dir<'path>,
@@ -172,7 +171,7 @@ pub mod static_assets {
     const IMMUTABLE_ASSET_CACHE_CONTROL: &str = "public, max-age=31536000, immutable";
     const NO_CACHE_ASSET_CACHE_CONTROL: &str = "public, no-cache, no-store";
 
-    const WELL_KNOWN_PATH: &str = ".well-known";
+    const WELL_KNOWN_PATH: &str = "/.well-known";
     const IC_DOMAINS_FILE_NAME: &str = "ic-domains";
     const II_ALTERNATIVE_ORIGINS_FILE_NAME: &str = "ii-alternative-origins";
 
@@ -198,7 +197,7 @@ pub mod static_assets {
                 content_type: Some("text/html".to_string()),
                 headers: super::get_asset_headers(vec![
                     (
-                        "cache-control".to_string(),
+                        CACHE_CONTROL_HEADER_NAME.to_string(),
                         NO_CACHE_ASSET_CACHE_CONTROL.to_string(),
                     ),
                     canister_id_cookie_header.clone(),
@@ -214,7 +213,7 @@ pub mod static_assets {
                 pattern: "**/*.js".to_string(),
                 content_type: Some("text/javascript".to_string()),
                 headers: super::get_asset_headers(vec![(
-                    "cache-control".to_string(),
+                    CACHE_CONTROL_HEADER_NAME.to_string(),
                     IMMUTABLE_ASSET_CACHE_CONTROL.to_string(),
                 )]),
                 encodings: encodings.clone(),
@@ -223,7 +222,7 @@ pub mod static_assets {
                 pattern: "**/*.css".to_string(),
                 content_type: Some("text/css".to_string()),
                 headers: super::get_asset_headers(vec![(
-                    "cache-control".to_string(),
+                    CACHE_CONTROL_HEADER_NAME.to_string(),
                     IMMUTABLE_ASSET_CACHE_CONTROL.to_string(),
                 )]),
                 encodings: encodings.clone(),
@@ -232,7 +231,7 @@ pub mod static_assets {
                 pattern: "**/*.png".to_string(),
                 content_type: Some("image/png".to_string()),
                 headers: super::get_asset_headers(vec![(
-                    "cache-control".to_string(),
+                    CACHE_CONTROL_HEADER_NAME.to_string(),
                     IMMUTABLE_ASSET_CACHE_CONTROL.to_string(),
                 )]),
                 encodings: encodings.clone(),
@@ -241,7 +240,7 @@ pub mod static_assets {
                 pattern: "**/*.svg".to_string(),
                 content_type: Some("image/svg+xml".to_string()),
                 headers: super::get_asset_headers(vec![(
-                    "cache-control".to_string(),
+                    CACHE_CONTROL_HEADER_NAME.to_string(),
                     IMMUTABLE_ASSET_CACHE_CONTROL.to_string(),
                 )]),
                 encodings: encodings.clone(),
@@ -250,7 +249,7 @@ pub mod static_assets {
                 pattern: "**/*.txt".to_string(),
                 content_type: Some("text/plain".to_string()),
                 headers: super::get_asset_headers(vec![(
-                    "cache-control".to_string(),
+                    CACHE_CONTROL_HEADER_NAME.to_string(),
                     IMMUTABLE_ASSET_CACHE_CONTROL.to_string(),
                 )]),
                 encodings,
@@ -259,23 +258,9 @@ pub mod static_assets {
                 pattern: "**/*.ico".to_string(),
                 content_type: Some("image/x-icon".to_string()),
                 headers: super::get_asset_headers(vec![(
-                    "cache-control".to_string(),
+                    CACHE_CONTROL_HEADER_NAME.to_string(),
                     IMMUTABLE_ASSET_CACHE_CONTROL.to_string(),
                 )]),
-                encodings: vec![],
-            },
-            AssetConfig::Pattern {
-                pattern: format!("{WELL_KNOWN_PATH}/*"),
-                content_type: None,
-                headers: well_known_asset_headers(),
-                encodings: vec![],
-            },
-            AssetConfig::File {
-                path: well_known_ii_alternative_origins_path().to_string(),
-                content_type: Some(CONTENT_TYPE_APPLICATION_JSON.to_string()),
-                headers: well_known_asset_headers(),
-                fallback_for: vec![],
-                aliased_by: vec![],
                 encodings: vec![],
             },
         ];
@@ -292,10 +277,13 @@ pub mod static_assets {
     fn well_known_asset_headers() -> Vec<HeaderField> {
         super::get_asset_headers(vec![
             (
-                "cache-control".to_string(),
+                CACHE_CONTROL_HEADER_NAME.to_string(),
                 NO_CACHE_ASSET_CACHE_CONTROL.to_string(),
             ),
-            ("access-control-allow-origin".to_string(), "*".to_string()),
+            (
+                ACCESS_CONTROL_ALLOW_ORIGIN_HEADER_NAME.to_string(),
+                "*".to_string(),
+            ),
         ])
     }
 
@@ -313,7 +301,8 @@ pub mod static_assets {
         HttpAsset::new_at_path(
             Path::new(WELL_KNOWN_PATH),
             CONTENT_TYPE_TEXT_PLAIN.to_string(),
-            domain_name.as_bytes().to_vec(),
+            format!("{domain_name}\n").as_bytes().to_vec(),
+            well_known_asset_headers(),
             Some(IC_DOMAINS_FILE_NAME.to_string()),
         )
     }
@@ -328,6 +317,7 @@ pub mod static_assets {
             Path::new(WELL_KNOWN_PATH),
             CONTENT_TYPE_APPLICATION_JSON.to_string(),
             ii_alternative_origins_content.as_bytes().to_vec(),
+            well_known_asset_headers(),
             Some(II_ALTERNATIVE_ORIGINS_FILE_NAME.to_string()),
         )
     }

@@ -123,19 +123,6 @@ export const CustomDomainRecordRow: React.FC<{
               </TableRow>
               <TableRow>
                 <TableCell>
-                  <CopyToClipboardPre value="TXT" />
-                </TableCell>
-                <TableCell>
-                  <CopyToClipboardPre
-                    value={`_canister_id.${record.domain_name}`}
-                  />
-                </TableCell>
-                <TableCell>
-                  <CopyToClipboardPre value={canisterId} />
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
                   <CopyToClipboardPre value="CNAME" />
                 </TableCell>
                 <TableCell>
@@ -144,7 +131,22 @@ export const CustomDomainRecordRow: React.FC<{
                   />
                 </TableCell>
                 <TableCell>
-                  <CopyToClipboardPre value={`${record.domain_name}.icp2.io`} />
+                  <CopyToClipboardPre
+                    value={`_acme-challenge.${record.domain_name}.icp2.io`}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <CopyToClipboardPre value="TXT" />
+                </TableCell>
+                <TableCell>
+                  <CopyToClipboardPre
+                    value={`_canister-id.${record.domain_name}`}
+                  />
+                </TableCell>
+                <TableCell>
+                  <CopyToClipboardPre value={canisterId} />
                 </TableCell>
               </TableRow>
             </TableBody>

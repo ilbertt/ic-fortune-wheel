@@ -6,15 +6,24 @@ use std::{
 
 use backend_api::ApiError;
 use candid::{CandidType, Decode, Deserialize, Encode};
+use ic_http_certification::HeaderField;
 use ic_stable_structures::{storable::Bound, Storable};
 
 use super::{TimestampFields, Timestamped, Uuid};
+
+pub const CACHE_CONTROL_HEADER_NAME: &str = "cache-control";
+/// 1 week public cache
+pub const ONE_WEEK_CACHE_CONTROL: &str = "public, max-age=604800, immutable";
+pub const ACCESS_CONTROL_ALLOW_ORIGIN_HEADER_NAME: &str = "access-control-allow-origin";
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct HttpAssetPath(pub PathBuf);
 
 impl HttpAssetPath {
-    pub fn new(path: PathBuf) -> Self {
+    pub fn new(mut path: PathBuf) -> Self {
+        if !path.starts_with("/") {
+            path = PathBuf::from("/").join(path);
+        }
         Self(path)
     }
 
@@ -47,9 +56,17 @@ impl Storable for HttpAssetPath {
 }
 
 #[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq)]
+pub struct HttpAssetLegacy {
+    pub content_type: String,
+    pub content_bytes: Vec<u8>,
+    pub timestamps: TimestampFields,
+}
+
+#[derive(Debug, CandidType, Deserialize, Clone, PartialEq, Eq)]
 pub struct HttpAsset {
     pub content_type: String,
     pub content_bytes: Vec<u8>,
+    pub headers: Vec<HeaderField>,
     pub timestamps: TimestampFields,
 }
 
@@ -59,6 +76,7 @@ impl HttpAsset {
         parent_path: &Path,
         content_type: String,
         content_bytes: Vec<u8>,
+        headers: Vec<HeaderField>,
         file_name: Option<String>,
     ) -> Result<(HttpAssetPath, Self), ApiError> {
         let path = parent_path.join(file_name.unwrap_or_else(|| Uuid::new().to_string()));
@@ -66,6 +84,7 @@ impl HttpAsset {
         let http_asset = HttpAsset {
             content_type,
             content_bytes,
+            headers,
             timestamps,
         };
         Ok((HttpAssetPath::new(path), http_asset))
@@ -84,7 +103,21 @@ impl Storable for HttpAsset {
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        Decode!(bytes.as_ref(), Self).unwrap()
+        match Decode!(bytes.as_ref(), Self) {
+            Ok(http_asset) => http_asset,
+            Err(_) => {
+                let http_asset_legacy = Decode!(bytes.as_ref(), HttpAssetLegacy).unwrap();
+                HttpAsset {
+                    content_type: http_asset_legacy.content_type,
+                    content_bytes: http_asset_legacy.content_bytes,
+                    headers: vec![(
+                        CACHE_CONTROL_HEADER_NAME.to_string(),
+                        ONE_WEEK_CACHE_CONTROL.to_string(),
+                    )],
+                    timestamps: http_asset_legacy.timestamps,
+                }
+            }
+        }
     }
 
     const BOUND: Bound = Bound::Unbounded;
@@ -102,11 +135,40 @@ mod tests {
             content_type: "text/plain".to_string(),
             content_bytes: vec![1, 2, 3],
             timestamps: TimestampFields::new(),
+            headers: vec![(
+                CACHE_CONTROL_HEADER_NAME.to_string(),
+                ONE_WEEK_CACHE_CONTROL.to_string(),
+            )],
         };
         let serialized_http_asset = http_asset.to_bytes();
         let deserialized_http_asset = HttpAsset::from_bytes(serialized_http_asset);
 
         assert_eq!(http_asset, deserialized_http_asset);
+    }
+
+    #[rstest]
+    fn http_asset_storable_impl_legacy() {
+        let timestamps = TimestampFields::new();
+        let http_asset_legacy = HttpAssetLegacy {
+            content_type: "text/plain".to_string(),
+            content_bytes: vec![1, 2, 3],
+            timestamps: timestamps.clone(),
+        };
+        let serialized_http_asset_legacy = Encode!(&http_asset_legacy).unwrap();
+        let http_asset = HttpAsset::from_bytes(Cow::Owned(serialized_http_asset_legacy));
+
+        assert_eq!(http_asset.content_type, http_asset_legacy.content_type);
+        assert_eq!(http_asset.content_bytes, http_asset_legacy.content_bytes);
+        assert_eq!(http_asset.headers.len(), 1);
+        assert_eq!(
+            http_asset.headers[0],
+            (
+                CACHE_CONTROL_HEADER_NAME.to_string(),
+                ONE_WEEK_CACHE_CONTROL.to_string(),
+            )
+        );
+        assert_eq!(http_asset.timestamps.created_at, timestamps.created_at);
+        assert_eq!(http_asset.timestamps.updated_at, timestamps.updated_at);
     }
 
     #[rstest]
@@ -129,17 +191,24 @@ mod tests {
         let parent_path = PathBuf::from("/tmp");
         let content_type = "text/plain".to_string();
         let content_bytes = vec![1, 2, 3];
+        let headers = vec![(
+            CACHE_CONTROL_HEADER_NAME.to_string(),
+            ONE_WEEK_CACHE_CONTROL.to_string(),
+        )];
 
         let (path, http_asset) = HttpAsset::new_at_path(
             &parent_path,
             content_type.clone(),
             content_bytes.clone(),
+            headers.clone(),
             None,
         )
         .unwrap();
 
         assert_eq!(http_asset.content_type, content_type);
         assert_eq!(http_asset.content_bytes, content_bytes);
+        assert_eq!(http_asset.headers.len(), 1);
+        assert_eq!(http_asset.headers[0], headers[0]);
         assert!(path.as_path_buf().starts_with("/tmp/"));
 
         // check that the generated uuid generated is valid and not empty
@@ -154,17 +223,24 @@ mod tests {
         let parent_path = PathBuf::from("/tmp");
         let content_type = "text/plain".to_string();
         let content_bytes = vec![1, 2, 3];
+        let headers = vec![(
+            CACHE_CONTROL_HEADER_NAME.to_string(),
+            ONE_WEEK_CACHE_CONTROL.to_string(),
+        )];
 
         let (path, http_asset) = HttpAsset::new_at_path(
             &parent_path,
             content_type.clone(),
             content_bytes.clone(),
+            headers.clone(),
             Some("test.txt".to_string()),
         )
         .unwrap();
 
         assert_eq!(http_asset.content_type, content_type);
         assert_eq!(http_asset.content_bytes, content_bytes);
+        assert_eq!(http_asset.headers.len(), 1);
+        assert_eq!(http_asset.headers[0], headers[0]);
         assert!(path.as_path_buf().starts_with("/tmp/"));
 
         // check that the generated uuid generated is valid and not empty
