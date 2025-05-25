@@ -1,5 +1,6 @@
 {
   "name": "ic-fortune-wheel",
+  "version": "0.3.0",
   "scripts": {
     "build": "pnpm -r run build",
     "prebuild": "pnpm -r run prebuild",
