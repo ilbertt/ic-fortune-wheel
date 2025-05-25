@@ -1,4 +1,28 @@
 export const idlFactory = ({ IDL }) => {
+  const CreateCustomDomainRecordRequest = IDL.Record({
+    'domain_name' : IDL.Text,
+  });
+  const CustomDomainRecordBnRegistrationState = IDL.Variant({
+    'pending' : IDL.Record({ 'bn_registration_id' : IDL.Text }),
+    'not_started' : IDL.Null,
+    'failed' : IDL.Record({
+      'bn_registration_id' : IDL.Text,
+      'error_message' : IDL.Text,
+    }),
+    'registered' : IDL.Record({ 'bn_registration_id' : IDL.Text }),
+  });
+  const CustomDomainRecord = IDL.Record({
+    'id' : IDL.Text,
+    'updated_at' : IDL.Text,
+    'domain_name' : IDL.Text,
+    'created_at' : IDL.Text,
+    'bn_registration_state' : CustomDomainRecordBnRegistrationState,
+  });
+  const Err = IDL.Record({ 'code' : IDL.Nat16, 'message' : IDL.Text });
+  const CreateCustomDomainRecordResponse = IDL.Variant({
+    'ok' : CustomDomainRecord,
+    'err' : Err,
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'scanner' : IDL.Null,
@@ -10,7 +34,6 @@ export const idlFactory = ({ IDL }) => {
     'role' : UserRole,
     'principal_id' : IDL.Principal,
   });
-  const Err = IDL.Record({ 'code' : IDL.Nat16, 'message' : IDL.Text });
   const CreateMyUserProfileResponse = IDL.Variant({
     'ok' : UserProfile,
     'err' : Err,
@@ -84,6 +107,11 @@ export const idlFactory = ({ IDL }) => {
     'ok' : IDL.Null,
     'err' : Err,
   });
+  const DeleteCustomDomainRecordRequest = IDL.Record({ 'id' : IDL.Text });
+  const DeleteCustomDomainRecordResponse = IDL.Variant({
+    'ok' : IDL.Null,
+    'err' : Err,
+  });
   const DeleteUserProfileRequest = IDL.Record({ 'user_id' : IDL.Text });
   const DeleteUserProfileResponse = IDL.Variant({
     'ok' : IDL.Null,
@@ -145,6 +173,10 @@ export const idlFactory = ({ IDL }) => {
     'headers' : IDL.Vec(HeaderField),
     'status_code' : IDL.Nat16,
   });
+  const ListCustomDomainRecordsResponse = IDL.Variant({
+    'ok' : IDL.Vec(CustomDomainRecord),
+    'err' : Err,
+  });
   const ListUsersResponse = IDL.Variant({
     'ok' : IDL.Vec(UserProfile),
     'err' : Err,
@@ -182,6 +214,14 @@ export const idlFactory = ({ IDL }) => {
     'amount' : IDL.Nat,
   });
   const TransferTokenResponse = IDL.Variant({ 'ok' : IDL.Nat, 'err' : Err });
+  const UpdateCustomDomainRecordRequest = IDL.Record({
+    'id' : IDL.Text,
+    'bn_registration_state' : CustomDomainRecordBnRegistrationState,
+  });
+  const UpdateCustomDomainRecordResponse = IDL.Variant({
+    'ok' : IDL.Null,
+    'err' : Err,
+  });
   const UpdateMyUserProfileRequest = IDL.Record({
     'username' : IDL.Opt(IDL.Text),
   });
@@ -245,6 +285,11 @@ export const idlFactory = ({ IDL }) => {
     'err' : Err,
   });
   return IDL.Service({
+    'create_custom_domain_record' : IDL.Func(
+        [CreateCustomDomainRecordRequest],
+        [CreateCustomDomainRecordResponse],
+        [],
+      ),
     'create_my_user_profile' : IDL.Func([], [CreateMyUserProfileResponse], []),
     'create_wheel_asset' : IDL.Func(
         [CreateWheelAssetRequest],
@@ -254,6 +299,11 @@ export const idlFactory = ({ IDL }) => {
     'create_wheel_prize_extraction' : IDL.Func(
         [CreateWheelPrizeExtractionRequest],
         [CreateWheelPrizeExtractionResponse],
+        [],
+      ),
+    'delete_custom_domain_record' : IDL.Func(
+        [DeleteCustomDomainRecordRequest],
+        [DeleteCustomDomainRecordResponse],
         [],
       ),
     'delete_user_profile' : IDL.Func(
@@ -284,6 +334,11 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
+    'list_custom_domain_records' : IDL.Func(
+        [],
+        [ListCustomDomainRecordsResponse],
+        ['query'],
+      ),
     'list_users' : IDL.Func([], [ListUsersResponse], ['query']),
     'list_wheel_assets' : IDL.Func(
         [ListWheelAssetsRequest],
@@ -304,6 +359,11 @@ export const idlFactory = ({ IDL }) => {
     'transfer_token' : IDL.Func(
         [TransferTokenRequest],
         [TransferTokenResponse],
+        [],
+      ),
+    'update_custom_domain_record' : IDL.Func(
+        [UpdateCustomDomainRecordRequest],
+        [UpdateCustomDomainRecordResponse],
         [],
       ),
     'update_my_user_profile' : IDL.Func(

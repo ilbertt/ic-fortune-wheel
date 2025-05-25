@@ -14,11 +14,5 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Prepare static assets
-        run: |
-          cd src/frontend
-          mkdir -p dist/images/tokens
-          cp -r public/images/tokens dist/images
-
       - name: Cargo test
         run: cargo test

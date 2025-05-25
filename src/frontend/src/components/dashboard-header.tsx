@@ -7,6 +7,7 @@ import {
   LogOut,
   PenLine,
   ScanLine,
+  Settings,
   Settings2,
   User,
   Users,
@@ -45,6 +46,7 @@ import { Route as TeamRoute } from '@/routes/(authenticated)/admin/team';
 import { Route as ScannerRoute } from '@/routes/(authenticated)/admin/scanner';
 import { Route as DesignRoute } from '@/routes/(authenticated)/admin/design';
 import { Route as AssetsRoute } from '@/routes/(authenticated)/admin/assets';
+import { Route as SettingsRoute } from '@/routes/(authenticated)/admin/settings';
 
 type HeaderLinkProps<
   TRouter extends RegisteredRouter = RegisteredRouter,
@@ -182,10 +184,10 @@ type DashboardHeaderProps = {
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   className,
 }) => {
-  const { isCurrentUserAdmin, isCurrentUserUnassigned } = useUser();
+  const { user } = useUser();
 
   const headerLinks = [
-    ...(!isCurrentUserUnassigned
+    ...(!user?.isUnassigned
       ? [
           <HeaderLink
             key="dashboard-header-link-dashboard"
@@ -195,7 +197,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           />,
         ]
       : []),
-    ...(isCurrentUserAdmin
+    ...(user?.isAdmin
       ? [
           <HeaderLink
             key="dashboard-header-link-assets"
@@ -205,7 +207,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           />,
         ]
       : []),
-    ...(isCurrentUserAdmin
+    ...(user?.isAdmin
       ? [
           <HeaderLink
             key="dashboard-header-link-team"
@@ -215,13 +217,23 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           />,
         ]
       : []),
-    ...(!isCurrentUserUnassigned
+    ...(!user?.isUnassigned
       ? [
           <HeaderLink
             key="dashboard-header-link-design"
             title="Design"
             icon={Settings2}
             linkOptions={{ to: DesignRoute.to }}
+          />,
+        ]
+      : []),
+    ...(user?.isAdmin
+      ? [
+          <HeaderLink
+            key="dashboard-header-link-settings"
+            title="Settings"
+            icon={Settings}
+            linkOptions={{ to: SettingsRoute.to }}
           />,
         ]
       : []),
@@ -241,7 +253,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {headerLinks}
         </div>
         <div className="flex flex-row items-center justify-end gap-6">
-          {!isCurrentUserUnassigned && (
+          {!user?.isUnassigned && (
             <Button variant="border-gradient" asChild>
               <Link to={ScannerRoute.to}>
                 <ScanLine /> Scanner

@@ -1,3 +1,4 @@
+mod custom_domain_record;
 mod date_time;
 mod http_asset;
 mod timestamps;
@@ -6,6 +7,7 @@ mod uuid;
 mod wheel_asset;
 mod wheel_prize_extraction;
 
+pub use custom_domain_record::*;
 pub use date_time::*;
 pub use http_asset::*;
 pub use timestamps::*;

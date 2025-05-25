@@ -35,3 +35,13 @@ export const extractErr = <T>(result: GenericResult<T>): Err => {
     throw new Error('Unexpected response');
   }
 };
+
+export const isErr = (e: unknown): e is Err => {
+  return (
+    typeof e === 'object' &&
+    e !== null &&
+    Object.keys(e).length === 2 &&
+    'message' in e &&
+    'code' in e
+  );
+};

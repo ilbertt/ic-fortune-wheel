@@ -1,3 +1,4 @@
+mod custom_domain_record_controller;
 mod http_controller;
 mod init_controller;
 mod user_profile_controller;

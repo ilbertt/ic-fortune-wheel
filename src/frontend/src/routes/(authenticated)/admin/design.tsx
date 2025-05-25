@@ -30,7 +30,7 @@ import { useWheelPrizesWithProbability } from '@/hooks/use-wheel-prizes-with-pro
 import { Route as FwRoute } from '@/routes/(unauthenticated)/fw';
 import { Route as AssetsRoute } from '@/routes/(authenticated)/admin/assets';
 
-export const Route = createFileRoute('/(authenticated)/admin/design/')({
+export const Route = createFileRoute('/(authenticated)/admin/design')({
   component: () => {
     return (
       <WheelPrizesProvider>
@@ -74,7 +74,7 @@ function RouteComponent() {
             </CardTitle>
             <CardDescription>
               You can change them in the{' '}
-              <Link to={AssetsRoute.to} className="text-indaco-blue underline">
+              <Link to={AssetsRoute.to} className="clickable-link">
                 Assets
               </Link>{' '}
               page. Drag and drop to reorder.
@@ -111,7 +111,7 @@ function RouteComponent() {
                 <Link
                   to={FwRoute.to}
                   target="_blank"
-                  className="text-indaco-blue underline"
+                  className="clickable-link"
                 >
                   here
                 </Link>

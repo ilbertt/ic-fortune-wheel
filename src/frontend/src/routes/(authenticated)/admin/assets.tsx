@@ -46,7 +46,7 @@ import { useCreateDefaultAssets } from '@/hooks/use-create-default-assets';
 import type { WheelAsset } from '@/declarations/backend/backend.did';
 import { useRefreshTokenAssets } from '@/hooks/use-refresh-token-assets';
 
-export const Route = createFileRoute('/(authenticated)/admin/assets/')({
+export const Route = createFileRoute('/(authenticated)/admin/assets')({
   component: RouteComponent,
 });
 

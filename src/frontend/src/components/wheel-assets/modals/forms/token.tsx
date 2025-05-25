@@ -388,7 +388,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
                     <a
                       href="https://github.com/dfinity/exchange-rate-canister"
                       target="_blank"
-                      className="text-indaco-blue underline"
+                      className="clickable-link"
                     >
                       XRC canister
                     </a>

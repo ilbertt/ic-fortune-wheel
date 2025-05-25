@@ -8,7 +8,7 @@ import { Volume2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useCreateWheelPrizeExtraction } from '@/hooks/use-create-wheel-prize-extraction';
 
-export const Route = createFileRoute('/(authenticated)/admin/scanner/')({
+export const Route = createFileRoute('/(authenticated)/admin/scanner')({
   component: RouteComponent,
 });
 

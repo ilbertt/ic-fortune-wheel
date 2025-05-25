@@ -15,7 +15,7 @@ export const useWheelAssets = <T>(
   select?: (data: Array<WheelAsset>) => T,
 ): UseWheelAssetsReturnType<T> => {
   const { actor } = useAuth();
-  const { isCurrentUserAdmin } = useUser();
+  const { user } = useUser();
 
   const { data, isLoading: fetchingAssets } = useQuery({
     queryKey: ['wheel-assets'],
@@ -23,7 +23,7 @@ export const useWheelAssets = <T>(
       const response = await actor!.list_wheel_assets({ state: [] });
       return extractOk(response);
     },
-    enabled: !!actor && isCurrentUserAdmin,
+    enabled: !!actor && user?.isAdmin,
     select: select,
     refetchInterval: FETCH_WHEEL_ASSETS_INTERVAL_MS,
     meta: {

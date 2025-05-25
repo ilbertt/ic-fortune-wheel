@@ -115,7 +115,7 @@ export const ImagesFormFields = () => {
             <a
               href="https://tinypng.com/"
               target="_blank"
-              className="text-indaco-blue underline"
+              className="clickable-link"
             >
               Tinify
             </a>{' '}

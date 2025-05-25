@@ -313,6 +313,61 @@ type GetWheelPrizeExtractionsStatsResponse = variant {
   err : Err;
 };
 
+type CustomDomainRecordBnRegistrationState = variant {
+  not_started;
+  pending : record {
+    bn_registration_id : text;
+  };
+  registered : record {
+    bn_registration_id : text;
+  };
+  failed : record {
+    bn_registration_id : text;
+    error_message : text;
+  };
+};
+
+type CustomDomainRecord = record {
+  id : text;
+  domain_name : text;
+  bn_registration_state : CustomDomainRecordBnRegistrationState;
+  created_at : text;
+  updated_at : text;
+};
+
+type CreateCustomDomainRecordRequest = record {
+  domain_name : text;
+};
+
+type CreateCustomDomainRecordResponse = variant {
+  ok : CustomDomainRecord;
+  err : Err;
+};
+
+type UpdateCustomDomainRecordRequest = record {
+  id : text;
+  bn_registration_state : CustomDomainRecordBnRegistrationState;
+};
+
+type UpdateCustomDomainRecordResponse = variant {
+  ok;
+  err : Err;
+};
+
+type ListCustomDomainRecordsResponse = variant {
+  ok : vec CustomDomainRecord;
+  err : Err;
+};
+
+type DeleteCustomDomainRecordRequest = record {
+  id : text;
+};
+
+type DeleteCustomDomainRecordResponse = variant {
+  ok;
+  err : Err;
+};
+
 // HTTP
 type HeaderField = record { text; text };
 
@@ -356,6 +411,11 @@ service : {
   get_wheel_prize_extractions_stats: () -> (GetWheelPrizeExtractionsStatsResponse) query;
 
   transfer_token: (TransferTokenRequest) -> (TransferTokenResponse);
+
+  create_custom_domain_record: (CreateCustomDomainRecordRequest) -> (CreateCustomDomainRecordResponse);
+  update_custom_domain_record: (UpdateCustomDomainRecordRequest) -> (UpdateCustomDomainRecordResponse);
+  delete_custom_domain_record: (DeleteCustomDomainRecordRequest) -> (DeleteCustomDomainRecordResponse);
+  list_custom_domain_records: () -> (ListCustomDomainRecordsResponse) query;
 
   // HTTP
   http_request : (request : HttpRequest) -> (HttpResponse) query;

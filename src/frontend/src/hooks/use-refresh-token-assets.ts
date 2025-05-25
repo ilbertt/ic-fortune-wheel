@@ -6,12 +6,12 @@ import { extractOk } from '@/lib/api';
 
 export const useRefreshTokenAssets = () => {
   const { actor } = useAuth();
-  const { isCurrentUserAdmin } = useUser();
+  const { user } = useUser();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      if (!isCurrentUserAdmin) {
+      if (!user || !user.isAdmin) {
         return;
       }
       await actor!

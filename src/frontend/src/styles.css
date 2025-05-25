@@ -200,3 +200,9 @@ layer(base);
     color-mix(in hsl, var(--color-dark-infinite) 25%, transparent)
   );
 }
+
+@layer components {
+  .clickable-link {
+    @apply text-indaco-blue underline;
+  }
+}

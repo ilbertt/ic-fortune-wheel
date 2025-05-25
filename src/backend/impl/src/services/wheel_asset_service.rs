@@ -21,7 +21,7 @@ use crate::{
         ckbtc_wheel_asset, cketh_wheel_asset, ckusdc_wheel_asset, icp_wheel_asset, HttpAsset,
         HttpAssetRepository, HttpAssetRepositoryImpl, WheelAsset, WheelAssetId,
         WheelAssetRepository, WheelAssetRepositoryImpl, WheelAssetState, WheelAssetTokenBalance,
-        WheelAssetTokenPrice, WheelAssetType,
+        WheelAssetTokenPrice, WheelAssetType, CACHE_CONTROL_HEADER_NAME, ONE_WEEK_CACHE_CONTROL,
     },
 };
 
@@ -341,6 +341,11 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetService
             Path::new(WHEEL_ASSET_IMAGES_HTTP_PATH),
             content_type,
             content_bytes,
+            vec![(
+                CACHE_CONTROL_HEADER_NAME.to_string(),
+                ONE_WEEK_CACHE_CONTROL.to_string(),
+            )],
+            None,
         )?;
         self.http_asset_repository
             .create_http_asset(http_asset_path.clone(), http_asset)?;
