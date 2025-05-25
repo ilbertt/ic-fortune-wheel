@@ -3,11 +3,20 @@ import { DashboardHeader } from '@/components/dashboard-header';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/hooks/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Route as LoginRoute } from '@/routes/(unauthenticated)/login';
+import { Route as UnassignedRoute } from '@/routes/(authenticated)/admin/unassigned';
 
 export const Route = createFileRoute('/(authenticated)/admin')({
-  beforeLoad: ({ context }) => {
+  beforeLoad: ({ context, location }) => {
     if (!context.auth.isAuthenticated) {
-      throw redirect({ to: '/login' });
+      throw redirect({ to: LoginRoute.to, replace: true });
+    }
+    if (
+      context.user &&
+      context.user.isUnassigned &&
+      !location.pathname.startsWith(UnassignedRoute.to)
+    ) {
+      throw redirect({ to: UnassignedRoute.to, replace: true });
     }
   },
   component: RouteComponent,

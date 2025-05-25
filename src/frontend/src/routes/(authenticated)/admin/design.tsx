@@ -30,7 +30,7 @@ import { useWheelPrizesWithProbability } from '@/hooks/use-wheel-prizes-with-pro
 import { Route as FwRoute } from '@/routes/(unauthenticated)/fw';
 import { Route as AssetsRoute } from '@/routes/(authenticated)/admin/assets';
 
-export const Route = createFileRoute('/(authenticated)/admin/design/')({
+export const Route = createFileRoute('/(authenticated)/admin/design')({
   component: () => {
     return (
       <WheelPrizesProvider>

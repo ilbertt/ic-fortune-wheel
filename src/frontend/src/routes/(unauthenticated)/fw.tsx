@@ -7,7 +7,7 @@ import { useWheelPrizes, WheelPrizesProvider } from '@/hooks/use-wheel-prizes';
 import { useWheelData } from '@/hooks/use-wheel-data';
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/(unauthenticated)/fw/')({
+export const Route = createFileRoute('/(unauthenticated)/fw')({
   component: () => {
     return (
       <WheelPrizesProvider>

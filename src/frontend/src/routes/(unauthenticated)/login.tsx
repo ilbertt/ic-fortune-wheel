@@ -1,11 +1,12 @@
 import { AuthForm } from '@/components/auth-form';
 import { Logo } from '@/components/logo';
 import { createFileRoute, redirect } from '@tanstack/react-router';
+import { Route as AdminRoute } from '@/routes/(authenticated)/admin';
 
-export const Route = createFileRoute('/(unauthenticated)/login/')({
+export const Route = createFileRoute('/(unauthenticated)/login')({
   beforeLoad: ({ context }) => {
     if (context.auth.isAuthenticated) {
-      throw redirect({ to: '/admin' });
+      throw redirect({ to: AdminRoute.to, replace: true });
     }
   },
   component: RouteComponent,

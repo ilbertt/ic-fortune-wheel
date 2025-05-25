@@ -12,14 +12,15 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as unauthenticatedLoginImport } from './routes/(unauthenticated)/login'
+import { Route as unauthenticatedFwImport } from './routes/(unauthenticated)/fw'
 import { Route as authenticatedAdminImport } from './routes/(authenticated)/admin'
-import { Route as unauthenticatedLoginIndexImport } from './routes/(unauthenticated)/login/index'
-import { Route as unauthenticatedFwIndexImport } from './routes/(unauthenticated)/fw/index'
 import { Route as authenticatedAdminIndexImport } from './routes/(authenticated)/admin/index'
-import { Route as authenticatedAdminTeamIndexImport } from './routes/(authenticated)/admin/team/index'
-import { Route as authenticatedAdminScannerIndexImport } from './routes/(authenticated)/admin/scanner/index'
-import { Route as authenticatedAdminDesignIndexImport } from './routes/(authenticated)/admin/design/index'
-import { Route as authenticatedAdminAssetsIndexImport } from './routes/(authenticated)/admin/assets/index'
+import { Route as authenticatedAdminUnassignedImport } from './routes/(authenticated)/admin/unassigned'
+import { Route as authenticatedAdminTeamImport } from './routes/(authenticated)/admin/team'
+import { Route as authenticatedAdminScannerImport } from './routes/(authenticated)/admin/scanner'
+import { Route as authenticatedAdminDesignImport } from './routes/(authenticated)/admin/design'
+import { Route as authenticatedAdminAssetsImport } from './routes/(authenticated)/admin/assets'
 
 // Create/Update Routes
 
@@ -29,21 +30,21 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const unauthenticatedLoginRoute = unauthenticatedLoginImport.update({
+  id: '/(unauthenticated)/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const unauthenticatedFwRoute = unauthenticatedFwImport.update({
+  id: '/(unauthenticated)/fw',
+  path: '/fw',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const authenticatedAdminRoute = authenticatedAdminImport.update({
   id: '/(authenticated)/admin',
   path: '/admin',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const unauthenticatedLoginIndexRoute = unauthenticatedLoginIndexImport.update({
-  id: '/(unauthenticated)/login/',
-  path: '/login/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const unauthenticatedFwIndexRoute = unauthenticatedFwIndexImport.update({
-  id: '/(unauthenticated)/fw/',
-  path: '/fw/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,33 +54,36 @@ const authenticatedAdminIndexRoute = authenticatedAdminIndexImport.update({
   getParentRoute: () => authenticatedAdminRoute,
 } as any)
 
-const authenticatedAdminTeamIndexRoute =
-  authenticatedAdminTeamIndexImport.update({
-    id: '/team/',
-    path: '/team/',
+const authenticatedAdminUnassignedRoute =
+  authenticatedAdminUnassignedImport.update({
+    id: '/unassigned',
+    path: '/unassigned',
     getParentRoute: () => authenticatedAdminRoute,
   } as any)
 
-const authenticatedAdminScannerIndexRoute =
-  authenticatedAdminScannerIndexImport.update({
-    id: '/scanner/',
-    path: '/scanner/',
-    getParentRoute: () => authenticatedAdminRoute,
-  } as any)
+const authenticatedAdminTeamRoute = authenticatedAdminTeamImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => authenticatedAdminRoute,
+} as any)
 
-const authenticatedAdminDesignIndexRoute =
-  authenticatedAdminDesignIndexImport.update({
-    id: '/design/',
-    path: '/design/',
-    getParentRoute: () => authenticatedAdminRoute,
-  } as any)
+const authenticatedAdminScannerRoute = authenticatedAdminScannerImport.update({
+  id: '/scanner',
+  path: '/scanner',
+  getParentRoute: () => authenticatedAdminRoute,
+} as any)
 
-const authenticatedAdminAssetsIndexRoute =
-  authenticatedAdminAssetsIndexImport.update({
-    id: '/assets/',
-    path: '/assets/',
-    getParentRoute: () => authenticatedAdminRoute,
-  } as any)
+const authenticatedAdminDesignRoute = authenticatedAdminDesignImport.update({
+  id: '/design',
+  path: '/design',
+  getParentRoute: () => authenticatedAdminRoute,
+} as any)
+
+const authenticatedAdminAssetsRoute = authenticatedAdminAssetsImport.update({
+  id: '/assets',
+  path: '/assets',
+  getParentRoute: () => authenticatedAdminRoute,
+} as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -99,53 +103,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authenticatedAdminImport
       parentRoute: typeof rootRoute
     }
+    '/(unauthenticated)/fw': {
+      id: '/(unauthenticated)/fw'
+      path: '/fw'
+      fullPath: '/fw'
+      preLoaderRoute: typeof unauthenticatedFwImport
+      parentRoute: typeof rootRoute
+    }
+    '/(unauthenticated)/login': {
+      id: '/(unauthenticated)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof unauthenticatedLoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/(authenticated)/admin/assets': {
+      id: '/(authenticated)/admin/assets'
+      path: '/assets'
+      fullPath: '/admin/assets'
+      preLoaderRoute: typeof authenticatedAdminAssetsImport
+      parentRoute: typeof authenticatedAdminImport
+    }
+    '/(authenticated)/admin/design': {
+      id: '/(authenticated)/admin/design'
+      path: '/design'
+      fullPath: '/admin/design'
+      preLoaderRoute: typeof authenticatedAdminDesignImport
+      parentRoute: typeof authenticatedAdminImport
+    }
+    '/(authenticated)/admin/scanner': {
+      id: '/(authenticated)/admin/scanner'
+      path: '/scanner'
+      fullPath: '/admin/scanner'
+      preLoaderRoute: typeof authenticatedAdminScannerImport
+      parentRoute: typeof authenticatedAdminImport
+    }
+    '/(authenticated)/admin/team': {
+      id: '/(authenticated)/admin/team'
+      path: '/team'
+      fullPath: '/admin/team'
+      preLoaderRoute: typeof authenticatedAdminTeamImport
+      parentRoute: typeof authenticatedAdminImport
+    }
+    '/(authenticated)/admin/unassigned': {
+      id: '/(authenticated)/admin/unassigned'
+      path: '/unassigned'
+      fullPath: '/admin/unassigned'
+      preLoaderRoute: typeof authenticatedAdminUnassignedImport
+      parentRoute: typeof authenticatedAdminImport
+    }
     '/(authenticated)/admin/': {
       id: '/(authenticated)/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof authenticatedAdminIndexImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(unauthenticated)/fw/': {
-      id: '/(unauthenticated)/fw/'
-      path: '/fw'
-      fullPath: '/fw'
-      preLoaderRoute: typeof unauthenticatedFwIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/(unauthenticated)/login/': {
-      id: '/(unauthenticated)/login/'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof unauthenticatedLoginIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/(authenticated)/admin/assets/': {
-      id: '/(authenticated)/admin/assets/'
-      path: '/assets'
-      fullPath: '/admin/assets'
-      preLoaderRoute: typeof authenticatedAdminAssetsIndexImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(authenticated)/admin/design/': {
-      id: '/(authenticated)/admin/design/'
-      path: '/design'
-      fullPath: '/admin/design'
-      preLoaderRoute: typeof authenticatedAdminDesignIndexImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(authenticated)/admin/scanner/': {
-      id: '/(authenticated)/admin/scanner/'
-      path: '/scanner'
-      fullPath: '/admin/scanner'
-      preLoaderRoute: typeof authenticatedAdminScannerIndexImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(authenticated)/admin/team/': {
-      id: '/(authenticated)/admin/team/'
-      path: '/team'
-      fullPath: '/admin/team'
-      preLoaderRoute: typeof authenticatedAdminTeamIndexImport
       parentRoute: typeof authenticatedAdminImport
     }
   }
@@ -154,19 +165,21 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface authenticatedAdminRouteChildren {
+  authenticatedAdminAssetsRoute: typeof authenticatedAdminAssetsRoute
+  authenticatedAdminDesignRoute: typeof authenticatedAdminDesignRoute
+  authenticatedAdminScannerRoute: typeof authenticatedAdminScannerRoute
+  authenticatedAdminTeamRoute: typeof authenticatedAdminTeamRoute
+  authenticatedAdminUnassignedRoute: typeof authenticatedAdminUnassignedRoute
   authenticatedAdminIndexRoute: typeof authenticatedAdminIndexRoute
-  authenticatedAdminAssetsIndexRoute: typeof authenticatedAdminAssetsIndexRoute
-  authenticatedAdminDesignIndexRoute: typeof authenticatedAdminDesignIndexRoute
-  authenticatedAdminScannerIndexRoute: typeof authenticatedAdminScannerIndexRoute
-  authenticatedAdminTeamIndexRoute: typeof authenticatedAdminTeamIndexRoute
 }
 
 const authenticatedAdminRouteChildren: authenticatedAdminRouteChildren = {
+  authenticatedAdminAssetsRoute: authenticatedAdminAssetsRoute,
+  authenticatedAdminDesignRoute: authenticatedAdminDesignRoute,
+  authenticatedAdminScannerRoute: authenticatedAdminScannerRoute,
+  authenticatedAdminTeamRoute: authenticatedAdminTeamRoute,
+  authenticatedAdminUnassignedRoute: authenticatedAdminUnassignedRoute,
   authenticatedAdminIndexRoute: authenticatedAdminIndexRoute,
-  authenticatedAdminAssetsIndexRoute: authenticatedAdminAssetsIndexRoute,
-  authenticatedAdminDesignIndexRoute: authenticatedAdminDesignIndexRoute,
-  authenticatedAdminScannerIndexRoute: authenticatedAdminScannerIndexRoute,
-  authenticatedAdminTeamIndexRoute: authenticatedAdminTeamIndexRoute,
 }
 
 const authenticatedAdminRouteWithChildren =
@@ -175,37 +188,40 @@ const authenticatedAdminRouteWithChildren =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof authenticatedAdminRouteWithChildren
+  '/fw': typeof unauthenticatedFwRoute
+  '/login': typeof unauthenticatedLoginRoute
+  '/admin/assets': typeof authenticatedAdminAssetsRoute
+  '/admin/design': typeof authenticatedAdminDesignRoute
+  '/admin/scanner': typeof authenticatedAdminScannerRoute
+  '/admin/team': typeof authenticatedAdminTeamRoute
+  '/admin/unassigned': typeof authenticatedAdminUnassignedRoute
   '/admin/': typeof authenticatedAdminIndexRoute
-  '/fw': typeof unauthenticatedFwIndexRoute
-  '/login': typeof unauthenticatedLoginIndexRoute
-  '/admin/assets': typeof authenticatedAdminAssetsIndexRoute
-  '/admin/design': typeof authenticatedAdminDesignIndexRoute
-  '/admin/scanner': typeof authenticatedAdminScannerIndexRoute
-  '/admin/team': typeof authenticatedAdminTeamIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/fw': typeof unauthenticatedFwRoute
+  '/login': typeof unauthenticatedLoginRoute
+  '/admin/assets': typeof authenticatedAdminAssetsRoute
+  '/admin/design': typeof authenticatedAdminDesignRoute
+  '/admin/scanner': typeof authenticatedAdminScannerRoute
+  '/admin/team': typeof authenticatedAdminTeamRoute
+  '/admin/unassigned': typeof authenticatedAdminUnassignedRoute
   '/admin': typeof authenticatedAdminIndexRoute
-  '/fw': typeof unauthenticatedFwIndexRoute
-  '/login': typeof unauthenticatedLoginIndexRoute
-  '/admin/assets': typeof authenticatedAdminAssetsIndexRoute
-  '/admin/design': typeof authenticatedAdminDesignIndexRoute
-  '/admin/scanner': typeof authenticatedAdminScannerIndexRoute
-  '/admin/team': typeof authenticatedAdminTeamIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/(authenticated)/admin': typeof authenticatedAdminRouteWithChildren
+  '/(unauthenticated)/fw': typeof unauthenticatedFwRoute
+  '/(unauthenticated)/login': typeof unauthenticatedLoginRoute
+  '/(authenticated)/admin/assets': typeof authenticatedAdminAssetsRoute
+  '/(authenticated)/admin/design': typeof authenticatedAdminDesignRoute
+  '/(authenticated)/admin/scanner': typeof authenticatedAdminScannerRoute
+  '/(authenticated)/admin/team': typeof authenticatedAdminTeamRoute
+  '/(authenticated)/admin/unassigned': typeof authenticatedAdminUnassignedRoute
   '/(authenticated)/admin/': typeof authenticatedAdminIndexRoute
-  '/(unauthenticated)/fw/': typeof unauthenticatedFwIndexRoute
-  '/(unauthenticated)/login/': typeof unauthenticatedLoginIndexRoute
-  '/(authenticated)/admin/assets/': typeof authenticatedAdminAssetsIndexRoute
-  '/(authenticated)/admin/design/': typeof authenticatedAdminDesignIndexRoute
-  '/(authenticated)/admin/scanner/': typeof authenticatedAdminScannerIndexRoute
-  '/(authenticated)/admin/team/': typeof authenticatedAdminTeamIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -213,49 +229,52 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
-    | '/admin/'
     | '/fw'
     | '/login'
     | '/admin/assets'
     | '/admin/design'
     | '/admin/scanner'
     | '/admin/team'
+    | '/admin/unassigned'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/fw'
     | '/login'
     | '/admin/assets'
     | '/admin/design'
     | '/admin/scanner'
     | '/admin/team'
+    | '/admin/unassigned'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/(authenticated)/admin'
+    | '/(unauthenticated)/fw'
+    | '/(unauthenticated)/login'
+    | '/(authenticated)/admin/assets'
+    | '/(authenticated)/admin/design'
+    | '/(authenticated)/admin/scanner'
+    | '/(authenticated)/admin/team'
+    | '/(authenticated)/admin/unassigned'
     | '/(authenticated)/admin/'
-    | '/(unauthenticated)/fw/'
-    | '/(unauthenticated)/login/'
-    | '/(authenticated)/admin/assets/'
-    | '/(authenticated)/admin/design/'
-    | '/(authenticated)/admin/scanner/'
-    | '/(authenticated)/admin/team/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authenticatedAdminRoute: typeof authenticatedAdminRouteWithChildren
-  unauthenticatedFwIndexRoute: typeof unauthenticatedFwIndexRoute
-  unauthenticatedLoginIndexRoute: typeof unauthenticatedLoginIndexRoute
+  unauthenticatedFwRoute: typeof unauthenticatedFwRoute
+  unauthenticatedLoginRoute: typeof unauthenticatedLoginRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authenticatedAdminRoute: authenticatedAdminRouteWithChildren,
-  unauthenticatedFwIndexRoute: unauthenticatedFwIndexRoute,
-  unauthenticatedLoginIndexRoute: unauthenticatedLoginIndexRoute,
+  unauthenticatedFwRoute: unauthenticatedFwRoute,
+  unauthenticatedLoginRoute: unauthenticatedLoginRoute,
 }
 
 export const routeTree = rootRoute
@@ -270,8 +289,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/(authenticated)/admin",
-        "/(unauthenticated)/fw/",
-        "/(unauthenticated)/login/"
+        "/(unauthenticated)/fw",
+        "/(unauthenticated)/login"
       ]
     },
     "/": {
@@ -280,37 +299,42 @@ export const routeTree = rootRoute
     "/(authenticated)/admin": {
       "filePath": "(authenticated)/admin.tsx",
       "children": [
-        "/(authenticated)/admin/",
-        "/(authenticated)/admin/assets/",
-        "/(authenticated)/admin/design/",
-        "/(authenticated)/admin/scanner/",
-        "/(authenticated)/admin/team/"
+        "/(authenticated)/admin/assets",
+        "/(authenticated)/admin/design",
+        "/(authenticated)/admin/scanner",
+        "/(authenticated)/admin/team",
+        "/(authenticated)/admin/unassigned",
+        "/(authenticated)/admin/"
       ]
+    },
+    "/(unauthenticated)/fw": {
+      "filePath": "(unauthenticated)/fw.tsx"
+    },
+    "/(unauthenticated)/login": {
+      "filePath": "(unauthenticated)/login.tsx"
+    },
+    "/(authenticated)/admin/assets": {
+      "filePath": "(authenticated)/admin/assets.tsx",
+      "parent": "/(authenticated)/admin"
+    },
+    "/(authenticated)/admin/design": {
+      "filePath": "(authenticated)/admin/design.tsx",
+      "parent": "/(authenticated)/admin"
+    },
+    "/(authenticated)/admin/scanner": {
+      "filePath": "(authenticated)/admin/scanner.tsx",
+      "parent": "/(authenticated)/admin"
+    },
+    "/(authenticated)/admin/team": {
+      "filePath": "(authenticated)/admin/team.tsx",
+      "parent": "/(authenticated)/admin"
+    },
+    "/(authenticated)/admin/unassigned": {
+      "filePath": "(authenticated)/admin/unassigned.tsx",
+      "parent": "/(authenticated)/admin"
     },
     "/(authenticated)/admin/": {
       "filePath": "(authenticated)/admin/index.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(unauthenticated)/fw/": {
-      "filePath": "(unauthenticated)/fw/index.tsx"
-    },
-    "/(unauthenticated)/login/": {
-      "filePath": "(unauthenticated)/login/index.tsx"
-    },
-    "/(authenticated)/admin/assets/": {
-      "filePath": "(authenticated)/admin/assets/index.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(authenticated)/admin/design/": {
-      "filePath": "(authenticated)/admin/design/index.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(authenticated)/admin/scanner/": {
-      "filePath": "(authenticated)/admin/scanner/index.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(authenticated)/admin/team/": {
-      "filePath": "(authenticated)/admin/team/index.tsx",
       "parent": "/(authenticated)/admin"
     }
   }

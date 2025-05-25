@@ -182,10 +182,10 @@ type DashboardHeaderProps = {
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   className,
 }) => {
-  const { isCurrentUserAdmin, isCurrentUserUnassigned } = useUser();
+  const { user } = useUser();
 
   const headerLinks = [
-    ...(!isCurrentUserUnassigned
+    ...(!user?.isUnassigned
       ? [
           <HeaderLink
             key="dashboard-header-link-dashboard"
@@ -195,7 +195,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           />,
         ]
       : []),
-    ...(isCurrentUserAdmin
+    ...(user?.isAdmin
       ? [
           <HeaderLink
             key="dashboard-header-link-assets"
@@ -205,7 +205,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           />,
         ]
       : []),
-    ...(isCurrentUserAdmin
+    ...(user?.isAdmin
       ? [
           <HeaderLink
             key="dashboard-header-link-team"
@@ -215,7 +215,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           />,
         ]
       : []),
-    ...(!isCurrentUserUnassigned
+    ...(!user?.isUnassigned
       ? [
           <HeaderLink
             key="dashboard-header-link-design"
@@ -241,7 +241,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {headerLinks}
         </div>
         <div className="flex flex-row items-center justify-end gap-6">
-          {!isCurrentUserUnassigned && (
+          {!user?.isUnassigned && (
             <Button variant="border-gradient" asChild>
               <Link to={ScannerRoute.to}>
                 <ScanLine /> Scanner

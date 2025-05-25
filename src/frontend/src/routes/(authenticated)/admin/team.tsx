@@ -41,7 +41,7 @@ import { useDeleteUser } from '@/hooks/use-delete-user';
 import { useUpdateUser } from '@/hooks/use-update-user';
 import { useUser } from '@/hooks/use-user';
 
-export const Route = createFileRoute('/(authenticated)/admin/team/')({
+export const Route = createFileRoute('/(authenticated)/admin/team')({
   component: RouteComponent,
 });
 

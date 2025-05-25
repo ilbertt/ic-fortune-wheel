@@ -4,15 +4,27 @@ import { useAuth } from '@/hooks/use-auth';
 import { enumKey, toastError } from '@/lib/utils';
 import { extractOk } from '@/lib/api';
 
-type UseUserReturn = {
-  user: UserProfile | null;
-  isCurrentUserAdmin: boolean;
-  isCurrentUserScanner: boolean;
-  isCurrentUserUnassigned: boolean;
+export type UseUserReturn = {
+  user:
+    | (UserProfile & {
+        isAdmin: boolean;
+        isScanner: boolean;
+        isUnassigned: boolean;
+      })
+    | null;
+};
+
+const mapUser = (user: UserProfile): UseUserReturn['user'] => {
+  return {
+    ...user,
+    isAdmin: enumKey(user.role) === 'admin',
+    isScanner: enumKey(user.role) === 'scanner',
+    isUnassigned: enumKey(user.role) === 'unassigned',
+  };
 };
 
 export function useUser(): UseUserReturn {
-  const { actor } = useAuth();
+  const { actor, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
 
   const createUserMutation = useMutation({
@@ -37,7 +49,8 @@ export function useUser(): UseUserReturn {
         throw res.err;
       }
     },
-    enabled: !!actor,
+    enabled: !!actor && isAuthenticated,
+    select: mapUser,
     meta: {
       errorMessage: 'Error fetching user profile',
     },
@@ -45,8 +58,5 @@ export function useUser(): UseUserReturn {
 
   return {
     user: user ?? null,
-    isCurrentUserAdmin: user ? enumKey(user.role) === 'admin' : false,
-    isCurrentUserScanner: user ? enumKey(user.role) === 'scanner' : false,
-    isCurrentUserUnassigned: user ? enumKey(user.role) === 'unassigned' : false,
   };
 }
