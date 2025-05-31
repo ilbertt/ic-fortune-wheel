@@ -26,3 +26,14 @@ export const mapPrizesToWheelData = <T extends WheelPrize>(
     };
   });
 };
+
+export const cacheWheelModalImage = async (wheelAsset: WheelPrize) => {
+  const modalImageUrl = wheelAssetUrl(wheelAsset.modal_image_path);
+  if (modalImageUrl) {
+    // All wheel images should have `Cache-Control` set to 1 week,
+    // so we can just pre-fetch them to avoid flickering when they're loaded.
+    await fetch(modalImageUrl, {
+      method: 'GET',
+    });
+  }
+};
