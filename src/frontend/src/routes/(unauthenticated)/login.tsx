@@ -30,6 +30,11 @@ function RouteComponent() {
           </p>
         </div>
       </div>
+      <img
+        className="absolute bottom-10 left-10 z-10 hidden h-14 w-auto rounded-[10px] shadow-[0_0_15px_2px_var(--infinite)] md:block"
+        src="/images/powered-by-ic-badge.png"
+        alt="Powered by Internet Computer badge"
+      />
       <div className="relative flex h-full flex-1 flex-col items-center justify-center">
         <div className="flex w-full flex-1 flex-col items-center justify-center space-y-6">
           <div className="flex flex-col space-y-2 text-center">
@@ -44,7 +49,7 @@ function RouteComponent() {
           </div>
           <AuthForm />
         </div>
-        <p className="text-muted-foreground mb-10 w-full px-8 text-center text-sm md:absolute md:bottom-10">
+        <p className="text-muted-foreground mb-10 w-full px-8 text-center text-sm">
           Developed with 💜 by ICP HUB Italy & Ticino
         </p>
       </div>

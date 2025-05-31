@@ -30,7 +30,7 @@ layer(base);
 
 :root {
   --infinite: hsl(259 100% 36%); /* #3B00B9 */
-  --dark-infinite: hsl(259 100% 18%);
+  --dark-infinite: hsl(259 100% 18%); /* #1D005C */
   --indaco-blue: hsl(228 83% 68%); /* #6A85F1 */
 
   --background: hsl(240 10% 3.9%); /* zinc-950 */
