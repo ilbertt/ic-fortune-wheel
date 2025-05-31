@@ -26,8 +26,8 @@ export const FortuneWheel: React.FC<FortuneWheelProps> = ({
     <>
       <div
         className={cn(
-          'relative h-full w-full',
-          '[&>div]:first:h-full! [&>div]:first:max-h-[48rem]! [&>div]:first:w-full! [&>div]:first:max-w-[48rem]! [&>div]:first:left-1/2! [&>div]:first:top-1/2! [&>div]:first:-translate-x-1/2! [&>div]:first:-translate-y-1/2! [&>div]:first:absolute',
+          'relative h-screen w-screen',
+          '[&>div]:first:h-[min(90vw,90vh)]! [&>div]:first:w-[min(90vw,90vh)]! [&>div]:first:max-h-[90vh]! [&>div]:first:max-w-none! [&>div]:first:left-1/2! [&>div]:first:top-1/2! [&>div]:first:-translate-x-1/2! [&>div]:first:-translate-y-1/2! [&>div]:first:absolute [&>div]:first:aspect-square',
           className,
         )}
         {...props}
@@ -41,13 +41,13 @@ export const FortuneWheel: React.FC<FortuneWheelProps> = ({
           pointerProps={{
             src: '/images/pointer.png',
             style: {
-              transform: 'translate(-15%, 15%) rotate(250deg)',
+              transform: 'translate(-25%, 25%) rotate(250deg)',
             },
           }}
-          outerBorderWidth={3}
-          outerBorderColor="white"
-          radiusLineWidth={3}
-          radiusLineColor="white"
+          outerBorderWidth={10}
+          outerBorderColor="#EEE7FF" // light-pink
+          radiusLineWidth={4}
+          radiusLineColor="#EEE7FF" // light-pink
         />
       </div>
       {children}

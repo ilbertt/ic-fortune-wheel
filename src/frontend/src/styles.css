@@ -58,6 +58,9 @@ layer(base);
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   --radius: 0.5rem;
+
+  --light-pink: hsl(258, 100%, 95%); /* #EEE7FF */
+  --pink: hsl(333, 84%, 52%); /* #EC1E79 */
 }
 
 /*
@@ -107,6 +110,9 @@ layer(base);
   --color-infinite: var(--infinite);
   --color-dark-infinite: var(--dark-infinite);
   --color-indaco-blue: var(--indaco-blue);
+
+  --color-light-pink: var(--light-pink);
+  --color-pink: var(--pink);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
