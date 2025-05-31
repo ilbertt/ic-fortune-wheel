@@ -6,6 +6,7 @@ import { useWheelPrizeOrder } from '@/hooks/use-wheel-prize-order';
 import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
 import { atom, Provider, useAtom } from 'jotai';
 import { toastError } from '@/lib/utils';
+import { cacheWheelModalImage } from '@/lib/wheel-prize';
 
 const FETCH_WHEEL_PRIZES_INTERVAL_MS = 10_000;
 
@@ -214,6 +215,9 @@ export const useWheelPrizes = (): UseWheelPrizesReturnType => {
     const prize = fetchedPrizes[index];
     if (prize) {
       setCurrentPrize({ prize, index });
+
+      // We don't need to wait for the image to be cached
+      cacheWheelModalImage(prize);
     }
   };
 
