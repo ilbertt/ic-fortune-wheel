@@ -120,9 +120,9 @@ function RouteComponent() {
             </div>
           </CardHeader>
           <CardContent>
-            <FortuneWheelContainer className="py-4 md:py-8">
+            <FortuneWheelContainer className="relative py-4 md:py-8">
               <FortuneWheel
-                className="[&>div]:first:h-full! [&>div]:first:w-auto! size-[250px] lg:size-[350px] xl:size-[450px]"
+                className="[&>div]:first:h-full! [&>div]:first:w-auto! relative size-[250px] lg:size-[350px] xl:size-[450px]"
                 wheelData={wheelData}
               >
                 <FortuneWheelLogo className="max-w-36 lg:w-1/5 lg:p-4 xl:p-8" />

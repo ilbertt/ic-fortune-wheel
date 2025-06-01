@@ -32,7 +32,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
   return (
     <div
       className={cn(
-        'absolute left-0 top-0 z-20 flex h-screen w-screen flex-col items-center justify-center gap-10 backdrop-blur-3xl',
+        'absolute left-0 top-0 z-20 flex h-full w-full flex-col items-center justify-center gap-10 backdrop-blur-3xl',
         className,
       )}
       {...props}
