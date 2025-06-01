@@ -28,6 +28,13 @@ layer(base);
   }
 }
 
+@font-face {
+  font-family: 'HaloGrotesk';
+  src: url('/fonts/HaloGrotesk-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
 :root {
   --infinite: hsl(259 100% 36%); /* #3B00B9 */
   --dark-infinite: hsl(259 100% 18%); /* #1D005C */
@@ -72,6 +79,7 @@ layer(base);
   --font-*: initial;
   --font-sans: Geist, sans-serif;
   --font-mono: 'Geist Mono', monospace;
+  --font-wcs: 'HaloGrotesk', sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -10,7 +10,7 @@ export const FortuneWheelContainer: React.FC<WheelContainerProps> = ({
   return (
     <div
       className={cn(
-        'relative flex h-full w-full items-center justify-center',
+        'flex h-full w-full items-center justify-center',
         className,
       )}
       {...props}

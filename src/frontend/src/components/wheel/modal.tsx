@@ -32,7 +32,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
   return (
     <div
       className={cn(
-        'absolute left-0 top-0 z-20 flex h-full w-full flex-col items-center justify-center gap-10 backdrop-blur-3xl',
+        'absolute left-0 top-0 z-20 flex h-screen w-screen flex-col items-center justify-center gap-10 backdrop-blur-3xl',
         className,
       )}
       {...props}
@@ -45,7 +45,9 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
       >
         <X className="lg:size-6! xl:size-8!" />
       </Button>
-      <h1 className="text-center text-5xl font-bold xl:text-[6vw]">YOU WON!</h1>
+      <h1 className="font-wcs text-center text-5xl font-bold xl:text-[6vw]">
+        YOU WON!
+      </h1>
       {currentPrize.prize.modal_image_path[0] && (
         <img
           className="modal-image-animation h-2/5 w-auto"
@@ -55,7 +57,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
           height={600}
         />
       )}
-      <div className="prize-name-animation bg-ic-gradient rounded-xl px-4 py-2 text-3xl font-bold xl:text-5xl">
+      <div className="prize-name-animation rounded-full bg-[#000025] px-4 py-2 text-3xl font-semibold xl:text-5xl">
         {currentPrize.prize.prize_usd_amount[0]
           ? `${renderUsdValue(currentPrize.prize.prize_usd_amount[0])} in `
           : ''}

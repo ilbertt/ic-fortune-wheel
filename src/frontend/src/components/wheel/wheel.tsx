@@ -26,7 +26,6 @@ export const FortuneWheel: React.FC<FortuneWheelProps> = ({
     <>
       <div
         className={cn(
-          'relative h-screen w-screen',
           '[&>div]:first:h-[min(90vw,90vh)]! [&>div]:first:w-[min(90vw,90vh)]! [&>div]:first:max-h-[90vh]! [&>div]:first:max-w-none! [&>div]:first:left-1/2! [&>div]:first:top-1/2! [&>div]:first:-translate-x-1/2! [&>div]:first:-translate-y-1/2! [&>div]:first:absolute [&>div]:first:aspect-square',
           className,
         )}
