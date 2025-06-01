@@ -1,4 +1,5 @@
 type UserNumber = nat64;
+type AccountNumber = nat64;
 type PublicKey = blob;
 type CredentialId = blob;
 type DeviceKey = PublicKey;
@@ -97,6 +98,11 @@ type DeviceWithUsage = record {
     origin : opt text;
     last_usage : opt Timestamp;
     metadata : opt MetadataMap;
+};
+
+type DeviceKeyWithAnchor = record {
+    pubkey : DeviceKey;
+    anchor_number : UserNumber;
 };
 
 // Map with some variants for the value type.
@@ -265,6 +271,9 @@ type InternetIdentityInit = record {
     // Configuration for Related Origins Requests.
     // If present, list of origins from where registration is allowed.
     related_origins : opt vec text;
+    // Configuration for New Origin Flows.
+    // If present, list of origins using the new authentication flow.
+    new_flow_origins : opt vec text;
     // Configuration for OpenID Google client
     openid_google : opt opt OpenIdConfig;
     // Configuration for Web Analytics
@@ -305,6 +314,8 @@ type IdentityAnchorInfo = record {
     device_registration : opt DeviceRegistrationInfo;
     // OpenID accounts linked to this anchor
     openid_credentials : opt vec OpenIdCredential;
+    // The name of the Internet Identity
+    name : opt text;
 };
 
 type AnchorCredentials = record {
@@ -458,8 +469,8 @@ type AuthnMethodData = record {
 };
 
 type OpenIDRegFinishArg = record {
-    jwt: JWT;
-    salt: Salt;
+    jwt : JWT;
+    salt : Salt;
 };
 
 // Extra information about registration status for new authentication methods
@@ -549,6 +560,34 @@ type IdentityMetadataReplaceError = variant {
     };
     // Internal canister error. See the error message for details.
     InternalCanisterError : text;
+};
+
+type CreateAccountError = variant {
+    InternalCanisterError : text;
+    AccountLimitReached;
+    Unauthorized : principal;
+};
+
+type UpdateAccountError = variant {
+    InternalCanisterError : text;
+    AccountLimitReached;
+    Unauthorized : principal;
+};
+
+type AccountDelegationError = variant {
+    InternalCanisterError : text;
+    Unauthorized : principal;
+    NoSuchDelegation;
+};
+
+type PrepareAccountDelegation = record {
+    user_key : UserKey;
+    timestamp : Timestamp;
+};
+
+type GetAccountsError = variant {
+    InternalCanisterError : text;
+    Unauthorized : principal;
 };
 
 type PrepareIdAliasRequest = record {
@@ -652,6 +691,7 @@ type CheckCaptchaError = variant {
 
 type IdRegFinishArg = record {
     authn_method : AuthnMethodData;
+    name : opt text;
 };
 
 type IdRegFinishResult = record {
@@ -672,6 +712,20 @@ type IdRegFinishError = variant {
     // Error while persisting the new identity.
     StorageError : text;
 };
+
+type AccountInfo = record {
+    // Null is unreserved default account
+    account_number : opt AccountNumber;
+    origin : text;
+    last_used : opt Timestamp;
+    // Configurable properties
+    name : opt text;
+};
+
+type AccountUpdate = record {
+    name : opt text;
+};
+
 
 service : (opt InternetIdentityInit) -> {
     // Legacy identity management API
@@ -804,4 +858,42 @@ service : (opt InternetIdentityInit) -> {
     // Only callable by this IIs archive canister.
     fetch_entries : () -> (vec BufferedArchiveEntry);
     acknowledge_entries : (sequence_number : nat64) -> ();
+
+    // Discoverable passkeys protocol
+    lookup_device_key : (credential_id : blob) -> (opt DeviceKeyWithAnchor) query;
+
+    // Multiple accounts
+    get_accounts : (
+        anchor_number : UserNumber,
+        origin : FrontendHostname,
+    ) -> (variant { Ok : vec AccountInfo; Err: GetAccountsError }) query;
+
+    create_account : (
+        anchor_number : UserNumber,
+        origin : FrontendHostname,
+        name : text
+    ) -> (variant { Ok : AccountInfo; Err: CreateAccountError });
+
+    update_account : (
+        anchor_number : UserNumber,
+        origin : FrontendHostname,
+        account_number : opt AccountNumber, // Null is unreserved default account
+        update : AccountUpdate
+    ) ->  (variant { Ok : AccountInfo; Err: UpdateAccountError });
+
+    prepare_account_delegation : (
+        anchor_number : UserNumber,
+        origin : FrontendHostname,
+        account_number : opt AccountNumber, // Null is unreserved default account
+        session_key : SessionKey,
+        max_ttl : opt nat64
+    ) -> (variant { Ok : PrepareAccountDelegation; Err : AccountDelegationError });
+    
+    get_account_delegation : (
+        anchor_number : UserNumber,
+        origin : FrontendHostname,
+        account_number : opt AccountNumber, // Null is unreserved default account
+        session_key : SessionKey,
+        expiration : Timestamp
+    ) -> (variant { Ok : SignedDelegation; Err : AccountDelegationError }) query;
 };
