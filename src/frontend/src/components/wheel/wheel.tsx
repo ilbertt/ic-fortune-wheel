@@ -46,8 +46,7 @@ export const FortuneWheel: React.FC<FortuneWheelProps> = ({
           }}
           outerBorderWidth={10}
           outerBorderColor="#EEE7FF" // light-pink
-          radiusLineWidth={4}
-          radiusLineColor="#EEE7FF" // light-pink
+          radiusLineWidth={0}
         />
       </div>
       {children}

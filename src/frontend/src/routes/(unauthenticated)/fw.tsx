@@ -24,14 +24,20 @@ function RouteComponent() {
   usePollExtraction();
 
   return (
-    <div className="bg-[url(/images/background.png)] bg-cover bg-no-repeat">
+    <div className="grid h-screen w-screen grid-cols-12 grid-rows-[auto_1fr_auto] bg-[url(/images/background.png)] bg-cover bg-no-repeat p-10">
       <img
-        className="absolute left-10 top-10 z-10 h-16 w-auto 2xl:bottom-14 2xl:right-14"
+        className="col-span-2 col-start-1 w-full"
         src="/images/brand-logo.png"
         alt="brand logo"
       />
-      <div className="bg-light-pink border-pink absolute right-10 top-10 rounded-[40px] border p-2 2xl:bottom-14 2xl:right-14">
-        <div className="bg-primary size-64 rounded-[40px] p-3 2xl:size-[300px]">
+      <FortuneWheelContainer className="col-span-8 col-start-3 row-span-full row-start-1 overflow-hidden">
+        <FortuneWheel wheelData={wheelData} className="h-full w-full">
+          <FortuneWheelLogo className="border-light-pink border-[7px] bg-white p-8 lg:size-40 [&_img]:w-full" />
+          <FortuneWheelModal />
+        </FortuneWheel>
+      </FortuneWheelContainer>
+      <div className="bg-light-pink border-pink col-span-2 w-full rounded-[40px] border p-2 pb-4">
+        <div className="bg-primary w-full rounded-[40px] p-3 2xl:size-[300px]">
           <img
             className="aspect-square w-full"
             src="/images/qrcode-oisy.svg"
@@ -43,14 +49,8 @@ function RouteComponent() {
           Scan to play
         </div>
       </div>
-      <FortuneWheelContainer className="h-screen w-screen overflow-hidden">
-        <FortuneWheel wheelData={wheelData}>
-          <FortuneWheelLogo className="border-light-pink border-[7px] bg-white p-8 lg:w-44 xl:w-72 [&_img]:h-32 [&_img]:w-auto" />
-          <FortuneWheelModal />
-        </FortuneWheel>
-      </FortuneWheelContainer>
       <img
-        className="absolute bottom-10 right-10 z-10 h-28 w-auto 2xl:bottom-14 2xl:right-14"
+        className="col-span-2 col-start-11 row-start-3 h-28 w-auto 2xl:bottom-14 2xl:right-14"
         src="/images/wcs25-logo.svg"
         alt="World Computer Summit 2025 logo"
       />
