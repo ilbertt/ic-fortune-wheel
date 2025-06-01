@@ -264,6 +264,15 @@ pub mod static_assets {
                 encodings: vec![],
             },
             AssetConfig::Pattern {
+                pattern: "**/*.otf".to_string(),
+                content_type: Some("application/x-font-opentype".to_string()),
+                headers: super::get_asset_headers(vec![(
+                    CACHE_CONTROL_HEADER_NAME.to_string(),
+                    IMMUTABLE_ASSET_CACHE_CONTROL.to_string(),
+                )]),
+                encodings: vec![],
+            },
+            AssetConfig::Pattern {
                 pattern: format!("{WELL_KNOWN_PATH}/*"),
                 content_type: None,
                 headers: well_known_asset_headers(),
