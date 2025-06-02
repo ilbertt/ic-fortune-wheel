@@ -57,7 +57,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
           height={600}
         />
       )}
-      <div className="prize-name-animation rounded-full bg-[#000025] px-4 py-2 text-3xl font-semibold xl:text-5xl">
+      <div className="prize-name-animation px-8 py-4 text-4xl font-semibold">
         {currentPrize.prize.prize_usd_amount[0]
           ? `${renderUsdValue(currentPrize.prize.prize_usd_amount[0])} in `
           : ''}

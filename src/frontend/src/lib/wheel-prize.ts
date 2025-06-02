@@ -16,7 +16,7 @@ export const mapPrizesToWheelData = <T extends WheelPrize>(
       image: imageUri
         ? {
             uri: imageUri,
-            sizeMultiplier: 0.5,
+            sizeMultiplier: 0.55,
             offsetY: 180,
           }
         : undefined,

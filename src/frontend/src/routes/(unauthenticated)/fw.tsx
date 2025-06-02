@@ -37,10 +37,10 @@ function RouteComponent() {
         </FortuneWheel>
       </FortuneWheelContainer>
       <div className="bg-light-pink border-pink col-span-2 w-full rounded-[40px] border p-2 pb-4">
-        <div className="bg-primary w-full rounded-[40px] p-3 2xl:size-[300px]">
+        <div className="bg-primary w-full rounded-[40px] p-3">
           <img
             className="aspect-square w-full"
-            src="/images/qrcode-oisy.svg"
+            src="/images/qrcode-oisy-wcs25.svg"
             alt="Oisy QR code"
           />
         </div>
