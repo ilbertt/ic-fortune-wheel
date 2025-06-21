@@ -6,7 +6,7 @@ use backend_api::{
 };
 use backend_macros::log_errors;
 use candid::Principal;
-use ic_cdk::{caller, query, update};
+use ic_cdk::{api::msg_caller, query, update};
 
 use crate::{
     repositories::{
@@ -21,7 +21,7 @@ use crate::{
 #[query]
 #[log_errors]
 fn list_wheel_assets(request: ListWheelAssetsRequest) -> ApiResult<ListWheelAssetsResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelAssetController::default()
         .list_wheel_assets(calling_principal, request)
@@ -31,7 +31,7 @@ fn list_wheel_assets(request: ListWheelAssetsRequest) -> ApiResult<ListWheelAsse
 #[update]
 #[log_errors]
 fn set_default_wheel_assets() -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelAssetController::default()
         .set_default_wheel_assets(calling_principal)
@@ -41,7 +41,7 @@ fn set_default_wheel_assets() -> ApiResult<()> {
 #[update]
 #[log_errors]
 fn fetch_tokens_data() -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelAssetController::default()
         .fetch_tokens_data(calling_principal)
@@ -51,7 +51,7 @@ fn fetch_tokens_data() -> ApiResult<()> {
 #[update]
 #[log_errors]
 fn create_wheel_asset(request: CreateWheelAssetRequest) -> ApiResult<CreateWheelAssetResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelAssetController::default()
         .create_wheel_asset(calling_principal, request)
@@ -61,7 +61,7 @@ fn create_wheel_asset(request: CreateWheelAssetRequest) -> ApiResult<CreateWheel
 #[update]
 #[log_errors]
 fn update_wheel_asset(request: UpdateWheelAssetRequest) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelAssetController::default()
         .update_wheel_asset(calling_principal, request)
@@ -71,7 +71,7 @@ fn update_wheel_asset(request: UpdateWheelAssetRequest) -> ApiResult<()> {
 #[update]
 #[log_errors]
 fn delete_wheel_asset(request: DeleteWheelAssetRequest) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelAssetController::default()
         .delete_wheel_asset(calling_principal, request)
@@ -81,7 +81,7 @@ fn delete_wheel_asset(request: DeleteWheelAssetRequest) -> ApiResult<()> {
 #[update]
 #[log_errors]
 fn update_wheel_asset_image(request: UpdateWheelAssetImageRequest) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelAssetController::default()
         .update_wheel_asset_image(calling_principal, request)
@@ -98,7 +98,7 @@ fn list_wheel_prizes() -> ApiResult<ListWheelPrizesResponse> {
 #[update]
 #[log_errors]
 fn update_wheel_prizes_order(request: UpdateWheelPrizesOrderRequest) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelAssetController::default()
         .update_wheel_prizes_order(calling_principal, request)

@@ -13,11 +13,11 @@
   "devDependencies": {
     "husky": "^9.1.7",
     "prettier": "^3.5.3",
-    "prettier-plugin-tailwindcss": "^0.6.11"
+    "prettier-plugin-tailwindcss": "^0.6.13"
   },
   "packageManager": "pnpm@10.0.0",
   "engines": {
-    "node": "^20",
+    "node": "^22",
     "pnpm": "^10",
     "npm": "please use pnpm"
   }

@@ -7,7 +7,7 @@ use backend_api::{
 };
 use candid::Principal;
 use ic_cdk::println;
-use rand::{distributions::Uniform, prelude::*};
+use rand::prelude::*;
 
 use crate::{
     mappings::map_wheel_prize_extraction,
@@ -418,7 +418,7 @@ impl<
             ));
         }
 
-        if request.extract_for_principal == ic_cdk::id() {
+        if request.extract_for_principal == ic_cdk::api::canister_self() {
             return Err(ApiError::invalid_argument(
                 "Extract for principal cannot be this canister's principal",
             ));
@@ -457,5 +457,8 @@ impl<
 /// Extracts a random `usize` in the range `[0, max)`.
 async fn random_index(max: usize) -> Result<usize, ApiError> {
     let mut rng = chacha20_rng().await?;
-    Ok(rng.sample(Uniform::new(0, max)))
+    let random_index = (0..max)
+        .choose(&mut rng)
+        .ok_or_else(|| ApiError::internal("Failed to generate random index"))?;
+    Ok(random_index)
 }

@@ -1,10 +1,10 @@
 use std::str::FromStr;
 
 use candid::Principal;
-use ic_cdk::{api::call::call_with_payment, println};
-use ic_xrc_types::{ExchangeRateError, GetExchangeRateRequest, GetExchangeRateResult, OtherError};
+use ic_cdk::call::{Call, CallResult};
+use ic_xrc_types::{GetExchangeRateRequest, GetExchangeRateResult};
 
-const XRC_API_CYCLES_COST: u64 = 1_000_000_000;
+const XRC_API_CYCLES_COST: u128 = 1_000_000_000;
 
 pub struct ExchangeRateCanisterService(pub Principal);
 
@@ -15,25 +15,15 @@ impl Default for ExchangeRateCanisterService {
 }
 
 impl ExchangeRateCanisterService {
-    pub async fn get_exchange_rate(&self, arg0: GetExchangeRateRequest) -> GetExchangeRateResult {
-        call_with_payment::<(GetExchangeRateRequest,), (GetExchangeRateResult,)>(
-            self.0,
-            "get_exchange_rate",
-            (arg0,),
-            XRC_API_CYCLES_COST,
-        )
-        .await
-        .map_err(|(code, message)| {
-            // map the inter-canister call error to the ExchangeRateError
-            println!(
-                "Error: xrc: get_exchange_rate: call_with_payment: ({:?}) {}",
-                code, message
-            );
-            ExchangeRateError::Other(OtherError {
-                code: code as u32,
-                description: message,
-            })
-        })
-        .and_then(|result| result.0)
+    pub async fn get_exchange_rate(
+        &self,
+        arg0: GetExchangeRateRequest,
+    ) -> CallResult<GetExchangeRateResult> {
+        let (res,) = Call::unbounded_wait(self.0, "get_exchange_rate")
+            .with_arg(arg0)
+            .with_cycles(XRC_API_CYCLES_COST)
+            .await?
+            .candid_tuple()?;
+        Ok(res)
     }
 }

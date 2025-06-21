@@ -5,7 +5,7 @@ use backend_api::{
 };
 use backend_macros::log_errors;
 use candid::Principal;
-use ic_cdk::{caller, query, update};
+use ic_cdk::{api::msg_caller, query, update};
 
 use crate::{
     repositories::{
@@ -22,7 +22,7 @@ use crate::{
 fn create_custom_domain_record(
     request: CreateCustomDomainRecordRequest,
 ) -> ApiResult<CreateCustomDomainRecordResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     CustomDomainRecordController::default()
         .create_custom_domain_record(calling_principal, request)
@@ -32,7 +32,7 @@ fn create_custom_domain_record(
 #[update]
 #[log_errors]
 fn update_custom_domain_record(request: UpdateCustomDomainRecordRequest) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     CustomDomainRecordController::default()
         .update_custom_domain_record(calling_principal, request)
@@ -42,7 +42,7 @@ fn update_custom_domain_record(request: UpdateCustomDomainRecordRequest) -> ApiR
 #[update]
 #[log_errors]
 fn delete_custom_domain_record(request: DeleteCustomDomainRecordRequest) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     CustomDomainRecordController::default()
         .delete_custom_domain_record(calling_principal, request)
@@ -52,7 +52,7 @@ fn delete_custom_domain_record(request: DeleteCustomDomainRecordRequest) -> ApiR
 #[query]
 #[log_errors]
 fn list_custom_domain_records() -> ApiResult<ListCustomDomainRecordsResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     CustomDomainRecordController::default()
         .list_custom_domain_records(calling_principal)

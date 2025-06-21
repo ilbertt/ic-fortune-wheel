@@ -1,6 +1,6 @@
 use backend_api::ApiError;
 use fastrand::Rng;
-use ic_cdk::api::management_canister::main::raw_rand;
+use ic_cdk::management_canister::raw_rand;
 use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 use std::cell::RefCell;
@@ -11,11 +11,8 @@ thread_local! {
 
 pub async fn chacha20_rng() -> Result<ChaCha20Rng, ApiError> {
     let seed: [u8; 32] = {
-        let (seed,) = raw_rand().await.map_err(|(code, msg)| {
-            ApiError::internal(&format!(
-                "System API call to `raw_rand` failed: ({:?}) {}",
-                code, msg
-            ))
+        let seed = raw_rand().await.map_err(|err| {
+            ApiError::internal(&format!("System API call to `raw_rand` failed: {}", err))
         })?;
 
         seed.try_into().map_err(|err| {

@@ -4,11 +4,11 @@ use crate::{
 };
 use backend_api::ApiError;
 use candid::Principal;
-use ic_cdk::{caller, init, post_upgrade, pre_upgrade, println};
+use ic_cdk::{api::msg_caller, init, post_upgrade, pre_upgrade, println};
 
 #[init]
 fn init() {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     InitController::default().init(calling_principal);
 }
@@ -20,7 +20,7 @@ fn pre_upgrade() {
 
 #[post_upgrade]
 fn post_upgrade() {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     InitController::default().post_upgrade(calling_principal);
 }
@@ -73,13 +73,13 @@ impl<I: InitService, H: HttpAssetService> InitController<I, H> {
         match self.init_admin(calling_principal) {
             Ok(_) => println!("init: Admins initialized"),
             Err(err) => {
-                ic_cdk::trap(&format!("Failed to initialize admins: {}", err));
+                ic_cdk::trap(format!("Failed to initialize admins: {}", err));
             }
         }
         match self.http_asset_service.init() {
             Ok(_) => println!("init: http_asset_service initialized"),
             Err(err) => {
-                ic_cdk::trap(&format!("Failed to initialize http_asset_service: {}", err));
+                ic_cdk::trap(format!("Failed to initialize http_asset_service: {}", err));
             }
         };
 

@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use backend_api::ApiError;
 use ic_asset_certification::AssetRouter;
 use ic_asset_certification::{Asset, AssetConfig, AssetEncoding};
-use ic_cdk::api::{data_certificate, set_certified_data};
+use ic_cdk::api::{certified_data_set, data_certificate};
 use ic_http_certification::{HeaderField, HttpRequest, HttpResponse};
 
 use super::{init_http_assets, HttpAsset, HttpAssetMemory, HttpAssetPath};
@@ -55,7 +55,7 @@ impl HttpAssetRepository for HttpAssetRepositoryImpl {
                     .map_err(|e| ApiError::internal(&e.to_string()))?;
             }
 
-            set_certified_data(&s.router.root_hash());
+            certified_data_set(s.router.root_hash());
 
             Ok(())
         })
@@ -188,7 +188,7 @@ pub mod static_assets {
         let canister_id_cookie_header: HeaderField = (
             "set-cookie".to_string(),
             // can be a session cookie, as we set it on every request
-            format!("canisterId={}", ic_cdk::id().to_text()),
+            format!("canisterId={}", ic_cdk::api::canister_self().to_text()),
         );
 
         let asset_configs = vec![
@@ -284,7 +284,7 @@ pub mod static_assets {
         collect_assets(&crate::FRONTEND_ASSETS_DIR, &mut assets);
 
         if let Err(err) = asset_router.certify_assets(assets, asset_configs) {
-            ic_cdk::trap(&format!("Failed to certify assets: {}", err));
+            ic_cdk::trap(format!("Failed to certify assets: {}", err));
         }
     }
 

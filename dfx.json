@@ -13,7 +13,12 @@
       "declarations": {
         "bindings": ["js", "ts"],
         "output": "./src/declarations/backend"
-      }
+      },
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
     },
     "internet-identity": {
       "type": "pull",
