@@ -5,7 +5,7 @@ use backend_api::{
 };
 use backend_macros::log_errors;
 use candid::Principal;
-use ic_cdk::{caller, query, update};
+use ic_cdk::{api::msg_caller, query, update};
 
 use crate::{
     repositories::UserProfileRepositoryImpl,
@@ -17,7 +17,7 @@ use crate::{
 #[query]
 #[log_errors]
 fn get_my_user_profile() -> ApiResult<GetMyUserProfileResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     UserProfileController::default()
         .get_my_user_profile(calling_principal)
@@ -27,7 +27,7 @@ fn get_my_user_profile() -> ApiResult<GetMyUserProfileResponse> {
 #[update]
 #[log_errors]
 fn create_my_user_profile() -> ApiResult<CreateMyUserProfileResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     UserProfileController::default()
         .create_my_user_profile(calling_principal)
@@ -37,7 +37,7 @@ fn create_my_user_profile() -> ApiResult<CreateMyUserProfileResponse> {
 #[update]
 #[log_errors]
 fn update_my_user_profile(request: UpdateMyUserProfileRequest) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     UserProfileController::default()
         .update_my_user_profile(calling_principal, request)
@@ -47,7 +47,7 @@ fn update_my_user_profile(request: UpdateMyUserProfileRequest) -> ApiResult<()> 
 #[update]
 #[log_errors]
 fn update_user_profile(request: UpdateUserProfileRequest) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     UserProfileController::default()
         .update_user_profile(calling_principal, request)
@@ -57,7 +57,7 @@ fn update_user_profile(request: UpdateUserProfileRequest) -> ApiResult<()> {
 #[update]
 #[log_errors]
 fn delete_user_profile(request: DeleteUserProfileRequest) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     UserProfileController::default()
         .delete_user_profile(calling_principal, request)
@@ -67,7 +67,7 @@ fn delete_user_profile(request: DeleteUserProfileRequest) -> ApiResult<()> {
 #[query]
 #[log_errors]
 fn list_users() -> ApiResult<ListUsersResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     UserProfileController::default()
         .list_users(calling_principal)

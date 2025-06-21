@@ -6,6 +6,14 @@ use syn::{parse_macro_input, ItemFn, ReturnType};
 #[proc_macro_attribute]
 pub fn log_errors(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item as ItemFn);
+
+    // Extract all attributes except log_errors itself
+    let attrs: Vec<_> = input
+        .attrs
+        .iter()
+        .filter(|attr| !attr.path().is_ident("log_errors"))
+        .collect();
+
     let fn_name = &input.sig.ident;
     let fn_args = &input.sig.inputs;
     let fn_return_type = &input.sig.output;
@@ -22,6 +30,7 @@ pub fn log_errors(_attr: TokenStream, item: TokenStream) -> TokenStream {
             };
 
             quote! {
+                #(#attrs)*
                 #fn_async fn #fn_name(#fn_args) #fn_return_type {
                     let result = #block;
                     if let backend_api::ApiResult::Err(ref e) = result {

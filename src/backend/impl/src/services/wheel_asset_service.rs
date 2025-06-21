@@ -1,4 +1,4 @@
-use std::{collections::HashSet, path::Path, time::Duration};
+use std::{collections::HashSet, path::Path};
 
 use backend_api::{
     ApiError, CreateWheelAssetRequest, CreateWheelAssetResponse, CreateWheelAssetTypeConfig,
@@ -8,8 +8,7 @@ use backend_api::{
     WheelAssetImageConfig, WheelAssetUiSettings,
 };
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
-use ic_cdk::{println, spawn};
-use ic_cdk_timers::set_timer;
+use ic_cdk::{futures::spawn, println};
 use ic_xrc_types::{Asset, AssetClass, GetExchangeRateRequest};
 use icrc_ledger_types::icrc1::account::Account;
 use lazy_static::lazy_static;
@@ -596,12 +595,10 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             asset_id
         );
 
-        set_timer(Duration::from_secs(0), move || {
-            spawn(async move {
-                WheelAssetServiceImpl::default()
-                    .fetch_and_save_token_price(asset_id, asset_type)
-                    .await
-            });
+        spawn(async move {
+            WheelAssetServiceImpl::default()
+                .fetch_and_save_token_price(asset_id, asset_type)
+                .await
         });
     }
 
@@ -637,7 +634,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             timestamp: None, // get the latest rate
         };
 
-        match xrc_canister.get_exchange_rate(request).await {
+        match xrc_canister.get_exchange_rate(request).await.unwrap() {
             Ok(result) => {
                 let usd_price = result.rate as f64 / 10_f64.powi(result.metadata.decimals as i32);
 
@@ -687,12 +684,10 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             asset_id
         );
 
-        set_timer(Duration::from_secs(0), move || {
-            spawn(async move {
-                WheelAssetServiceImpl::default()
-                    .fetch_and_save_token_balance(asset_id, asset_type)
-                    .await
-            });
+        spawn(async move {
+            WheelAssetServiceImpl::default()
+                .fetch_and_save_token_balance(asset_id, asset_type)
+                .await
         });
     }
 
@@ -719,7 +714,7 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
 
         match ledger_canister
             .icrc1_balance_of(Account {
-                owner: ic_cdk::id(),
+                owner: ic_cdk::api::canister_self(),
                 subaccount: None,
             })
             .await

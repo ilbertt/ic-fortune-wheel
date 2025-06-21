@@ -1,7 +1,7 @@
 use backend_api::{ApiError, ApiResult, TransferTokenRequest, TransferTokenResponse};
 use backend_macros::log_errors;
 use candid::{Nat, Principal};
-use ic_cdk::{caller, update};
+use ic_cdk::{api::msg_caller, update};
 
 use crate::{
     repositories::UserProfileRepositoryImpl,
@@ -11,7 +11,7 @@ use crate::{
 #[update]
 #[log_errors]
 async fn transfer_token(request: TransferTokenRequest) -> ApiResult<TransferTokenResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WalletController::default()
         .transfer_token(calling_principal, request)

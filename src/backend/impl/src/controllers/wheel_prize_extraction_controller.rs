@@ -5,7 +5,7 @@ use backend_api::{
 };
 use backend_macros::log_errors;
 use candid::Principal;
-use ic_cdk::{caller, query, update};
+use ic_cdk::{api::msg_caller, query, update};
 
 use crate::{
     repositories::{
@@ -23,7 +23,7 @@ use crate::{
 fn get_wheel_prize_extraction(
     request: GetWheelPrizeExtractionRequest,
 ) -> ApiResult<GetWheelPrizeExtractionResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelPrizeExtractionController::default()
         .get_wheel_prize_extraction(&calling_principal, request)
@@ -42,7 +42,7 @@ fn get_last_wheel_prize_extraction() -> ApiResult<GetLastWheelPrizeExtractionRes
 #[query]
 #[log_errors]
 fn list_wheel_prize_extractions() -> ApiResult<ListWheelPrizeExtractionsResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelPrizeExtractionController::default()
         .list_wheel_prize_extractions(&calling_principal)
@@ -54,7 +54,7 @@ fn list_wheel_prize_extractions() -> ApiResult<ListWheelPrizeExtractionsResponse
 async fn create_wheel_prize_extraction(
     request: CreateWheelPrizeExtractionRequest,
 ) -> ApiResult<()> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelPrizeExtractionController::default()
         .create_wheel_prize_extraction(&calling_principal, request)
@@ -65,7 +65,7 @@ async fn create_wheel_prize_extraction(
 #[query]
 #[log_errors]
 fn get_wheel_prize_extractions_stats() -> ApiResult<GetWheelPrizeExtractionsStatsResponse> {
-    let calling_principal = caller();
+    let calling_principal = msg_caller();
 
     WheelPrizeExtractionController::default()
         .get_wheel_prize_extractions_stats(&calling_principal)

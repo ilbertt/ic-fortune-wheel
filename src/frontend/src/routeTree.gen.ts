@@ -8,200 +8,79 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as unauthenticatedLoginRouteImport } from './routes/(unauthenticated)/login'
+import { Route as unauthenticatedFwRouteImport } from './routes/(unauthenticated)/fw'
+import { Route as authenticatedAdminRouteImport } from './routes/(authenticated)/admin'
+import { Route as authenticatedAdminIndexRouteImport } from './routes/(authenticated)/admin/index'
+import { Route as authenticatedAdminUnassignedRouteImport } from './routes/(authenticated)/admin/unassigned'
+import { Route as authenticatedAdminTeamRouteImport } from './routes/(authenticated)/admin/team'
+import { Route as authenticatedAdminSettingsRouteImport } from './routes/(authenticated)/admin/settings'
+import { Route as authenticatedAdminScannerRouteImport } from './routes/(authenticated)/admin/scanner'
+import { Route as authenticatedAdminDesignRouteImport } from './routes/(authenticated)/admin/design'
+import { Route as authenticatedAdminAssetsRouteImport } from './routes/(authenticated)/admin/assets'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
-import { Route as unauthenticatedLoginImport } from './routes/(unauthenticated)/login'
-import { Route as unauthenticatedFwImport } from './routes/(unauthenticated)/fw'
-import { Route as authenticatedAdminImport } from './routes/(authenticated)/admin'
-import { Route as authenticatedAdminIndexImport } from './routes/(authenticated)/admin/index'
-import { Route as authenticatedAdminUnassignedImport } from './routes/(authenticated)/admin/unassigned'
-import { Route as authenticatedAdminTeamImport } from './routes/(authenticated)/admin/team'
-import { Route as authenticatedAdminSettingsImport } from './routes/(authenticated)/admin/settings'
-import { Route as authenticatedAdminScannerImport } from './routes/(authenticated)/admin/scanner'
-import { Route as authenticatedAdminDesignImport } from './routes/(authenticated)/admin/design'
-import { Route as authenticatedAdminAssetsImport } from './routes/(authenticated)/admin/assets'
-
-// Create/Update Routes
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const unauthenticatedLoginRoute = unauthenticatedLoginImport.update({
+const unauthenticatedLoginRoute = unauthenticatedLoginRouteImport.update({
   id: '/(unauthenticated)/login',
   path: '/login',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const unauthenticatedFwRoute = unauthenticatedFwImport.update({
+const unauthenticatedFwRoute = unauthenticatedFwRouteImport.update({
   id: '/(unauthenticated)/fw',
   path: '/fw',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const authenticatedAdminRoute = authenticatedAdminImport.update({
+const authenticatedAdminRoute = authenticatedAdminRouteImport.update({
   id: '/(authenticated)/admin',
   path: '/admin',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const authenticatedAdminIndexRoute = authenticatedAdminIndexImport.update({
+const authenticatedAdminIndexRoute = authenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => authenticatedAdminRoute,
 } as any)
-
 const authenticatedAdminUnassignedRoute =
-  authenticatedAdminUnassignedImport.update({
+  authenticatedAdminUnassignedRouteImport.update({
     id: '/unassigned',
     path: '/unassigned',
     getParentRoute: () => authenticatedAdminRoute,
   } as any)
-
-const authenticatedAdminTeamRoute = authenticatedAdminTeamImport.update({
+const authenticatedAdminTeamRoute = authenticatedAdminTeamRouteImport.update({
   id: '/team',
   path: '/team',
   getParentRoute: () => authenticatedAdminRoute,
 } as any)
-
-const authenticatedAdminSettingsRoute = authenticatedAdminSettingsImport.update(
-  {
+const authenticatedAdminSettingsRoute =
+  authenticatedAdminSettingsRouteImport.update({
     id: '/settings',
     path: '/settings',
     getParentRoute: () => authenticatedAdminRoute,
-  } as any,
-)
-
-const authenticatedAdminScannerRoute = authenticatedAdminScannerImport.update({
-  id: '/scanner',
-  path: '/scanner',
-  getParentRoute: () => authenticatedAdminRoute,
-} as any)
-
-const authenticatedAdminDesignRoute = authenticatedAdminDesignImport.update({
-  id: '/design',
-  path: '/design',
-  getParentRoute: () => authenticatedAdminRoute,
-} as any)
-
-const authenticatedAdminAssetsRoute = authenticatedAdminAssetsImport.update({
-  id: '/assets',
-  path: '/assets',
-  getParentRoute: () => authenticatedAdminRoute,
-} as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/(authenticated)/admin': {
-      id: '/(authenticated)/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof authenticatedAdminImport
-      parentRoute: typeof rootRoute
-    }
-    '/(unauthenticated)/fw': {
-      id: '/(unauthenticated)/fw'
-      path: '/fw'
-      fullPath: '/fw'
-      preLoaderRoute: typeof unauthenticatedFwImport
-      parentRoute: typeof rootRoute
-    }
-    '/(unauthenticated)/login': {
-      id: '/(unauthenticated)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof unauthenticatedLoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/(authenticated)/admin/assets': {
-      id: '/(authenticated)/admin/assets'
-      path: '/assets'
-      fullPath: '/admin/assets'
-      preLoaderRoute: typeof authenticatedAdminAssetsImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(authenticated)/admin/design': {
-      id: '/(authenticated)/admin/design'
-      path: '/design'
-      fullPath: '/admin/design'
-      preLoaderRoute: typeof authenticatedAdminDesignImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(authenticated)/admin/scanner': {
-      id: '/(authenticated)/admin/scanner'
-      path: '/scanner'
-      fullPath: '/admin/scanner'
-      preLoaderRoute: typeof authenticatedAdminScannerImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(authenticated)/admin/settings': {
-      id: '/(authenticated)/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof authenticatedAdminSettingsImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(authenticated)/admin/team': {
-      id: '/(authenticated)/admin/team'
-      path: '/team'
-      fullPath: '/admin/team'
-      preLoaderRoute: typeof authenticatedAdminTeamImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(authenticated)/admin/unassigned': {
-      id: '/(authenticated)/admin/unassigned'
-      path: '/unassigned'
-      fullPath: '/admin/unassigned'
-      preLoaderRoute: typeof authenticatedAdminUnassignedImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-    '/(authenticated)/admin/': {
-      id: '/(authenticated)/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof authenticatedAdminIndexImport
-      parentRoute: typeof authenticatedAdminImport
-    }
-  }
-}
-
-// Create and export the route tree
-
-interface authenticatedAdminRouteChildren {
-  authenticatedAdminAssetsRoute: typeof authenticatedAdminAssetsRoute
-  authenticatedAdminDesignRoute: typeof authenticatedAdminDesignRoute
-  authenticatedAdminScannerRoute: typeof authenticatedAdminScannerRoute
-  authenticatedAdminSettingsRoute: typeof authenticatedAdminSettingsRoute
-  authenticatedAdminTeamRoute: typeof authenticatedAdminTeamRoute
-  authenticatedAdminUnassignedRoute: typeof authenticatedAdminUnassignedRoute
-  authenticatedAdminIndexRoute: typeof authenticatedAdminIndexRoute
-}
-
-const authenticatedAdminRouteChildren: authenticatedAdminRouteChildren = {
-  authenticatedAdminAssetsRoute: authenticatedAdminAssetsRoute,
-  authenticatedAdminDesignRoute: authenticatedAdminDesignRoute,
-  authenticatedAdminScannerRoute: authenticatedAdminScannerRoute,
-  authenticatedAdminSettingsRoute: authenticatedAdminSettingsRoute,
-  authenticatedAdminTeamRoute: authenticatedAdminTeamRoute,
-  authenticatedAdminUnassignedRoute: authenticatedAdminUnassignedRoute,
-  authenticatedAdminIndexRoute: authenticatedAdminIndexRoute,
-}
-
-const authenticatedAdminRouteWithChildren =
-  authenticatedAdminRoute._addFileChildren(authenticatedAdminRouteChildren)
+  } as any)
+const authenticatedAdminScannerRoute =
+  authenticatedAdminScannerRouteImport.update({
+    id: '/scanner',
+    path: '/scanner',
+    getParentRoute: () => authenticatedAdminRoute,
+  } as any)
+const authenticatedAdminDesignRoute =
+  authenticatedAdminDesignRouteImport.update({
+    id: '/design',
+    path: '/design',
+    getParentRoute: () => authenticatedAdminRoute,
+  } as any)
+const authenticatedAdminAssetsRoute =
+  authenticatedAdminAssetsRouteImport.update({
+    id: '/assets',
+    path: '/assets',
+    getParentRoute: () => authenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -216,7 +95,6 @@ export interface FileRoutesByFullPath {
   '/admin/unassigned': typeof authenticatedAdminUnassignedRoute
   '/admin/': typeof authenticatedAdminIndexRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/fw': typeof unauthenticatedFwRoute
@@ -229,9 +107,8 @@ export interface FileRoutesByTo {
   '/admin/unassigned': typeof authenticatedAdminUnassignedRoute
   '/admin': typeof authenticatedAdminIndexRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(authenticated)/admin': typeof authenticatedAdminRouteWithChildren
   '/(unauthenticated)/fw': typeof unauthenticatedFwRoute
@@ -244,7 +121,6 @@ export interface FileRoutesById {
   '/(authenticated)/admin/unassigned': typeof authenticatedAdminUnassignedRoute
   '/(authenticated)/admin/': typeof authenticatedAdminIndexRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -286,7 +162,6 @@ export interface FileRouteTypes {
     | '/(authenticated)/admin/'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authenticatedAdminRoute: typeof authenticatedAdminRouteWithChildren
@@ -294,78 +169,117 @@ export interface RootRouteChildren {
   unauthenticatedLoginRoute: typeof unauthenticatedLoginRoute
 }
 
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(unauthenticated)/login': {
+      id: '/(unauthenticated)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof unauthenticatedLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(unauthenticated)/fw': {
+      id: '/(unauthenticated)/fw'
+      path: '/fw'
+      fullPath: '/fw'
+      preLoaderRoute: typeof unauthenticatedFwRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(authenticated)/admin': {
+      id: '/(authenticated)/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof authenticatedAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(authenticated)/admin/': {
+      id: '/(authenticated)/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof authenticatedAdminIndexRouteImport
+      parentRoute: typeof authenticatedAdminRoute
+    }
+    '/(authenticated)/admin/unassigned': {
+      id: '/(authenticated)/admin/unassigned'
+      path: '/unassigned'
+      fullPath: '/admin/unassigned'
+      preLoaderRoute: typeof authenticatedAdminUnassignedRouteImport
+      parentRoute: typeof authenticatedAdminRoute
+    }
+    '/(authenticated)/admin/team': {
+      id: '/(authenticated)/admin/team'
+      path: '/team'
+      fullPath: '/admin/team'
+      preLoaderRoute: typeof authenticatedAdminTeamRouteImport
+      parentRoute: typeof authenticatedAdminRoute
+    }
+    '/(authenticated)/admin/settings': {
+      id: '/(authenticated)/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof authenticatedAdminSettingsRouteImport
+      parentRoute: typeof authenticatedAdminRoute
+    }
+    '/(authenticated)/admin/scanner': {
+      id: '/(authenticated)/admin/scanner'
+      path: '/scanner'
+      fullPath: '/admin/scanner'
+      preLoaderRoute: typeof authenticatedAdminScannerRouteImport
+      parentRoute: typeof authenticatedAdminRoute
+    }
+    '/(authenticated)/admin/design': {
+      id: '/(authenticated)/admin/design'
+      path: '/design'
+      fullPath: '/admin/design'
+      preLoaderRoute: typeof authenticatedAdminDesignRouteImport
+      parentRoute: typeof authenticatedAdminRoute
+    }
+    '/(authenticated)/admin/assets': {
+      id: '/(authenticated)/admin/assets'
+      path: '/assets'
+      fullPath: '/admin/assets'
+      preLoaderRoute: typeof authenticatedAdminAssetsRouteImport
+      parentRoute: typeof authenticatedAdminRoute
+    }
+  }
+}
+
+interface authenticatedAdminRouteChildren {
+  authenticatedAdminAssetsRoute: typeof authenticatedAdminAssetsRoute
+  authenticatedAdminDesignRoute: typeof authenticatedAdminDesignRoute
+  authenticatedAdminScannerRoute: typeof authenticatedAdminScannerRoute
+  authenticatedAdminSettingsRoute: typeof authenticatedAdminSettingsRoute
+  authenticatedAdminTeamRoute: typeof authenticatedAdminTeamRoute
+  authenticatedAdminUnassignedRoute: typeof authenticatedAdminUnassignedRoute
+  authenticatedAdminIndexRoute: typeof authenticatedAdminIndexRoute
+}
+
+const authenticatedAdminRouteChildren: authenticatedAdminRouteChildren = {
+  authenticatedAdminAssetsRoute: authenticatedAdminAssetsRoute,
+  authenticatedAdminDesignRoute: authenticatedAdminDesignRoute,
+  authenticatedAdminScannerRoute: authenticatedAdminScannerRoute,
+  authenticatedAdminSettingsRoute: authenticatedAdminSettingsRoute,
+  authenticatedAdminTeamRoute: authenticatedAdminTeamRoute,
+  authenticatedAdminUnassignedRoute: authenticatedAdminUnassignedRoute,
+  authenticatedAdminIndexRoute: authenticatedAdminIndexRoute,
+}
+
+const authenticatedAdminRouteWithChildren =
+  authenticatedAdminRoute._addFileChildren(authenticatedAdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authenticatedAdminRoute: authenticatedAdminRouteWithChildren,
   unauthenticatedFwRoute: unauthenticatedFwRoute,
   unauthenticatedLoginRoute: unauthenticatedLoginRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/(authenticated)/admin",
-        "/(unauthenticated)/fw",
-        "/(unauthenticated)/login"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/(authenticated)/admin": {
-      "filePath": "(authenticated)/admin.tsx",
-      "children": [
-        "/(authenticated)/admin/assets",
-        "/(authenticated)/admin/design",
-        "/(authenticated)/admin/scanner",
-        "/(authenticated)/admin/settings",
-        "/(authenticated)/admin/team",
-        "/(authenticated)/admin/unassigned",
-        "/(authenticated)/admin/"
-      ]
-    },
-    "/(unauthenticated)/fw": {
-      "filePath": "(unauthenticated)/fw.tsx"
-    },
-    "/(unauthenticated)/login": {
-      "filePath": "(unauthenticated)/login.tsx"
-    },
-    "/(authenticated)/admin/assets": {
-      "filePath": "(authenticated)/admin/assets.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(authenticated)/admin/design": {
-      "filePath": "(authenticated)/admin/design.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(authenticated)/admin/scanner": {
-      "filePath": "(authenticated)/admin/scanner.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(authenticated)/admin/settings": {
-      "filePath": "(authenticated)/admin/settings.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(authenticated)/admin/team": {
-      "filePath": "(authenticated)/admin/team.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(authenticated)/admin/unassigned": {
-      "filePath": "(authenticated)/admin/unassigned.tsx",
-      "parent": "/(authenticated)/admin"
-    },
-    "/(authenticated)/admin/": {
-      "filePath": "(authenticated)/admin/index.tsx",
-      "parent": "/(authenticated)/admin"
-    }
-  }
-}
-ROUTE_MANIFEST_END */
