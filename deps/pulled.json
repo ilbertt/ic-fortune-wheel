@@ -11,8 +11,8 @@
     },
     "rdmx6-jaaaa-aaaaa-aaadq-cai": {
       "name": "internet-identity",
-      "wasm_hash": "8488141edbbe2699fc7f22769786dc0a6855ed243a567a417a56805d3f111479",
-      "wasm_hash_download": "8488141edbbe2699fc7f22769786dc0a6855ed243a567a417a56805d3f111479",
+      "wasm_hash": "ff4771c148635942414bd5746f5ca913cc7b930dc98f7d8a5a4f8e9cee8a306e",
+      "wasm_hash_download": "ff4771c148635942414bd5746f5ca913cc7b930dc98f7d8a5a4f8e9cee8a306e",
       "init_guide": "Use '(null)' for sensible defaults. See the candid interface for more details.",
       "init_arg": "(opt record { captcha_config = opt record { max_unsolved_captchas= 50:nat64; captcha_trigger = variant {Static = variant {CaptchaDisabled}}}})",
       "candid_args": "(opt InternetIdentityInit)",

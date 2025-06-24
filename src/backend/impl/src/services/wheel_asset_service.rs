@@ -1,4 +1,4 @@
-use std::{collections::HashSet, path::Path};
+use std::{collections::HashSet, path::Path, time::Duration};
 
 use backend_api::{
     ApiError, CreateWheelAssetRequest, CreateWheelAssetResponse, CreateWheelAssetTypeConfig,
@@ -9,6 +9,7 @@ use backend_api::{
 };
 use external_canisters::{ledger::LedgerCanisterService, xrc::ExchangeRateCanisterService};
 use ic_cdk::{futures::spawn, println};
+use ic_cdk_timers::set_timer;
 use ic_xrc_types::{Asset, AssetClass, GetExchangeRateRequest};
 use icrc_ledger_types::icrc1::account::Account;
 use lazy_static::lazy_static;
@@ -595,10 +596,12 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             asset_id
         );
 
-        spawn(async move {
-            WheelAssetServiceImpl::default()
-                .fetch_and_save_token_price(asset_id, asset_type)
-                .await
+        set_timer(Duration::from_secs(0), move || {
+            spawn(async move {
+                WheelAssetServiceImpl::default()
+                    .fetch_and_save_token_price(asset_id, asset_type)
+                    .await
+            });
         });
     }
 
@@ -684,10 +687,12 @@ impl<W: WheelAssetRepository, H: HttpAssetRepository> WheelAssetServiceImpl<W, H
             asset_id
         );
 
-        spawn(async move {
-            WheelAssetServiceImpl::default()
-                .fetch_and_save_token_balance(asset_id, asset_type)
-                .await
+        set_timer(Duration::from_secs(0), move || {
+            spawn(async move {
+                WheelAssetServiceImpl::default()
+                    .fetch_and_save_token_balance(asset_id, asset_type)
+                    .await
+            });
         });
     }
 
