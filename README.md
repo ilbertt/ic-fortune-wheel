@@ -36,34 +36,11 @@ For any other admin that you want to add, you can directly change their role in 
 - [Node.js](https://nodejs.org/en/download/)
 - [pnpm](https://pnpm.io/installation)
 
-Make sure you have the `minter` identity created and available:
+Make sure you have created the `minter` identity and it is available:
 
 ```bash
 dfx identity new minter
 ```
-
-### Initializing the dependencies
-
-You must create the `deps/init.json` file before deploying the dependencies. You can copy the [`deps/init.json.template`](./deps/init.json.template) file and change the following values:
-
-- all the occurrences of `49c7466d17db093b0d15b00b189501b0e126141264a38d89d5024d5bf4f863e3` must be replaced with the account id of your `minter` identity:
-  ```bash
-  dfx --identity minter ledger account-id
-  ```
-- all the occurrences of `g5wwd-66hws-uktxg-tpmef-ff2kq-bcz3p-ouyrt-vhqla-bm2rs-4dkwv-aqe` must be replaced with the principal of your `minter` identity:
-  ```bash
-  dfx identity --identity minter get-principal
-  ```
-
-Then, for each entry in the `canisters` JSON object, you must copy the `arg_str` value and run the following command:
-
-```bash
-dfx deps init <canister-id-entry> --argument "<arg_str>"
-```
-
-> Note: You can skip executing this command for the Internet Identity (`rdmx6-jaaaa-aaaaa-aaadq-cai`) and Exchange Rate (`uf6dk-hyaaa-aaaaq-qaaaq-cai`) canisters.
-
-This process will create the `deps/init.json` file with the correct values.
 
 ### Deploying the dependencies and the backend
 

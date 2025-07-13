@@ -4,3 +4,4 @@ pnpm-lock.yaml
 **/dist/**
 **/out/**
 **/declarations/**
+deps/pulled.json
