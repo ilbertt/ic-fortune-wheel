@@ -1,0 +1,12 @@
+{
+  "canisters": {
+    "rdmx6-jaaaa-aaaaa-aaadq-cai": {
+      "arg_str": "(null)",
+      "arg_raw": "4449444c116e016c06caed93df0402dfe1a5de0704f7f5cbfb0707b9acc5aa0b08e78894860d0af8d995c60f0f6e036c02007801786e056c04c3f9fca002788beea8c5047881cfaef40a0687eb979d0d7a6d7b6e786e096d716e0b6c02df81eaae0978f3af928a0f0c6b02df8e9b1b0dcea1c1d4030e6c03e6f0e2d00378cd9a9ccf097ab8d4cdd70d786b02b6ddbbbf047f87b9cd82097f6e106c02d5f5c5e909789fedfdc50d78010000"
+    },
+    "uf6dk-hyaaa-aaaaq-qaaaq-cai": {
+      "arg_str": null,
+      "arg_raw": null
+    }
+  }
+}

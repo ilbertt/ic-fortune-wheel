@@ -29,16 +29,28 @@
       "id": "uf6dk-hyaaa-aaaaq-qaaaq-cai"
     },
     "icp-ledger": {
-      "type": "pull",
-      "id": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+      "type": "custom",
+      "candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icp-2025-07-04/ledger.did",
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icp-2025-07-04/ledger-canister_notify-method.wasm.gz",
+      "specified_id": "ryjl3-tyaaa-aaaaa-aaaba-cai"
     },
     "ckbtc-ledger": {
-      "type": "pull",
-      "id": "mxzaz-hqaaa-aaaar-qaada-cai"
+      "type": "custom",
+      "candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ledger.did",
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ic-icrc1-ledger.wasm.gz",
+      "specified_id": "mxzaz-hqaaa-aaaar-qaada-cai"
     },
     "cketh-ledger": {
-      "type": "pull",
-      "id": "ss2fx-dyaaa-aaaar-qacoq-cai"
+      "type": "custom",
+      "candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ledger.did",
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ic-icrc1-ledger.wasm.gz",
+      "specified_id": "ss2fx-dyaaa-aaaar-qacoq-cai"
+    },
+    "ckusdc-ledger": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ledger.did",
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-06-10/ic-icrc1-ledger.wasm.gz",
+      "specified_id": "xevnm-gaaaa-aaaar-qafnq-cai"
     }
   },
   "defaults": {
