@@ -7,18 +7,26 @@ on:
   pull_request:
 
 jobs:
-  check_codestyle:
-    name: Codestyle checks
+  format:
+    name: Formatting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup NodeJS
-        uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-node
 
-      - name: Check formatting
+      - name: Format
         run: pnpm format:check
 
-      - name: Check linting
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node
+
+      - name: Lint
         run: pnpm lint
