@@ -1,16 +1,16 @@
 import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
-import { wheelAssetTokensPrizeUsdSum } from '@/lib/wheel-asset';
+import { wheelAssetsUsdValueSum } from '@/lib/wheel-asset';
 import { useMemo } from 'react';
 
-type UseWheelAssetTokensUseValueSumReturnType = {
+type UseWheelAssetTokensUsdValueSumReturnType = {
   usdValueSum: number;
 };
 
-export const useWheelAssetTokensUseValueSum =
-  (): UseWheelAssetTokensUseValueSumReturnType => {
+export const useWheelAssetTokensUsdValueSum =
+  (): UseWheelAssetTokensUsdValueSumReturnType => {
     const { tokenAssets } = useWheelAssetTokens();
     const usdValueSum = useMemo(() => {
-      return wheelAssetTokensPrizeUsdSum(tokenAssets);
+      return wheelAssetsUsdValueSum(tokenAssets);
     }, [tokenAssets]);
     return { usdValueSum };
   };

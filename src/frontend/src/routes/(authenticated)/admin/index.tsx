@@ -10,7 +10,7 @@ import { useWheelPrizeExtractionsStats } from '@/hooks/use-wheel-prize-extractio
 import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 import { Route as AssetsRoute } from '@/routes/(authenticated)/admin/assets';
 import { Link } from '@tanstack/react-router';
-import { useWheelAssetTokensUseValueSum } from '@/hooks/use-wheel-asset-tokens-use-value-sum';
+import { useWheelAssetTokensUsdValueSum } from '@/hooks/use-wheel-asset-tokens-usd-value-sum';
 
 export const Route = createFileRoute('/(authenticated)/admin/')({
   component: RouteComponent,
@@ -19,7 +19,7 @@ export const Route = createFileRoute('/(authenticated)/admin/')({
 function RouteComponent() {
   const { fetchingTokenAssets } = useWheelAssetTokens();
   const { stats } = useWheelPrizeExtractionsStats();
-  const { usdValueSum } = useWheelAssetTokensUseValueSum();
+  const { usdValueSum } = useWheelAssetTokensUsdValueSum();
 
   return (
     <PageLayout>
