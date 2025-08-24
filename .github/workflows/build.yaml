@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -30,12 +31,20 @@ jobs:
       - name: Build canister
         run: dfx build --ic backend
 
+      # Only upload Wasms if the push is to main or the workflow was manually triggered
+      - name: Check if upload is needed
+        id: check_upload_needed
+        if: (github.event_name == 'push' && github.event.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+        run: echo "Upload is needed"
+
       - name: Prepare canister Wasm files
+        if: steps.check_upload_needed.conclusion == 'success'
         run: |
           cp ./target/wasm32-unknown-unknown/release/backend_impl.wasm backend.wasm
           cp ./.dfx/ic/canisters/backend/backend.wasm.gz backend.wasm.gz
 
       - name: Upload canister Wasm
+        if: steps.check_upload_needed.conclusion == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: ic-fortune-wheel-wasm-binaries
