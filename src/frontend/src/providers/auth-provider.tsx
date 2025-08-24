@@ -1,5 +1,5 @@
 import { useAuthClient } from '@dfinity/use-auth-client';
-import { type ActorSubclass } from '@dfinity/agent';
+import { type ActorSubclass } from '@icp-sdk/core/agent';
 import { type _SERVICE, idlFactory } from '@/declarations/backend/backend.did';
 import { canisterId } from '@/lib/api';
 import { AuthContext } from '@/contexts/auth-context';

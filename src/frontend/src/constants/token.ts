@@ -1,5 +1,5 @@
 import { type WheelAssetToken } from '@/lib/wheel-asset';
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import { WHEEL_ASSET_DEFAULT_IMAGES } from '@/constants/images';
 
 export type DefaultTokensKey =

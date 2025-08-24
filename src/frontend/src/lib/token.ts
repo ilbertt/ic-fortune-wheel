@@ -1,5 +1,5 @@
 import { DEFAULT_TOKENS, type DefaultTokensKey } from '@/constants/token';
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 
 export const getDefaultToken = (
   ledgerCanisterId: Principal | undefined,

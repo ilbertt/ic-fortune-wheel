@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 import { useAuthClient } from '@dfinity/use-auth-client';
-import { type ActorSubclass } from '@dfinity/agent';
+import { type ActorSubclass } from '@icp-sdk/core/agent';
 import { type _SERVICE } from '@/declarations/backend/backend.did';
 
 export type AuthContextType = Omit<
