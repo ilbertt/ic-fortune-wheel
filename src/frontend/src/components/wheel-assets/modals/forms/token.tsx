@@ -29,7 +29,7 @@ import {
   fileFromUrl,
   renderError,
 } from '@/lib/utils';
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtomValue } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';

@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { PageLayout } from '@/components/layouts';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { Volume2 } from 'lucide-react';
 import { useCallback, useState } from 'react';

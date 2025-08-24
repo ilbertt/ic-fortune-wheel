@@ -1,4 +1,4 @@
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import { CopyToClipboardButton } from '@/components/copy-to-clipboard-button';
 
 type PrincipalDisplayProps = {

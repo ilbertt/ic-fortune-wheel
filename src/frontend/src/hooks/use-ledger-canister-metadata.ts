@@ -1,8 +1,8 @@
 import { useAuth } from '@/hooks/use-auth';
 import { getLedgerActor } from '@/lib/ledger';
-import { Actor } from '@dfinity/agent';
+import { Actor } from '@icp-sdk/core/agent';
 import { type IcrcTokenMetadata, mapTokenMetadata } from '@dfinity/ledger-icrc';
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import { useQuery } from '@tanstack/react-query';
 
 type UseLedgerCanisterMetadataParams = {

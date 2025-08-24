@@ -35,7 +35,7 @@ import {
   wheelAssetBalance,
   wheelAssetTokenTotalUsdValue,
 } from '@/lib/wheel-asset';
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Send } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';

@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
 import { useEffect, useRef } from 'react';
