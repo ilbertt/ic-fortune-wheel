@@ -23,11 +23,6 @@ jobs:
         with:
           dfx-version: 'auto'
 
-      - name: Prepare dfx environment
-        run: |
-          dfx start --background --clean
-          dfx canister create --all --no-wallet
-
       - name: Build canister
         run: dfx build --ic backend
 
