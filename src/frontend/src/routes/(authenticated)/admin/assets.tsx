@@ -28,7 +28,6 @@ import {
   wheelAssetBalance,
   type WheelAssetDisabled,
   type WheelAssetEnabled,
-  wheelAssetsUsdValueSum,
   wheelAssetTokenTotalUsdValue,
   wheelAssetUrl,
   type WheelAssetToken,
@@ -45,6 +44,7 @@ import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 import { useCreateDefaultAssets } from '@/hooks/use-create-default-assets';
 import type { WheelAsset } from '@/declarations/backend/backend.did';
 import { useRefreshTokenAssets } from '@/hooks/use-refresh-token-assets';
+import { useWheelAssetTokensUsdValueSum } from '@/hooks/use-wheel-asset-tokens-usd-value-sum';
 
 export const Route = createFileRoute('/(authenticated)/admin/assets')({
   component: RouteComponent,
@@ -133,6 +133,8 @@ function RouteComponent() {
   const { data: disabledAssets, fetchingAssets: fetchingDisabledAssets } =
     useWheelAssets(selectDisabledAssets);
   const { tokenAssets, fetchingTokenAssets } = useWheelAssetTokens();
+  const { usdValueSum: tokenAssetsTotalUsdValue } =
+    useWheelAssetTokensUsdValueSum();
   const {
     mutateAsync: refreshTokenAssets,
     isPending: isRefreshingTokenAssets,
@@ -162,7 +164,7 @@ function RouteComponent() {
                   </div>
                 ) : (
                   <h3 className="text-center text-4xl font-bold">
-                    {renderUsdValue(wheelAssetsUsdValueSum(tokenAssets))}
+                    {renderUsdValue(tokenAssetsTotalUsdValue)}
                   </h3>
                 )}
                 <div className="mt-4 flex flex-row flex-wrap items-center justify-center gap-4">
