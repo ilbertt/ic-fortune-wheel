@@ -1,7 +1,7 @@
 import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
-import type { WheelPrizeExtractionsStats } from '@/declarations/backend/backend.did';
+import type { WheelPrizeExtractionsStats } from '@/lib/api/backend/backend';
 
 const FETCH_WHEEL_PRIZE_EXTRACTIONS_INTERVAL_MS = 2_000;
 
@@ -16,9 +16,8 @@ export const useWheelPrizeExtractionsStats =
     const { data: stats } = useQuery<WheelPrizeExtractionsStats>({
       queryKey: ['wheel-prize-extractions-stats'],
       queryFn: async () => {
-        return actor!.get_wheel_prize_extractions_stats().then(extractOk);
+        return actor.get_wheel_prize_extractions_stats().then(extractOk);
       },
-      enabled: !!actor,
       refetchInterval: FETCH_WHEEL_PRIZE_EXTRACTIONS_INTERVAL_MS,
     });
 

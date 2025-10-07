@@ -9,7 +9,7 @@ export const useWheelPrizeOrder = () => {
 
   return useMutation({
     mutationFn: async (wheelAssetIds: string[]) => {
-      return actor!
+      return actor
         .update_wheel_prizes_order({
           wheel_asset_ids: wheelAssetIds,
         })

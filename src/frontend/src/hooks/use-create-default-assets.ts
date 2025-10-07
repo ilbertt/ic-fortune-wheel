@@ -13,7 +13,7 @@ export const useCreateDefaultAssets = () => {
 
   return useMutation({
     mutationFn: async () => {
-      return actor!.set_default_wheel_assets().then(extractOk);
+      return actor.set_default_wheel_assets().then(extractOk);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wheel-assets'] });

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { UserProfile } from '@/declarations/backend/backend.did';
+import { UserRole, type UserProfile } from '@/lib/api/backend/backend';
 import { useAuth } from '@/hooks/use-auth';
-import { enumKey, toastError } from '@/lib/utils';
+import { toastError } from '@/lib/utils';
 import { extractOk } from '@/lib/api';
 
 export type UseUserReturn = {
@@ -17,9 +17,9 @@ export type UseUserReturn = {
 const mapUser = (user: UserProfile): UseUserReturn['user'] => {
   return {
     ...user,
-    isAdmin: enumKey(user.role) === 'admin',
-    isScanner: enumKey(user.role) === 'scanner',
-    isUnassigned: enumKey(user.role) === 'unassigned',
+    isAdmin: user.role === UserRole.admin,
+    isScanner: user.role === UserRole.scanner,
+    isUnassigned: user.role === UserRole.unassigned,
   };
 };
 
@@ -29,7 +29,7 @@ export function useUser(): UseUserReturn {
 
   const createUserMutation = useMutation({
     mutationFn: async () => {
-      return actor!.create_my_user_profile().then(extractOk);
+      return actor.create_my_user_profile().then(extractOk);
     },
     onSuccess: newUser => {
       queryClient.setQueryData<UserProfile>(['user'], newUser);
@@ -40,8 +40,8 @@ export function useUser(): UseUserReturn {
   const { data: user } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
-      const res = await actor!.get_my_user_profile();
-      if ('ok' in res) {
+      const res = await actor.get_my_user_profile();
+      if (res.__kind__ === 'ok') {
         return res.ok;
       } else if (res.err.code === 404) {
         return createUserMutation.mutateAsync();
@@ -49,7 +49,7 @@ export function useUser(): UseUserReturn {
         throw res.err;
       }
     },
-    enabled: !!actor && isAuthenticated,
+    enabled: isAuthenticated,
     select: mapUser,
     meta: {
       errorMessage: 'Error fetching user profile',

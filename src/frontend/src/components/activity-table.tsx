@@ -3,7 +3,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { PrincipalDisplay } from '@/components/principal-display';
 import { UserProfile } from '@/components/user-profile';
-import type { WheelPrizeExtraction } from '@/declarations/backend/backend.did';
+import type { WheelPrizeExtraction } from '@/lib/api/backend/backend';
 import { WheelPrizeExtractionStateBadge } from '@/components/wheel-prize-extraction-state-badge';
 import { renderDatetime, renderUsdValue } from '@/lib/utils';
 import {
@@ -25,7 +25,7 @@ const ActivityTableTypeColumn = ({
   wheelPrizeExtraction,
 }: ActivityTableTypeColumnProps) => {
   const { data: wheelAsset } = useWheelAsset(
-    wheelPrizeExtraction.wheel_asset_id[0] || '',
+    wheelPrizeExtraction.wheel_asset_id || '',
   );
 
   return (
@@ -34,7 +34,7 @@ const ActivityTableTypeColumn = ({
       {wheelAsset ? (
         <Popover>
           <PopoverTrigger asChild>
-            {wheelAsset.wheel_image_path[0] && (
+            {wheelAsset.wheel_image_path && (
               <img
                 className="aspect-square max-h-6 max-w-6 cursor-pointer object-contain"
                 src={wheelAssetUrl(wheelAsset.wheel_image_path)!}
@@ -47,10 +47,9 @@ const ActivityTableTypeColumn = ({
           <PopoverContent>
             {wheelAsset.name}
             {isWheelPrizeExtractionCompleted(wheelPrizeExtraction.state) &&
-            wheelPrizeExtraction.state.completed.prize_usd_amount[0] !==
-              undefined
+            wheelPrizeExtraction.state.completed.prize_usd_amount !== undefined
               ? ` (${renderUsdValue(
-                  wheelPrizeExtraction.state.completed.prize_usd_amount[0],
+                  wheelPrizeExtraction.state.completed.prize_usd_amount,
                 )})`
               : null}
           </PopoverContent>

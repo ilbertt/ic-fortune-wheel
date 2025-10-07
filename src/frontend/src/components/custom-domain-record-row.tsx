@@ -1,4 +1,4 @@
-import type { CustomDomainRecord } from '@/declarations/backend/backend.did';
+import type { CustomDomainRecord } from '@/lib/api/backend/backend';
 import { CopyToClipboardButton } from '@/components/copy-to-clipboard-button';
 import { Badge } from '@/components/ui/badge';
 import { enumKey } from '@/lib/utils';
@@ -58,6 +58,7 @@ export const CustomDomainRecordRow: React.FC<{
     await updateCustomDomainRecord({
       id: record.id,
       bn_registration_state: {
+        __kind__: 'pending',
         pending: { bn_registration_id: bnRegistrationId },
       },
     });

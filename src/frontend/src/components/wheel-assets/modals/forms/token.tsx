@@ -21,14 +21,9 @@ import type {
   CreateWheelAssetRequest,
   CreateWheelAssetTypeConfig,
   Err,
-} from '@/declarations/backend/backend.did';
+} from '@/lib/api/backend/backend';
 import type { ZodProperties } from '@/lib/types/utils';
-import {
-  candidOpt,
-  fileFromBase64,
-  fileFromUrl,
-  renderError,
-} from '@/lib/utils';
+import { fileFromBase64, fileFromUrl, renderError } from '@/lib/utils';
 import { Principal } from '@icp-sdk/core/principal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtomValue } from 'jotai';
@@ -66,13 +61,13 @@ type CreateAssetTokenFormSchemaType = Omit<
   'asset_type_config' | 'wheel_ui_settings'
 > &
   Omit<
-    Extract<CreateWheelAssetTypeConfig, { token: unknown }>['token'],
+    Extract<CreateWheelAssetTypeConfig, { __kind__: 'token' }>['token'],
     'ledger_config' | 'exchange_rate_symbol'
   > & {
     exchange_rate_symbol: string | undefined;
   } & Extract<
     CreateWheelAssetTypeConfig,
-    { token: unknown }
+    { __kind__: 'token' }
   >['token']['ledger_config'] &
   ImagesFormFieldsProps;
 
@@ -116,7 +111,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
             decimals:
               existingWheelAsset.asset_type.token.ledger_config.decimals,
             exchange_rate_symbol:
-              existingWheelAsset.asset_type.token.exchange_rate_symbol[0],
+              existingWheelAsset.asset_type.token.exchange_rate_symbol,
             prize_usd_amount:
               existingWheelAsset.asset_type.token.prize_usd_amount,
             ledger_canister_id:
@@ -179,14 +174,13 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
           name: data.name,
           total_amount: data.total_amount,
           asset_type_config: {
+            __kind__: 'token',
             token: {
-              prize_usd_amount: candidOpt(data.prize_usd_amount),
-              exchange_rate_symbol: candidOpt(
-                data.exchange_rate_symbol || null,
-              ),
-              ledger_config: candidOpt({
-                decimals: candidOpt(data.decimals),
-              }),
+              prize_usd_amount: data.prize_usd_amount,
+              exchange_rate_symbol: data.exchange_rate_symbol,
+              ledger_config: {
+                decimals: data.decimals,
+              },
             },
           },
         })
@@ -194,14 +188,13 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
           name: data.name,
           total_amount: data.total_amount,
           asset_type_config: {
+            __kind__: 'token',
             token: {
               ledger_config: {
                 ledger_canister_id: data.ledger_canister_id,
                 decimals: data.decimals,
               },
-              exchange_rate_symbol: candidOpt(
-                data.exchange_rate_symbol || null,
-              ),
+              exchange_rate_symbol: data.exchange_rate_symbol,
               prize_usd_amount: data.prize_usd_amount,
             },
           },
@@ -266,7 +259,7 @@ export const AssetTokenForm: React.FC<AssetTokenFormProps> = ({
         );
         form.setValue(
           'exchange_rate_symbol',
-          tokenData.exchange_rate_symbol[0] || '',
+          tokenData.exchange_rate_symbol || '',
           validationSettings,
         );
 

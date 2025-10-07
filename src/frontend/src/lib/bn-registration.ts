@@ -2,7 +2,7 @@
  * Code inspired from https://github.com/junobuild/juno/blob/2d9ef8a96fa3585d547188bf2c7fa3ff1e6a813b/src/frontend/src/lib/rest/bn.rest.ts.
  */
 
-import type { Err } from '@/declarations/backend/backend.did';
+import type { Err } from '@/lib/api/backend/backend';
 import { isErr } from '@/lib/api';
 
 const BN_REGISTRATION_URL = 'https://icp0.io/registrations';

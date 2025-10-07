@@ -1,4 +1,4 @@
-import type { WheelPrize } from '@/declarations/backend/backend.did';
+import type { WheelPrize } from '@/lib/api/backend/backend';
 import { wheelAssetUrl } from '@/lib/wheel-asset';
 import { cn } from '@/lib/utils';
 
@@ -18,7 +18,7 @@ export const WheelPrizeNameWithIcon: React.FC<WheelPrizeNameWithIconProps> = ({
         className,
       )}
     >
-      {wheelPrize.wheel_image_path[0] && (
+      {wheelPrize.wheel_image_path && (
         <img
           className="aspect-square max-h-6 max-w-6 object-contain"
           src={wheelAssetUrl(wheelPrize.wheel_image_path)!}

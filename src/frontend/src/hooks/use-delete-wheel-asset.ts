@@ -9,7 +9,7 @@ export const useDeleteWheelAsset = () => {
 
   return useMutation({
     mutationFn: async (assetId: string) => {
-      const result = await actor?.delete_wheel_asset({ id: assetId });
+      const result = await actor.delete_wheel_asset({ id: assetId });
       return extractOk(result);
     },
     onSuccess: () => {

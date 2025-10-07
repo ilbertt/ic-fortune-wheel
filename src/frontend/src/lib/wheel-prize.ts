@@ -1,4 +1,4 @@
-import { type WheelPrize } from '@/declarations/backend/backend.did';
+import { type WheelPrize } from '@/lib/api/backend/backend';
 import { type WheelDataType } from 'react-custom-roulette';
 import { wheelAssetUrl } from '@/lib/wheel-asset';
 

@@ -1,10 +1,7 @@
-import { type UserRole } from '@/declarations/backend/backend.did';
-import type {
-  DropdownElement,
-  ExtractKeysFromCandidEnum,
-} from '@/lib/types/utils';
+import { UserRole } from '@/lib/api/backend/backend';
+import type { DropdownElement } from '@/lib/types/utils';
 
-export const USER_ROLES: Record<ExtractKeysFromCandidEnum<UserRole>, string> = {
+export const USER_ROLES: Record<UserRole, string> = {
   admin: 'Admin',
   scanner: 'Scanner',
   unassigned: 'Unassigned',

@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
   UpdateWheelAssetImageConfig,
   WheelAsset,
-} from '@/declarations/backend/backend.did';
+} from '@/lib/api/backend/backend';
 
 type UpsertWheelAssetImagesParams = {
   wheelAssetId: string;
@@ -31,9 +31,10 @@ export const useUpsertWheelAssetImages = () => {
       if (
         wheelImageFile instanceof File &&
         wheelImageFile.name !==
-          existingWheelAsset?.wheel_image_path[0]?.split('/').pop()
+          existingWheelAsset?.wheel_image_path?.split('/').pop()
       ) {
         toUpdate.push({
+          __kind__: 'wheel',
           wheel: {
             content_type: wheelImageFile.type,
             content_bytes: new Uint8Array(await wheelImageFile.arrayBuffer()),
@@ -43,9 +44,10 @@ export const useUpsertWheelAssetImages = () => {
       if (
         modalImageFile instanceof File &&
         modalImageFile.name !==
-          existingWheelAsset?.modal_image_path[0]?.split('/').pop()
+          existingWheelAsset?.modal_image_path?.split('/').pop()
       ) {
         toUpdate.push({
+          __kind__: 'modal',
           modal: {
             content_type: modalImageFile.type,
             content_bytes: new Uint8Array(await modalImageFile.arrayBuffer()),

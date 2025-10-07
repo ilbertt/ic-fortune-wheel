@@ -1,4 +1,4 @@
-import type { CustomDomainRecord } from '@/declarations/backend/backend.did';
+import type { CustomDomainRecord } from '@/lib/api/backend/backend';
 import {
   AlertDialog,
   AlertDialogAction,

@@ -1,5 +1,3 @@
-import type { CreateCustomDomainRecordRequest } from '@/declarations/backend/backend.did';
-import { type ZodProperties } from '@/lib/types/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -15,9 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useCreateCustomDomainRecord } from '@/hooks/use-create-custom-domain-record';
 
-type FormSchemaType = CreateCustomDomainRecordRequest;
-
-const formSchema = z.object<ZodProperties<FormSchemaType>>({
+const formSchema = z.object({
   domain_name: z
     .string()
     // Same checks as in the backend

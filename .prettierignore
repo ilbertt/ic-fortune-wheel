@@ -3,5 +3,5 @@ pnpm-lock.yaml
 **/routeTree.gen.ts
 **/dist/**
 **/out/**
-**/declarations/**
+src/frontend/src/lib/api/backend/**
 deps/

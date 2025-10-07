@@ -5,7 +5,7 @@ import {
 } from '@/lib/wheel-asset';
 import { useWheelAssets } from '@/hooks/use-wheel-assets';
 import { useMemo } from 'react';
-import type { WheelAsset } from '@/declarations/backend/backend.did';
+import type { WheelAsset } from '@/lib/api/backend/backend';
 
 type UseWheelAssetTokensReturnType = {
   tokenAssets: WheelAssetToken[];

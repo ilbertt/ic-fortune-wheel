@@ -1,4 +1,4 @@
-import type { WheelAssetType } from '@/declarations/backend/backend.did';
+import type { WheelAssetType } from '@/lib/api/backend/backend';
 import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { enumKey } from '@/lib/utils';
 import { capitalCase } from 'change-case';

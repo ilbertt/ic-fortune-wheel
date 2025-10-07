@@ -2,7 +2,7 @@ import type {
   CreateWheelAssetRequest,
   CreateWheelAssetTypeConfig,
   Err,
-} from '@/declarations/backend/backend.did';
+} from '@/lib/api/backend/backend';
 import {
   AssetNameSchema,
   AssetTotalAmountSchema,

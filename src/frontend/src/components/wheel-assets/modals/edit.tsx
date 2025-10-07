@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import type { WheelAsset } from '@/declarations/backend/backend.did';
+import type { WheelAsset } from '@/lib/api/backend/backend';
 import { Settings2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useAtom } from 'jotai';

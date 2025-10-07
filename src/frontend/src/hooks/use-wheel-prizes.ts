@@ -1,7 +1,7 @@
 import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { WheelPrize } from '@/declarations/backend/backend.did';
+import type { WheelPrize } from '@/lib/api/backend/backend';
 import { useWheelPrizeOrder } from '@/hooks/use-wheel-prize-order';
 import { useUpdateWheelAsset } from '@/hooks/use-update-wheel-asset';
 import { atom, Provider, useAtom } from 'jotai';
@@ -150,7 +150,7 @@ export const useWheelPrizes = (): UseWheelPrizesReturnType => {
   } = useQuery<WheelPrize[]>({
     queryKey: ['wheel-prizes'],
     queryFn: async () => {
-      const res = await actor!.list_wheel_prizes().then(extractOk);
+      const res = await actor.list_wheel_prizes().then(extractOk);
       setWheelPrizes(prev => {
         if (prev.isDirty || prev.orderedPrizes.length === res.length) {
           // If there are changes, don't update the prizes.
@@ -163,7 +163,6 @@ export const useWheelPrizes = (): UseWheelPrizesReturnType => {
       });
       return res;
     },
-    enabled: !!actor,
     refetchInterval: FETCH_WHEEL_PRIZES_INTERVAL_MS,
     meta: {
       errorMessage: 'Error fetching prizes',

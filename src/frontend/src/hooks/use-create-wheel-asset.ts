@@ -1,33 +1,20 @@
 import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
-import { candidOpt, toastError } from '@/lib/utils';
+import { toastError } from '@/lib/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
-  CreateWheelAssetTypeConfig,
-  WheelAssetUiSettings,
-} from '@/declarations/backend/backend.did';
-
-type CreateWheelAssetParams = {
-  name: string;
-  total_amount: number;
-  asset_type_config: CreateWheelAssetTypeConfig;
-  wheel_ui_settings?: WheelAssetUiSettings;
-};
+  CreateWheelAssetRequest,
+  Err,
+  WheelAsset,
+} from '@/lib/api/backend/backend';
 
 export const useCreateWheelAsset = () => {
   const { actor } = useAuth();
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (params: CreateWheelAssetParams) => {
-      return actor!
-        .create_wheel_asset({
-          name: params.name,
-          total_amount: params.total_amount,
-          asset_type_config: params.asset_type_config,
-          wheel_ui_settings: candidOpt(params.wheel_ui_settings),
-        })
-        .then(extractOk);
+  return useMutation<WheelAsset, Err, CreateWheelAssetRequest>({
+    mutationFn: async args => {
+      return actor.create_wheel_asset(args).then(extractOk);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wheel-assets'] });

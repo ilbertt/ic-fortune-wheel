@@ -368,7 +368,8 @@ type DeleteCustomDomainRecordResponse = variant {
   err : Err;
 };
 
-// HTTP
+// --- HTTP ---
+
 type HeaderField = record { text; text };
 
 type HttpRequest = record {
@@ -384,7 +385,8 @@ type HttpResponse = record {
   headers : vec HeaderField;
   body : blob;
 };
-// End HTTP
+
+// --- End HTTP ---
 
 service : {
   get_my_user_profile : () -> (GetMyUserProfileResponse) query;
@@ -417,7 +419,9 @@ service : {
   delete_custom_domain_record: (DeleteCustomDomainRecordRequest) -> (DeleteCustomDomainRecordResponse);
   list_custom_domain_records: () -> (ListCustomDomainRecordsResponse) query;
 
-  // HTTP
+  // --- HTTP ---
+
   http_request : (request : HttpRequest) -> (HttpResponse) query;
-  // End HTTP
+
+  // --- End HTTP ---
 }

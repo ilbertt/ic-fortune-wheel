@@ -1,7 +1,4 @@
-import type {
-  WheelAsset,
-  WheelAssetType,
-} from '@/declarations/backend/backend.did';
+import type { WheelAsset, WheelAssetType } from '@/lib/api/backend/backend';
 import type { ExtractKeysFromCandidEnum } from '@/lib/types/utils';
 import { enumKey } from '@/lib/utils';
 import { atom, type SetStateAction } from 'jotai';

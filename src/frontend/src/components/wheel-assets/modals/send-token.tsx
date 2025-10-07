@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { TransferTokenRequest } from '@/declarations/backend/backend.did';
+import type { TransferTokenRequest } from '@/lib/api/backend/backend';
 import { useLedgerCanisterMetadata } from '@/hooks/use-ledger-canister-metadata';
 import { PrincipalSchema } from '@/lib/forms';
 import type { ZodProperties } from '@/lib/types/utils';

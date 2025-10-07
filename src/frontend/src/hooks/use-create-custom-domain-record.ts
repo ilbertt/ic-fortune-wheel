@@ -1,4 +1,8 @@
-import type { CreateCustomDomainRecordRequest } from '@/declarations/backend/backend.did';
+import type {
+  CreateCustomDomainRecordRequest,
+  CustomDomainRecord,
+  Err,
+} from '@/lib/api/backend/backend';
 import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
 import { toastError } from '@/lib/utils';
@@ -8,9 +12,9 @@ export const useCreateCustomDomainRecord = () => {
   const { actor } = useAuth();
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<CustomDomainRecord, Err, CreateCustomDomainRecordRequest>({
     mutationFn: async (params: CreateCustomDomainRecordRequest) => {
-      return await actor!.create_custom_domain_record(params).then(extractOk);
+      return await actor.create_custom_domain_record(params).then(extractOk);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-domain-records'] });

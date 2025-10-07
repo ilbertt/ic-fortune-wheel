@@ -56,7 +56,7 @@ export const useLedgerCanisterMetadata = ({
         throw error;
       }
     },
-    enabled: !!ledgerCanisterIdProp && !!actor,
+    enabled: !!ledgerCanisterIdProp,
     meta: {
       errorMessage: 'Error fetching ledger canister metadata',
     },

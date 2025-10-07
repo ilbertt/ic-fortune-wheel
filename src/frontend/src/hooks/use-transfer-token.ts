@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
-import type { TransferTokenRequest } from '@/declarations/backend/backend.did';
+import type { TransferTokenRequest } from '@/lib/api/backend/backend';
 import { extractOk } from '@/lib/api';
 import { toastError } from '@/lib/utils';
 import { useRefreshTokenAssets } from '@/hooks/use-refresh-token-assets';

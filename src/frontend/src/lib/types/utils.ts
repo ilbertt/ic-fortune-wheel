@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-export type GenericCandidEnum = { [key: string]: unknown };
+export type GenericCandidEnum<T extends string = string> = {
+  __kind__: T;
+} & { [K in T]: unknown };
 
 export type ExtractKeysFromCandidEnum<T> = T extends GenericCandidEnum
   ? keyof T

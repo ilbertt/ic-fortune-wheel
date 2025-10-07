@@ -1,7 +1,4 @@
-import type {
-  CreateWheelAssetRequest,
-  Err,
-} from '@/declarations/backend/backend.did';
+import type { CreateWheelAssetRequest, Err } from '@/lib/api/backend/backend';
 import type { ZodProperties } from '@/lib/types/utils';
 import { useAtomValue } from 'jotai';
 import { z } from 'zod';
@@ -14,7 +11,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/hooks/use-toast';
-import { candidOpt, renderError } from '@/lib/utils';
+import { renderError } from '@/lib/utils';
 import {
   Form,
   FormControl,
@@ -80,7 +77,7 @@ export const AssetGadgetForm: React.FC<AssetGadgetFormProps> = ({
           return {
             name: existingWheelAsset.name,
             total_amount: existingWheelAsset.total_amount,
-            article_type: existingWheelAsset.asset_type.gadget.article_type[0],
+            article_type: existingWheelAsset.asset_type.gadget.article_type,
             wheel_image_file: wheelImageFile,
             modal_image_file: modalImageFile,
           };
@@ -101,8 +98,9 @@ export const AssetGadgetForm: React.FC<AssetGadgetFormProps> = ({
           name: data.name,
           total_amount: data.total_amount,
           asset_type_config: {
+            __kind__: 'gadget',
             gadget: {
-              article_type: candidOpt(data.article_type),
+              article_type: data.article_type,
             },
           },
         })
@@ -110,8 +108,9 @@ export const AssetGadgetForm: React.FC<AssetGadgetFormProps> = ({
           name: data.name,
           total_amount: data.total_amount,
           asset_type_config: {
+            __kind__: 'gadget',
             gadget: {
-              article_type: candidOpt(data.article_type),
+              article_type: data.article_type,
             },
           },
         });

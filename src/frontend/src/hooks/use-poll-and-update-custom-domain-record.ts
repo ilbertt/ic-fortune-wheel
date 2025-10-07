@@ -1,7 +1,7 @@
 import { getBnRegistration } from '@/lib/bn-registration';
 import { useQuery } from '@tanstack/react-query';
 import { useUpdateCustomDomainRecord } from '@/hooks/use-update-custom-domain-record';
-import type { CustomDomainRecord } from '@/declarations/backend/backend.did';
+import type { CustomDomainRecord } from '@/lib/api/backend/backend';
 import { bnRegistrationIdFromBnRegistrationState } from '@/lib/custom-domain-record';
 
 const POLL_INTERVAL_MS = 10_000;
@@ -33,6 +33,7 @@ export const usePollAndUpdateCustomDomainRecord = ({
         await updateCustomDomainRecord({
           id: record.id,
           bn_registration_state: {
+            __kind__: 'registered',
             registered: { bn_registration_id: bnRegistrationId! },
           },
         });
@@ -48,6 +49,7 @@ export const usePollAndUpdateCustomDomainRecord = ({
         await updateCustomDomainRecord({
           id: record.id,
           bn_registration_state: {
+            __kind__: 'failed',
             failed: {
               bn_registration_id: bnRegistrationId!,
               error_message: errorMessage,
@@ -58,6 +60,7 @@ export const usePollAndUpdateCustomDomainRecord = ({
         await updateCustomDomainRecord({
           id: record.id,
           bn_registration_state: {
+            __kind__: 'pending',
             pending: { bn_registration_id: bnRegistrationId! },
           },
         });

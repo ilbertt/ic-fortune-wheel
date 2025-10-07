@@ -1,4 +1,4 @@
-import type { Err } from '@/declarations/backend/backend.did';
+import type { Err } from '@/lib/api/backend/backend';
 import {
   deleteBnRegistration,
   type DeleteBnRegistrationRequestParams,
