@@ -1,4 +1,4 @@
-import { WheelAsset } from '@/declarations/backend/backend.did';
+import { WheelAsset } from '@/lib/api/backend/backend';
 import { useWheelAssets } from './use-wheel-assets';
 import { useCallback } from 'react';
 

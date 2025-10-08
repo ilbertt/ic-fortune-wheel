@@ -1,7 +1,7 @@
-import type { WheelPrizeExtractionState } from '@/declarations/backend/backend.did';
+import type { WheelPrizeExtractionState } from '@/lib/api/backend/backend';
 
 export const isWheelPrizeExtractionCompleted = (
   state: WheelPrizeExtractionState,
-): state is Extract<WheelPrizeExtractionState, { completed: unknown }> => {
-  return 'completed' in state;
+): state is Extract<WheelPrizeExtractionState, { __kind__: 'completed' }> => {
+  return state.__kind__ === 'completed';
 };

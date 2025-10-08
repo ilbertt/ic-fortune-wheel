@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { config as dotenvConfig } from 'dotenv';
 import tailwindcss from '@tailwindcss/vite';
+import { icpBindgen } from '@icp-sdk/bindgen/plugins/vite';
 
 const dfxEnvList = dotenvConfig({ path: '../../.env' }).parsed || {};
 const DFX_NETWORK = dfxEnvList.DFX_NETWORK;
@@ -34,6 +35,10 @@ export default defineConfig({
     react(),
     reactScan(),
     tailwindcss(),
+    icpBindgen({
+      didFile: '../backend/api/backend.did',
+      outDir: './src/lib/api/backend',
+    }),
   ],
   resolve: {
     alias: {

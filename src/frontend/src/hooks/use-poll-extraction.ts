@@ -23,18 +23,17 @@ export const usePollExtraction = () => {
       // eslint-disable-next-line no-console
       console.log('FORTUNE WHEEL: Polling extraction...');
 
-      const res = await actor!
+      const newExtraction = await actor
         .get_last_wheel_prize_extraction()
         .then(extractOk);
-      const newExtraction = res[0];
 
       if (
         newExtraction &&
         newExtraction.id !== lastExtractionIdRef.current &&
         isWheelPrizeExtractionCompleted(newExtraction.state) &&
-        newExtraction.wheel_asset_id[0]
+        newExtraction.wheel_asset_id
       ) {
-        spinPrizeByWheelAssetId(newExtraction.wheel_asset_id[0]);
+        spinPrizeByWheelAssetId(newExtraction.wheel_asset_id);
         lastExtractionIdRef.current = newExtraction.id;
         // eslint-disable-next-line no-console
         console.log(
@@ -48,7 +47,7 @@ export const usePollExtraction = () => {
 
       return newExtraction || null;
     },
-    enabled: !!actor && hasPrizes,
+    enabled: hasPrizes,
     refetchInterval: LAST_EXTRACTION_POLLING_INTERVAL_MS,
     // Do not notify on any changes, so that we don't re-render the component
     // at every polling iteration

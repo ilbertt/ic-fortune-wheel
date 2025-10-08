@@ -14,7 +14,7 @@ export const useRefreshTokenAssets = () => {
       if (!user || !user.isAdmin) {
         return;
       }
-      await actor!
+      await actor
         .fetch_tokens_data()
         .then(extractOk)
         // wait for the backend to update the tokens

@@ -1,13 +1,12 @@
 import { createContext } from 'react';
 import { useAuthClient } from '@dfinity/use-auth-client';
-import { type ActorSubclass } from '@icp-sdk/core/agent';
-import { type _SERVICE } from '@/declarations/backend/backend.did';
+import { type backendInterface } from '@/lib/api/backend/backend';
 
 export type AuthContextType = Omit<
   ReturnType<typeof useAuthClient>,
   'actor' | 'actors'
 > & {
-  actor: ActorSubclass<_SERVICE>;
+  actor: backendInterface;
 };
 
 export const AuthContext = createContext<AuthContextType>(

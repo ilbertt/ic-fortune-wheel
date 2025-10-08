@@ -1,4 +1,4 @@
-import type { WheelPrize } from '@/declarations/backend/backend.did';
+import type { WheelPrize } from '@/lib/api/backend/backend';
 import { useMemo } from 'react';
 
 type UseWheelPrizesProbabilityParams<T extends WheelPrize> = {

@@ -1,48 +1,48 @@
-import type {
-  WheelAsset,
+import {
+  type WheelAsset,
   WheelAssetState,
-  WheelAssetType,
-} from '@/declarations/backend/backend.did';
-import { bigIntToFloat, enumKey, fileFromUrl } from '@/lib/utils';
+  type WheelAssetType,
+} from '@/lib/api/backend/backend';
+import { bigIntToFloat, fileFromUrl } from '@/lib/utils';
 import { canisterId } from '@/lib/api';
 
 export type WheelAssetToken = Omit<WheelAsset, 'asset_type'> & {
-  asset_type: Extract<WheelAssetType, { token: unknown }>;
+  asset_type: Extract<WheelAssetType, { __kind__: 'token' }>;
 };
 export type WheelAssetGadget = Omit<WheelAsset, 'asset_type'> & {
-  asset_type: Extract<WheelAssetType, { gadget: unknown }>;
+  asset_type: Extract<WheelAssetType, { __kind__: 'gadget' }>;
 };
 export type WheelAssetJackpot = Omit<WheelAsset, 'asset_type'> & {
-  asset_type: Extract<WheelAssetType, { jackpot: unknown }>;
+  asset_type: Extract<WheelAssetType, { __kind__: 'jackpot' }>;
 };
 export type WheelAssetEnabled = Omit<WheelAsset, 'state'> & {
-  state: Extract<WheelAssetState, { enabled: null }>;
+  state: WheelAssetState.enabled;
 };
 export type WheelAssetDisabled = Omit<WheelAsset, 'state'> & {
-  state: Extract<WheelAssetState, { disabled: null }>;
+  state: WheelAssetState.disabled;
 };
 
 export type WheelAssetTypeJackpot = Extract<
   WheelAssetType,
-  { jackpot: unknown }
+  { __kind__: 'jackpot' }
 >;
 
 export const isWheelAssetTypeToken = (
   assetType: WheelAssetType,
-): assetType is Extract<WheelAssetType, { token: unknown }> => {
-  return 'token' in assetType;
+): assetType is Extract<WheelAssetType, { __kind__: 'token' }> => {
+  return assetType.__kind__ === 'token';
 };
 
 export const isWheelAssetTypeGadget = (
   assetType: WheelAssetType,
-): assetType is Extract<WheelAssetType, { gadget: unknown }> => {
-  return 'gadget' in assetType;
+): assetType is Extract<WheelAssetType, { __kind__: 'gadget' }> => {
+  return assetType.__kind__ === 'gadget';
 };
 
 export const isWheelAssetTypeJackpot = (
   assetType: WheelAssetType,
-): assetType is Extract<WheelAssetType, { jackpot: unknown }> => {
-  return 'jackpot' in assetType;
+): assetType is Extract<WheelAssetType, { __kind__: 'jackpot' }> => {
+  return assetType.__kind__ === 'jackpot';
 };
 
 export const isWheelAssetToken = (
@@ -64,7 +64,7 @@ export const isWheelAssetJackpot = (
 };
 
 export const wheelAssetBalance = (asset: WheelAssetToken): number => {
-  const balance = asset.asset_type.token.balance[0]?.balance;
+  const balance = asset.asset_type.token.balance?.balance;
   if (!balance) {
     return 0;
   }
@@ -75,7 +75,7 @@ export const wheelAssetBalance = (asset: WheelAssetToken): number => {
 export const wheelAssetTokenTotalUsdValue = (
   asset: WheelAssetToken,
 ): number => {
-  const usdPrice = asset.asset_type.token.usd_price[0];
+  const usdPrice = asset.asset_type.token.usd_price;
   const balance = wheelAssetBalance(asset);
 
   return usdPrice ? usdPrice.usd_price * balance : 0;
@@ -110,13 +110,13 @@ export const wheelAssetsUsdValueSum = (assets: WheelAsset[]): number => {
 export const isWheelAssetEnabled = (
   asset: WheelAsset,
 ): asset is WheelAssetEnabled => {
-  return enumKey(asset.state) === 'enabled';
+  return asset.state === WheelAssetState.enabled;
 };
 
 export const isWheelAssetDisabled = (
   asset: WheelAsset,
 ): asset is WheelAssetDisabled => {
-  return enumKey(asset.state) === 'disabled';
+  return asset.state === WheelAssetState.disabled;
 };
 
 export const wheelAssetUrl = (
@@ -125,14 +125,13 @@ export const wheelAssetUrl = (
     | WheelAsset['modal_image_path']
     | undefined,
 ): string | undefined => {
-  if (!imagePath || !imagePath[0]) {
+  if (!imagePath) {
     return undefined;
   }
-  let path = imagePath[0];
   if (import.meta.env.DEV) {
-    path = `http://${canisterId}.localhost:4943${path}`;
+    imagePath = `http://${canisterId}.localhost:4943${imagePath}`;
   }
-  return path;
+  return imagePath;
 };
 
 export const existingWheelAssetImagesFiles = async (

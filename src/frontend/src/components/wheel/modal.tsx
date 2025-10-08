@@ -46,7 +46,7 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
         <X className="lg:size-6! xl:size-8!" />
       </Button>
       <h1 className="text-center text-5xl font-bold xl:text-[6vw]">YOU WON!</h1>
-      {currentPrize.prize.modal_image_path[0] && (
+      {currentPrize.prize.modal_image_path && (
         <img
           className="modal-image-animation h-2/5 w-auto"
           src={wheelAssetUrl(currentPrize.prize.modal_image_path)!}
@@ -56,8 +56,8 @@ export const FortuneWheelModal: React.FC<FortuneWheelModalProps> = ({
         />
       )}
       <div className="prize-name-animation bg-ic-gradient rounded-xl px-4 py-2 text-3xl font-bold xl:text-5xl">
-        {currentPrize.prize.prize_usd_amount[0]
-          ? `${renderUsdValue(currentPrize.prize.prize_usd_amount[0])} in `
+        {currentPrize.prize.prize_usd_amount
+          ? `${renderUsdValue(currentPrize.prize.prize_usd_amount)} in `
           : ''}
         {currentPrize.prize.name}
       </div>

@@ -1,4 +1,4 @@
-import type { UserProfile } from '@/declarations/backend/backend.did';
+import type { UserProfile } from '@/lib/api/backend/backend';
 
 export const userInitials = <T extends UserProfile>(user: T): string => {
   const names = user.username

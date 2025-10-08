@@ -1,4 +1,4 @@
-import type { WheelPrize } from '@/declarations/backend/backend.did';
+import type { WheelPrize } from '@/lib/api/backend/backend';
 import { mapPrizesToWheelData } from '@/lib/wheel-prize';
 import { useMemo } from 'react';
 import { type WheelDataType } from 'react-custom-roulette';

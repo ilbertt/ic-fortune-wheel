@@ -1,7 +1,4 @@
-import type {
-  CustomDomainRecord,
-  Err,
-} from '@/declarations/backend/backend.did';
+import type { CustomDomainRecord, Err } from '@/lib/api/backend/backend';
 import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
@@ -17,9 +14,8 @@ export function useCustomDomainRecords(): UseCustomDomainRecordsReturnType {
   return useQuery({
     queryKey: ['custom-domain-records'],
     queryFn: async () => {
-      return await actor!.list_custom_domain_records().then(extractOk);
+      return await actor.list_custom_domain_records().then(extractOk);
     },
-    enabled: !!actor,
     meta: {
       errorMessage: 'Error fetching custom domain records',
     },

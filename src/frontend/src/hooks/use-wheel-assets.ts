@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/use-auth';
-import type { WheelAsset } from '@/declarations/backend/backend.did';
+import type { WheelAsset } from '@/lib/api/backend/backend';
 import { extractOk } from '@/lib/api';
 import { useUser } from '@/hooks/use-user';
 import { useQuery } from '@tanstack/react-query';
@@ -20,10 +20,10 @@ export const useWheelAssets = <T>(
   const { data, isLoading: fetchingAssets } = useQuery({
     queryKey: ['wheel-assets'],
     queryFn: async () => {
-      const response = await actor!.list_wheel_assets({ state: [] });
+      const response = await actor.list_wheel_assets({});
       return extractOk(response);
     },
-    enabled: !!actor && user?.isAdmin,
+    enabled: user?.isAdmin,
     select: select,
     refetchInterval: FETCH_WHEEL_ASSETS_INTERVAL_MS,
     meta: {

@@ -19,9 +19,7 @@ import { USER_ROLE_OPTIONS } from '@/constants/user';
 import type {
   UserProfile as UserProfileType,
   UserRole,
-} from '@/declarations/backend/backend.did';
-import type { ExtractKeysFromCandidEnum } from '@/lib/types/utils';
-import { enumKey } from '@/lib/utils';
+} from '@/lib/api/backend/backend';
 import { UserMinus2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import {
@@ -52,17 +50,15 @@ type TeamMemberRowProps = {
 const TeamMemberRow: React.FC<TeamMemberRowProps> = ({ member }) => {
   const { user } = useUser();
   const isCurrentUser = member.id === user?.id;
-  const [role, setRole] = useState<ExtractKeysFromCandidEnum<UserRole>>(
-    enumKey(member.role),
-  );
+  const [role, setRole] = useState<UserRole>(member.role);
   const { mutate: deleteUser, isPending: isDeleting } = useDeleteUser();
   const { mutate: updateUser, isPending: isUpdating } = useUpdateUser();
 
   const handleRoleChange = useCallback(
-    (value: string) => {
-      const newRole = value as ExtractKeysFromCandidEnum<UserRole>;
+    (value: UserRole) => {
+      const newRole = value;
       setRole(newRole);
-      updateUser({ userId: member.id, role: newRole });
+      updateUser({ user_id: member.id, role: newRole });
     },
     [member.id, updateUser],
   );

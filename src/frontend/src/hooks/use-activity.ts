@@ -1,8 +1,5 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
-import type {
-  Err,
-  WheelPrizeExtraction,
-} from '@/declarations/backend/backend.did';
+import type { Err, WheelPrizeExtraction } from '@/lib/api/backend/backend';
 import { useAuth } from '@/hooks/use-auth';
 import { extractOk } from '@/lib/api';
 import { useUser } from '@/hooks/use-user';
@@ -13,14 +10,14 @@ type ActivityData = WheelPrizeExtraction[];
 
 export function useActivity(): UseQueryResult<ActivityData, Err> {
   const { actor } = useAuth();
-  const { isCurrentUserAdmin } = useUser();
+  const { user } = useUser();
 
   return useQuery<ActivityData, Err>({
     queryKey: ['activity'],
     queryFn: async () => {
-      return await actor!.list_wheel_prize_extractions().then(extractOk);
+      return await actor.list_wheel_prize_extractions().then(extractOk);
     },
-    enabled: !!actor && isCurrentUserAdmin,
+    enabled: user?.isAdmin,
     meta: {
       errorMessage: 'Error fetching activity',
     },

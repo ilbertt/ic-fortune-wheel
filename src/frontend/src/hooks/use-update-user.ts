@@ -1,27 +1,16 @@
 import { useAuth } from '@/hooks/use-auth';
-import type { UserRole } from '@/declarations/backend/backend.did';
+import type { Err, UpdateUserProfileRequest } from '@/lib/api/backend/backend';
 import { extractOk } from '@/lib/api';
-import type { ExtractKeysFromCandidEnum } from '@/lib/types/utils';
-import { candidOpt, toastError, toCandidEnum } from '@/lib/utils';
+import { toastError } from '@/lib/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-type UpdateUserParams = {
-  userId: string;
-  username?: string;
-  role?: ExtractKeysFromCandidEnum<UserRole>;
-};
 
 export const useUpdateUser = () => {
   const { actor } = useAuth();
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ userId, role, username }: UpdateUserParams) => {
-      const result = await actor?.update_user_profile({
-        user_id: userId,
-        username: candidOpt(username),
-        role: role ? [toCandidEnum(role)] : [],
-      });
+  return useMutation<null, Err, UpdateUserProfileRequest>({
+    mutationFn: async args => {
+      const result = await actor.update_user_profile(args);
       return extractOk(result);
     },
     onSuccess: () => {

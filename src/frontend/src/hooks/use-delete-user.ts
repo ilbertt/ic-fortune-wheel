@@ -9,7 +9,7 @@ export const useDeleteUser = () => {
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      const result = await actor?.delete_user_profile({ user_id: userId });
+      const result = await actor.delete_user_profile({ user_id: userId });
       return extractOk(result);
     },
     onSuccess: () => {

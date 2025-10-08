@@ -1,6 +1,5 @@
-import type { UserRole } from '@/declarations/backend/backend.did';
+import { UserRole } from '@/lib/api/backend/backend';
 import { Badge, type BadgeProps } from '@/components/ui/badge';
-import { enumKey } from '@/lib/utils';
 import { USER_ROLES } from '@/constants/user';
 
 type UserRoleBadgeProps = BadgeProps & {
@@ -11,5 +10,5 @@ export const UserRoleBadge: React.FC<UserRoleBadgeProps> = ({
   userRole,
   ...props
 }) => {
-  return <Badge {...props}>{USER_ROLES[enumKey(userRole)]}</Badge>;
+  return <Badge {...props}>{USER_ROLES[userRole]}</Badge>;
 };

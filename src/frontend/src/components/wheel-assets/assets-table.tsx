@@ -1,10 +1,11 @@
 import { AssetTypeBadge } from '@/components/asset-type-badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
-import type {
-  WheelAsset,
-  WheelAssetType,
-} from '@/declarations/backend/backend.did';
+import {
+  WheelAssetState,
+  type WheelAsset,
+  type WheelAssetType,
+} from '@/lib/api/backend/backend';
 import { renderUsdValue } from '@/lib/utils';
 import {
   isWheelAssetDisabled,
@@ -42,7 +43,7 @@ const AssetStateToggle: React.FC<AssetStateToggleProps> = ({ asset }) => {
   const handleToggle = () => {
     updateWheelAsset.mutate({
       id: asset.id,
-      state: isDisabled ? 'enabled' : 'disabled',
+      state: isDisabled ? WheelAssetState.enabled : WheelAssetState.disabled,
     });
   };
 

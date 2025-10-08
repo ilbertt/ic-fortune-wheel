@@ -17,7 +17,7 @@ export const useDeleteCustomDomainRecord = () => {
       recordId: string;
       bnRegistrationId?: string;
     }) => {
-      const res = await actor!
+      const res = await actor
         .delete_custom_domain_record({ id: recordId })
         .then(extractOk);
 

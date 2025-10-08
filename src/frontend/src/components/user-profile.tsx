@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { UserIdDisplay } from '@/components/user-id-display';
-import type { UserProfile as UserProfileType } from '@/declarations/backend/backend.did';
+import type { UserProfile as UserProfileType } from '@/lib/api/backend/backend';
 import { useUser } from '@/hooks/use-user';
 import { userInitials } from '@/lib/user';
 

@@ -1,6 +1,6 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
-import type { UserProfile, Err } from '@/declarations/backend/backend.did';
+import type { UserProfile, Err } from '@/lib/api/backend/backend';
 import { extractOk } from '@/lib/api';
 import { useCallback } from 'react';
 
@@ -19,7 +19,7 @@ export function useTeamMembers(): UseTeamMembersReturnType {
   const query = useQuery<TeamMembersData, Err>({
     queryKey: ['team-members'],
     queryFn: async () => {
-      const members = await actor!.list_users().then(extractOk);
+      const members = await actor.list_users().then(extractOk);
       if (!members) {
         return { teamMembers: {}, teamMembersList: [] };
       }
@@ -37,7 +37,6 @@ export function useTeamMembers(): UseTeamMembersReturnType {
         teamMembersList: members,
       };
     },
-    enabled: !!actor,
     meta: {
       errorMessage: 'Error fetching team members',
     },

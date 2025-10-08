@@ -1,4 +1,4 @@
-import type { Err as ApiError } from '@/declarations/backend/backend.did';
+import type { Err as ApiError } from '@/lib/api/backend/backend';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import type {
@@ -28,14 +28,9 @@ export const renderError = (err: ApiError): string =>
 export const enumKey = <T extends GenericCandidEnum>(
   enumObj: T,
 ): ExtractKeysFromCandidEnum<T> => {
-  return Object.keys(enumObj)[0] as ExtractKeysFromCandidEnum<T>;
-};
-
-export const toCandidEnum = <T extends GenericCandidEnum>(
-  key: ExtractKeysFromCandidEnum<T>,
-  val = null,
-): T => {
-  return { [key]: val } as T;
+  return Object.keys(enumObj).filter(
+    key => key !== '__kind__',
+  )[0] as ExtractKeysFromCandidEnum<T>;
 };
 
 export const renderUsdValue = (usdValue: number): string => {
@@ -74,13 +69,6 @@ export const renderNumberWithDigits = (
 ): string | undefined => {
   const numericValue = parseFormattedNumber(value);
   return numericValue?.toLocaleString(DEFAULT_LOCALE, options);
-};
-
-export const candidOpt = <T>(opt: T | null | undefined): [] | [T] => {
-  if (opt === null || opt === undefined) {
-    return [];
-  }
-  return [opt];
 };
 
 export const formatBytes = (bytes: string | number, decimals = 2) => {

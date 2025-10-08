@@ -42,7 +42,7 @@ import { useWheelAssets } from '@/hooks/use-wheel-assets';
 import { SendTokenModal } from '@/components/wheel-assets/modals/send-token';
 import { useWheelAssetTokens } from '@/hooks/use-wheel-asset-tokens';
 import { useCreateDefaultAssets } from '@/hooks/use-create-default-assets';
-import type { WheelAsset } from '@/declarations/backend/backend.did';
+import type { WheelAsset } from '@/lib/api/backend/backend';
 import { useRefreshTokenAssets } from '@/hooks/use-refresh-token-assets';
 import { useWheelAssetTokensUsdValueSum } from '@/hooks/use-wheel-asset-tokens-usd-value-sum';
 

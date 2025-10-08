@@ -1,8 +1,7 @@
 import { useAuthClient } from '@dfinity/use-auth-client';
-import { type ActorSubclass } from '@icp-sdk/core/agent';
-import { type _SERVICE, idlFactory } from '@/declarations/backend/backend.did';
 import { canisterId } from '@/lib/api';
 import { AuthContext } from '@/contexts/auth-context';
+import { createActor } from '@/lib/api/backend/backend';
 
 const IS_LOCAL = import.meta.env.VITE_DFX_NETWORK === 'local';
 const IS_PRODUCTION =
@@ -18,7 +17,7 @@ type AuthProviderProps = {
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const { actor, identity, isAuthenticated, authClient, login, logout } =
+  const { identity, isAuthenticated, authClient, login, logout } =
     useAuthClient({
       loginOptions: {
         identityProvider: IDENTITY_PROVIDER_URL,
@@ -36,10 +35,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           disableIdle: true,
         },
       },
-      actorOptions: {
-        canisterId,
-        idlFactory,
-      },
     });
 
   // Typescript doesn't know that authClient can be null. In this case, the
@@ -51,7 +46,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        actor: actor as unknown as ActorSubclass<_SERVICE>,
+        actor: createActor(canisterId, {
+          agentOptions: {
+            identity: identity || undefined,
+            shouldFetchRootKey: IS_LOCAL,
+          },
+        }),
         authClient,
         identity,
         isAuthenticated,

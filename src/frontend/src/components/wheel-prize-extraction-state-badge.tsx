@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import type { WheelPrizeExtractionState } from '@/declarations/backend/backend.did';
+import type { WheelPrizeExtractionState } from '@/lib/api/backend/backend';
 import { renderError } from '@/lib/utils';
 
 interface WheelPrizeExtractionStateProps {
@@ -15,7 +15,7 @@ interface WheelPrizeExtractionStateProps {
 export function WheelPrizeExtractionStateBadge({
   state,
 }: WheelPrizeExtractionStateProps) {
-  if ('completed' in state) {
+  if (state.__kind__ === 'completed') {
     return (
       <Badge variant="success">
         <CheckCircle2 />
@@ -24,7 +24,7 @@ export function WheelPrizeExtractionStateBadge({
     );
   }
 
-  if ('processing' in state) {
+  if (state.__kind__ === 'processing') {
     return (
       <Badge variant="warning">
         <Clock />
@@ -33,7 +33,7 @@ export function WheelPrizeExtractionStateBadge({
     );
   }
 
-  if ('failed' in state) {
+  if (state.__kind__ === 'failed') {
     return (
       <Popover>
         <PopoverTrigger asChild>
